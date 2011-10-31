@@ -36,7 +36,9 @@ class App(object):
       funcs = { "on_Main_destroy" : gtk.main_quit,
                 "on_e_funcao_activate": self.calculate,
                 "on_calcular_clicked": self.calculate,
-                "on_e_funcao_press" : self.calculate
+                "on_e_funcao_press" : self.calculate,
+                "on_sobre_activate" : self.mostrar_sobre,
+                "on_About_response" : self.sobre_response
                 }
       self.struct.signal_autoconnect(funcs) # ligue o mapa de funções para os objetos da aplicação
 
@@ -49,7 +51,12 @@ class App(object):
       self.imprimir("Calculando a função %s :" % widget.get_text()) # imprima a função dada pelo úsuario
       self.separar_membros(widget.get_text()) # separe os membros
 
-      
+   def sobre_response(self, widget, arg):
+      widget.hide()
+
+   def mostrar_sobre(self, widget):
+      widget.show()
+
    def imprimir(self, texto):
       """
          Imprima o texto na saida da aplicação.
@@ -90,17 +97,18 @@ class App(object):
          try: # tente 
             a,b,c = somar_semelhantes(membro) # somar todos os números obtidos da separação dos coeficientes
          except: # caso haja algo errado na equação será retornado um valor Nulo
-            self.imprimir(self.msgErr) # imprima o erro na saida para o úsuario
+            self.imprimir(self.mgsErr) # imprima o erro na saida para o úsuario
             return # retorne a função
          # se tudo ocorrer bem
          # então calcule usando a formula de Baskara formatando de um modo legivel ao úsuario e imprima o resultado na saida.
          self.imprimir(mostrarResultado(Baskara(a,b,c)))
       else: # se no segundo membro houver variaveis ou sinais
+         print membros
          resultado = mesclar_membros(membros) # conjugue os membros.
          try: #tente
             a,b,c = resultado # separar a lista de valores obtidos em variaveis
          except: # caso haja algo errado na equação será retornado um valor Nulo
-            self.imprimir(self.msgErr) # imprima o erro na saida para o úsuario
+            self.imprimir(self.mgsErr) # imprima o erro na saida para o úsuario
             return # retorne a função
          # se tudo ocorrer bem
          # então calcule usando a formula de Baskara formatando de um modo legivel ao úsuario e imprima o resultado na saida.

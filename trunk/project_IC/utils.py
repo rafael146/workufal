@@ -48,22 +48,38 @@ def separar_coeficientes(membro):
             return  # retorne um valor vazio.
         if not membro[i].isalnum(): # se o membro não for número nem letra, provavelmente será um sinal
             if signal or (i > 0 and last == 0):  # se já tiver encontrado outro sinal antes ou o ultimo indice usado é 0
+                print "adicionando a números 1 ", membro[last:i]
                 numeros["var"].append(membro[last:i]) # add o valor na lista de números
                 last = i # estabeleça o último indice usado
-                signal = False # limpe o valor de signal encontrado
+                if signal:
+                    signal = False # limpe o valor de signal encontrado
+                else:
+                    signal = True
             else: # se for o primeiro sinal encontrado
                 signal = True
         elif membro[i] == "x": #se o charactere no indice for a variavel x
             if membro[i+1:i+3] == "²": # se o proximo caractere for ²
-                numeros["x2"].append(membro[last:i]) # add o número na lista de coeficientes de X²
+                if(membro[last:i] == "" or membro[last:i] == "+"): # se o intervalo até a variavel for vazia então o número é 1
+                    numeros["x2"].append("1")
+                elif(membro[last:i] == "-"):
+                     numeros["x2"].append("-1")
+                else:
+                    numeros["x2"].append(membro[last:i]) # add o número na lista de coeficientes de X²
                 i +=3 # incremente o indice até o último caractere usado
                 last = i # estabeleça o último indice usado
             else: # se o proximo caracterer não for ²
-                numeros["x"].append(membro[last:i]) # add o número na lista de coeficientes de x
+                if(membro[last:i] == "" or membro[last:i] == "+"):
+                    numeros["x"].append("1")
+                elif(membro[last:i] == "-"):
+                    numeros["x"].append("-1")
+                else:
+                    numeros["x"].append(membro[last:i]) # add o número na lista de coeficientes de x
                 last = i+1 # estabeleça o último indice usado
         elif i == len(membro)-1: # se for o último caractere e for um número
+            print "adicionando a numeros 2", membro[last:1]
             numeros["var"].append(membro[last:]) # add o número na lista de números
         i+=1 # incremente o indice a cada loop.
+    print numeros
     return numeros # retorne o dicionario de valor
 
 def somar_semelhantes(membro):

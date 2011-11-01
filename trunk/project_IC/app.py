@@ -24,7 +24,7 @@ class App(object):
       """
          Construtor da Classe.
       """
-      self.mgsErr = "//!\\\ Função Invalida\n" # definindo a mensagem de função invalida.
+      self.msgErr = "//!\\\ Função Invalida\n" # definindo a mensagem de função invalida.
       self.struct = gtk.glade.XML("app.glade") # ligação com o arquivo xml gerado pelo glade.
       self.window = self.struct.get_widget("Main") # obtenha a principal janela da aplicação.
       self.window.set_size_request(400, 200)  # estabeleça o tamanho inicial da aplicação.
@@ -84,7 +84,7 @@ class App(object):
          try: # tente 
             a,b,c = somar_semelhantes(membro) # somar todos os números obtidos da separação dos coeficientes
          except: # caso haja algo errado na equação será retornado um valor Nulo
-            self.imprimir(self.mgsErr) # imprima o erro na saida para o úsuario
+            self.imprimir(self.msgErr) # imprima o erro na saida para o úsuario
             return # retorne a função
          # se tudo ocorrer bem
          # então calcule usando a formula de Baskara formatando de um modo legivel ao úsuario e imprima o resultado na saida.
@@ -97,7 +97,7 @@ class App(object):
          try: # tente 
             a,b,c = somar_semelhantes(membro) # somar todos os números obtidos da separação dos coeficientes
          except: # caso haja algo errado na equação será retornado um valor Nulo
-            self.imprimir(self.mgsErr) # imprima o erro na saida para o úsuario
+            self.imprimir(self.msgErr) # imprima o erro na saida para o úsuario
             return # retorne a função
          # se tudo ocorrer bem
          # então calcule usando a formula de Baskara formatando de um modo legivel ao úsuario e imprima o resultado na saida.
@@ -108,7 +108,7 @@ class App(object):
          try: #tente
             a,b,c = resultado # separar a lista de valores obtidos em variaveis
          except: # caso haja algo errado na equação será retornado um valor Nulo
-            self.imprimir(self.mgsErr) # imprima o erro na saida para o úsuario
+            self.imprimir(self.msgErr) # imprima o erro na saida para o úsuario
             return # retorne a função
          # se tudo ocorrer bem
          # então calcule usando a formula de Baskara formatando de um modo legivel ao úsuario e imprima o resultado na saida.

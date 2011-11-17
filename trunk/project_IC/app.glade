@@ -8,7 +8,7 @@
     <property name="default_width">600</property>
     <property name="default_height">500</property>
     <property name="icon_name">accessories-calculator</property>
-    <property name="opacity">0.20000000000000001</property>
+    <property name="opacity">0.80000000000000004</property>
     <signal name="destroy" handler="on_Main_destroy"/>
     <child>
       <widget class="GtkVBox" id="vbox1">
@@ -160,8 +160,6 @@
     <property name="version">1.0</property>
     <property name="copyright" translatable="yes" context="yes">Copyright &#xA9; 2011</property>
     <property name="comments" translatable="yes">Essa Aplica&#xE7;&#xE3;o basicamente calcula a equa&#xE7;&#xE3;o quadratica de uma vari&#xE1;vel, embora tamb&#xE9;m calcule equa&#xE7;&#xF5;es do primeiro grau.</property>
-    <property name="website">http://trac.assembla.com/worksufal/timeline</property>
-    <property name="website_label" translatable="yes">Timeline:</property>
     <property name="license" translatable="yes">Este programa &#xE9; um software livre; voc&#xEA; pode redistribu&#xED;-lo e/ou modific&#xE1;-lo
 sob os termos da GNU General Public License (GPL) como publicada pela
 Free Software Foundation; tanto na vers&#xE3;o 2 da Licen&#xE7;a ou (caso queira)

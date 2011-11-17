@@ -17,7 +17,7 @@ def Baskara(a,b,c):
             result = sqrt((-c/a))
         except ValueError: # se o resultado da divisão de c por a for um número menor que 0, retornaremos um valor vazio, pois não existe raiz quadrada de números negativos.
             return ()
-        return (result,) # se tudo for bem então retornaremos o resultado da expressão.
+        return (result,-result) # se tudo for bem então retornaremos o resultado da expressão.
     elif(c==0): # if c for 0, então a primeira raiz sempre será 0 e a segunda será o inverso de b dividido por a.
         return (0, (-b/a))
 
@@ -29,7 +29,73 @@ def Baskara(a,b,c):
         return ()
     else: # se o delta for um número maior que 0 então teremos duas raizes.
         return ((-b + sqrt(delta))/(2*a), (-b - sqrt(delta))/(2*a))
-    
+
+def multiplicar(membro):
+    while(membro.find("*") != -1):
+        print membro
+        primeiro= 0
+        ultimo = len(membro)
+        indice = membro.index("*")
+        print "indice ", indice
+        i = indice -1
+        while(i >= 0):
+            if( not membro[i].isalnum()):
+                primeiro = i+1
+                break
+            i -= 1
+
+        print primeiro, membro[primeiro]
+
+        i = indice +1
+        while(i < len(membro)):
+            if( not membro[i].isalnum()):
+                ultimo = i
+                break
+            i += 1
+
+        result = membro[primeiro:ultimo]
+        tmp = membro.split(result)
+        print " result = ", result
+
+        xis = xis2 = 0
+        for i in range(len(result)):
+            if result[i] == "x":
+                try:
+                    if result[i:i+3] == "x²":
+                        xis2 +=1
+                        continue
+                except:
+                    pass
+                xis +=1
+
+        if xis2 > 0:
+            result = result.replace("x²", "", -1)
+        result = result.replace("x", "", -1)
+                        
+
+        result = result.split("*")
+        print result
+        result = str((int(result[0])*int(result[1])))
+        print result
+        if xis:
+            if xis > 1:
+                result += "x²"
+            else:
+                result += "x"
+        if xis2:
+            result += "x²"
+        print tmp
+        tmp.insert(1, result)
+        membro = _juntar_termo(tmp)
+    return membro
+
+def _juntar_termo(membro):
+    tmp = ""
+    for i in membro:
+        tmp += i
+    print "juntos ", tmp
+    return tmp
+
 def separar_coeficientes(membro):
     """
         Essa função recebe um membro da equação esepara os coeficientes em um dicionario de listas onde os
@@ -39,6 +105,8 @@ def separar_coeficientes(membro):
 
         numeros = { "x2":[2,-4], "x":[2,+8], "var":[2]}
     """
+    if(membro.find("*") != -1):
+        membro = multiplicar(membro)
     i=0 #indice que vai percorrer o tamanho do membro
     last = 0 #ultimo indice adicionado ao dicionario
     numeros = { "x2":[], "x" : [], "var":[]} #inicializar o dicionario

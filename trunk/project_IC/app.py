@@ -1,4 +1,4 @@
-# *-* coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # Autor: Alisson Oliveira
 
 import pygtk
@@ -62,7 +62,7 @@ class App(object):
          Imprima o texto na saida da aplicação.
          o texto é colocado ao final do texto já existente na saida.
       """
-      self.buffer.insert(self.buffer.get_end_iter(), "\n %s" % texto)
+      self.buffer.insert(self.buffer.get_end_iter(), "\n %s" % texto) #insere o texto ao final da saida do programa
 
    def separar_membros(self, funcao):
       """

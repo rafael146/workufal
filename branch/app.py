@@ -123,4 +123,4 @@ class App(object):
 # se o arquivo vou executado diretamente
 if __name__ == "__main__":
    app = App() #crie uma instancia da class App
-   app.main() # chame o metodo main 
+   app.main() # chame o metodo main

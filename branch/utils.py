@@ -226,7 +226,7 @@ def mostrarResultado(resultado):
 # isso só executado caso, este arquivo seja executado diretamente.
 if __name__ == "__main__":
     # Onde Começa o programa
-    #imprima na tela a informação.
+    #imprima na tela a informação. 
     print("Resovendo equação quadratica no formato ax²+bx+c=0")
 
     # receba do úsuario os 3 coeficientes da equação

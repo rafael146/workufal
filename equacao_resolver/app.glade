@@ -1,0 +1,195 @@
+<?xml version="1.0"?>
+<glade-interface>
+  <!-- interface-requires gtk+ 2.16 -->
+  <!-- interface-naming-policy project-wide -->
+  <widget class="GtkWindow" id="Main">
+    <property name="title" translatable="yes">Solucionador de Equa&#xE7;&#xE3;o</property>
+    <property name="window_position">center</property>
+    <property name="default_width">600</property>
+    <property name="default_height">500</property>
+    <property name="icon_name">accessories-calculator</property>
+    <property name="opacity">0.80000000000000004</property>
+    <signal name="destroy" handler="on_Main_destroy"/>
+    <child>
+      <widget class="GtkVBox" id="vbox1">
+        <property name="visible">True</property>
+        <property name="spacing">3</property>
+        <child>
+          <widget class="GtkVBox" id="vbox2">
+            <property name="visible">True</property>
+            <property name="spacing">3</property>
+            <child>
+              <widget class="GtkHBox" id="hbox1">
+                <property name="visible">True</property>
+                <child>
+                  <widget class="GtkLabel" id="label1">
+                    <property name="visible">True</property>
+                    <property name="label" translatable="yes">Solucionador de equa&#xE7;&#xF5;es quadraticas</property>
+                    <property name="track_visited_links">False</property>
+                  </widget>
+                  <packing>
+                    <property name="padding">3</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="GtkMenuBar" id="menubar1">
+                    <property name="visible">True</property>
+                    <property name="pack_direction">rtl</property>
+                    <child>
+                      <widget class="GtkMenuItem" id="ajuda">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">_Ajuda</property>
+                        <property name="use_underline">True</property>
+                        <child>
+                          <widget class="GtkMenu" id="menu3">
+                            <property name="visible">True</property>
+                            <child>
+                              <widget class="GtkImageMenuItem" id="sobre">
+                                <property name="label">gtk-about</property>
+                                <property name="visible">True</property>
+                                <property name="use_underline">True</property>
+                                <property name="use_stock">True</property>
+                                <signal name="activate" handler="on_sobre_activate" object="About"/>
+                              </widget>
+                            </child>
+                          </widget>
+                        </child>
+                      </widget>
+                    </child>
+                  </widget>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </widget>
+              <packing>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkTable" id="table1">
+                <property name="visible">True</property>
+                <property name="n_rows">2</property>
+                <property name="n_columns">2</property>
+                <child>
+                  <widget class="GtkButton" id="b_calcular">
+                    <property name="label" translatable="yes">Calcular</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <signal name="clicked" handler="on_calcular_clicked" object="e_funcao"/>
+                  </widget>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="right_attach">2</property>
+                    <property name="x_options">GTK_SHRINK</property>
+                    <property name="y_options">GTK_SHRINK</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="GtkEntry" id="e_funcao">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="invisible_char">&#x25CF;</property>
+                    <property name="text" translatable="yes">ax&#xB2;+bx+c=0</property>
+                    <property name="xalign">0.5</property>
+                    <property name="overwrite_mode">True</property>
+                    <property name="caps_lock_warning">False</property>
+                    <property name="secondary_icon_stock">gtk-media-play</property>
+                    <property name="secondary_icon_activatable">True</property>
+                    <property name="secondary_icon_sensitive">True</property>
+                    <property name="secondary_icon_tooltip_text">Calcular fun&#xE7;&#xE3;o</property>
+                    <signal name="activate" handler="on_e_funcao_activate" object="e_funcao"/>
+                    <signal name="icon_press" handler="on_e_funcao_press" object="e_funcao"/>
+                  </widget>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+              </widget>
+              <packing>
+                <property name="expand">False</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </widget>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="GtkScrolledWindow" id="scrolledwindow1">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="vadjustment">0.10000000000000001 0 100 1 10 10</property>
+            <property name="hscrollbar_policy">automatic</property>
+            <property name="vscrollbar_policy">automatic</property>
+            <property name="shadow_type">etched-in</property>
+            <child>
+              <widget class="GtkTextView" id="text">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="editable">False</property>
+              </widget>
+            </child>
+          </widget>
+          <packing>
+            <property name="position">1</property>
+          </packing>
+        </child>
+      </widget>
+    </child>
+  </widget>
+  <widget class="GtkAboutDialog" id="About">
+    <property name="border_width">5</property>
+    <property name="title" translatable="yes">Sobre</property>
+    <property name="resizable">False</property>
+    <property name="modal">True</property>
+    <property name="window_position">center-always</property>
+    <property name="destroy_with_parent">True</property>
+    <property name="icon_name">dialog-information</property>
+    <property name="type_hint">normal</property>
+    <property name="opacity">0.84999999999999998</property>
+    <property name="program_name">Solucionador de Equa&#xE7;&#xF5;es</property>
+    <property name="version">1.0</property>
+    <property name="copyright" translatable="yes" context="yes">Copyleft 2011</property>
+    <property name="comments" translatable="yes">Essa Aplica&#xE7;&#xE3;o basicamente calcula a equa&#xE7;&#xE3;o quadr&#xE1;tica de uma vari&#xE1;vel, embora tamb&#xE9;m calcule equa&#xE7;&#xF5;es do primeiro grau.</property>
+    <property name="license" translatable="yes">Este programa &#xE9; um software livre; voc&#xEA; pode redistribu&#xED;-lo e/ou modific&#xE1;-lo
+sob os termos da GNU General Public License (GPL) como publicada pela
+Free Software Foundation; tanto na vers&#xE3;o 2 da Licen&#xE7;a ou (caso queira)
+qualquer vers&#xE3;o posterior.</property>
+    <property name="authors">Alisson Oliveira &lt;alisson@l2jbrasil.com&gt;</property>
+    <property name="documenters">Alisson Oliveira &lt;alisson@l2jbrasil.com&gt;</property>
+    <signal name="response" handler="on_About_response" object="About"/>
+    <child internal-child="vbox">
+      <widget class="GtkVBox" id="dialog-vbox1">
+        <property name="visible">True</property>
+        <property name="spacing">2</property>
+        <child>
+          <placeholder/>
+        </child>
+        <child internal-child="action_area">
+          <widget class="GtkHButtonBox" id="dialog-action_area1">
+            <property name="visible">True</property>
+            <property name="layout_style">end</property>
+          </widget>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="padding">4</property>
+            <property name="pack_type">end</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+      </widget>
+    </child>
+  </widget>
+</glade-interface>

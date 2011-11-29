@@ -129,7 +129,7 @@
           <widget class="GtkScrolledWindow" id="scrolledwindow1">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
-            <property name="vadjustment">0.10000000000000001 0 100 1 10 10</property>
+            <property name="vadjustment">0.10000000000000001 0 168 16.800000000000001 151.20000000000002 168</property>
             <property name="hscrollbar_policy">automatic</property>
             <property name="vscrollbar_policy">automatic</property>
             <property name="shadow_type">etched-in</property>
@@ -166,7 +166,10 @@
 sob os termos da GNU General Public License (GPL) como publicada pela
 Free Software Foundation; tanto na vers&#xE3;o 2 da Licen&#xE7;a ou (caso queira)
 qualquer vers&#xE3;o posterior.</property>
-    <property name="authors">Alisson Oliveira &lt;alisson@l2jbrasil.com&gt;</property>
+    <property name="authors">Alisson Oliveira &lt;alisson@l2jbrasil.com&gt;
+Anderson Felipe&lt;djfelipesafadao@gmail.com&gt;
+Danylo Souza&lt;danylosouza1993@gmail.com&gt;
+Marcus Aur&#xE9;lio&lt;marcus.ufal@gmail.com&gt;</property>
     <property name="documenters">Alisson Oliveira &lt;alisson@l2jbrasil.com&gt;</property>
     <signal name="response" handler="on_About_response" object="About"/>
     <child internal-child="vbox">

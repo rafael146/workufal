@@ -58,10 +58,10 @@ class Application(object):
       try:
          equacao = Equacao(self, widget.get_text())
          equacao.resolve()
-      except InvalidEquacaoException, e:
+      except ExpressaoException, e:
          self.mostrar(self.msgErr + str(e))
       except Exception, e:
-         self.mostrar(self.msgErr + str(e))
+         print e
 
    def mostrarSobre(self, widget):
       widget.show()

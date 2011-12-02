@@ -3,6 +3,7 @@
 
 import utils
 from expressao import *
+from excessoes import *
 
 class Variavel(object):
 
@@ -29,6 +30,9 @@ class Variavel(object):
       else:  self.valor = str(self.coef) + self.var + utils.expoenteFromChar(self.expoente)
 
    def __add__(self, val):
+      """
+         Sobreescreve o operador '+'
+      """
       if isinstance(val, Variavel):
          if self.var == val.var and self.expoente == val.expoente:
             return Variavel(self.coef + val.coef, val.var, val.expoente)
@@ -52,6 +56,9 @@ class Variavel(object):
       raise TypeError("unsuported operand type(s) for +: <type 'Variavel'> and "+ str(type(val)))
 
    def __div__(self, val):
+      """
+         Sobreescreve o operador '/'
+      """
       if isinstance(val, Variavel):
          if val.var== self.var and val.expoente == self.expoente:
             return self.coef / val.coef
@@ -65,6 +72,9 @@ class Variavel(object):
       raise TypeError("unsuported operand type(s) for +: <type 'Variavel'> and "+ str(type(val)))
 
    def __eq__(self, val):
+      """
+         Sobreescreve o operador '=='
+      """
       if isinstance(val, Variavel):
          return val.coef == self.coef and val.var== self.var and val.expoente == self.expoente
       elif isinstance(val, (float,int,long)):
@@ -73,30 +83,45 @@ class Variavel(object):
       return False
 
    def __ge__(self, val):
+      """
+         Sobreescreve o operador '>='
+      """
       if isinstance(val, (int,long,float)):
          if val == 0:
             return self.coef >= 0
       return False
 
    def __gt__(self, val):
+      """
+         Sobreescreve o operador '>'
+      """
       if isinstance(val, (int,long,float)):
          if val == 0:
             return self.coef > 0
       return False
 
    def __le__(self, val):
+      """
+         Sobreescreve o operador '<='
+      """
       if isinstance(val, (int,long,float)):
          if val == 0:
             return self.coef <= 0
       return False
    
    def __lt__(self, val):
+      """
+         Sobreescreve o operador '<'
+      """
       if isinstance(val, (int,long,float)):
          if val == 0:
             return self.coef < 0
       return False
 
    def __mul__(self, val):
+      """
+         Sobreescreve o operador '*'
+      """
       if isinstance(val, Variavel):
          if val.var== self.var:
             return Variavel(self.coef * val.coef, self.var, self.expoente + val.expoente)
@@ -108,6 +133,9 @@ class Variavel(object):
       raise TypeError("unsuported operand type(s) for *: <type 'Variavel'> and "+ str(type(val)))
          
    def __ne__(self, val):
+      """
+         Sobreescreve o operador '!='
+      """
       if isinstance(val, Variavel):
          return not (val.coef == self.coef and val.var== self.var and val.expoente == self.expoente)
       elif isinstance(val, (float,int,long)):
@@ -116,20 +144,35 @@ class Variavel(object):
       return True
 
    def __neg__(self):
+      """
+         Sobreescreve o operador unario '-'
+      """
       return Variavel(-self.coef, self.var, self.expoente)
 
    def __nonzero__(self):
+      """
+         Sobreescreve o operador '!= 0'
+      """
       return self.coef != 0
 
    def __pow__(self, val, arg=None):
+      """
+         Sobreescreve o operador "**"
+      """
       if arg != None:
          raise NotImplementedError("Variavel instance not support third argument yet")
       return Variavel(self.coef, self.var, self.expoente*val)
 
    def __radd__(self, val):
+      """
+         Sobreescreve o operador "+"
+      """
       return self.__add__(val)
 
    def __rdiv__(self, val):
+      """
+         Sobreescreve o operador '/'
+      """
       if isinstance(val, (float,int,long)):
          val /= self.coef
          return Variavel(val, self.var, -self.expoente)
@@ -137,6 +180,9 @@ class Variavel(object):
       return tmp.__div__(val)
 
    def __repr__(self):
+      """
+         Sobreescreve a função 'repr'
+      """
       if self.coef == 0:
          return "0"
       if self.expoente == 0:
@@ -148,17 +194,29 @@ class Variavel(object):
       return self.valor
 
    def __rmul__(self, val):
+      """
+         Sobreescreve o operador "*"
+      """
       return self.__mul__(val)
 
    def __rsub__(self, val):
+      """
+         Sobreescreve o operador '-'
+      """
       val = -val
       temp = - self
       return temp.__sub__(val)
 
    def __str__(self):
+      """
+         Sobreescreve a função 'str'
+      """
       return self.__repr__()
 
    def __sub__(self, val):
+      """
+         Sobreescreve o operador '-'
+      """
       if isinstance(val, Variavel):
          if self.var == val.var and self.expoente == val.expoente:
             return Variavel(self.coef - val.coef, val.var, val.expoente)
@@ -184,13 +242,17 @@ class Variavel(object):
       raise TypeError("unsuported operand type(s) for -: <type 'Variavel'> and "+ str(type(val)))
 
    def variavelFromStr(arg):
+      """
+         Recebe uma string que representa uma variavel e retorna uma instancia de variavel
+         caso a string recebida seja um int retorna um float com o valor da string.
+      """
       if arg.isdigit():
          return float(arg)
       var = ""
       for i in arg:
          if i.isalpha():
             if var != "" and i != var:
-               raise Exception("invalid argument, the argument is a expression no variable")
+               raise InvalidArgumentException("A equação contém mais que uma variável")
             else:
                var = i
 
@@ -334,6 +396,9 @@ class Variavel(object):
       return self.var
 
    def isSummable(self, val):
+      """
+         Verifica se o argumento é somavel com a variavel.
+      """
       if isinstance(val, Variavel):
          return self.var == val.var and self.expoente == val.expoente
       return False

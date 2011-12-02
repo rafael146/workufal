@@ -4,14 +4,22 @@ from variavel import *
 import utils
 
 class Expressao(object):
-
+   """
+      Classe que representa uma expressão.
+   """
    def __init__(self, termo):
+      """
+         Construtor da classe.
+      """
       self.termo = termo
       self.numero = 0.0
       self.variaveis = []
       self.organize()
 
    def __add__(self, val):
+      """
+         sobreescreve o operador '+'
+      """
       if isinstance(val, (float,int,long)):
          if val == 0:
             return self
@@ -31,6 +39,9 @@ class Expressao(object):
       raise TypeError("unsuported operand type(s) for +: <type 'Expressao'> and "+ str(type(val)))
 
    def __div__(self, val):
+      """
+         sobreescreve o operador '/'
+      """
       if isinstance(val, (float,int,long, Variavel)):
          var = []
          num = float(self.numero) / val
@@ -42,6 +53,9 @@ class Expressao(object):
       raise NotImplementedError("unsuported operand type(s) for /: <type 'Expressao'> and "+ str(type(val)))
 
    def __mul__(self, val):
+      """
+         sobreescreve o operador "*"
+      """
       if isinstance(val, (float,int,long, Variavel)):
          var = []
          num = self.numero * val
@@ -73,6 +87,9 @@ class Expressao(object):
       raise TypeError("unsuported operand type(s) for *: <type 'Expressao'> and "+ str(type(val)))
          
    def __neg__(self):
+      """
+         sobreescreve o operador unario "-"
+      """
       var = []
       num = -self.numero
       for i in self.variaveis:
@@ -81,6 +98,9 @@ class Expressao(object):
       return Expressao(result)
 
    def __ne__(self, val):
+      """
+         sobreescreve os operadores 'not' e '!'
+      """
       if isinstance(val, Expressao):
          return not (val.variaveis == self.variaveis and self.numero == val.numero)
       if isinstance(val, (float,int,long)):
@@ -89,12 +109,21 @@ class Expressao(object):
       return True
 
    def __repr__(self):
+      """
+         sobreescreve a função 'repr'
+      """
       return self.termo
 
    def __str__(self):
+      """
+         sobreescreve a função 'str' e 'print'
+      """
       return self.termo
       
    def __sub__(self, val):
+      """
+         sobreescreve o operador '-'
+      """
       if isinstance(val, (float,int,long)):
          if val == 0:
             return self
@@ -117,6 +146,10 @@ class Expressao(object):
       raise TypeError("unsuported operand type(s) for -: <type 'Expressao'> and "+ str(type(val)))
 
    def organize(self):
+      """
+         organiza os membros da equação.
+         e resolve todas as operações.
+      """
       self.termo = utils.separeFromSignal(self.termo)
       result = self.termo.split(" ")
       result = self.prepare(result)
@@ -168,9 +201,14 @@ class Expressao(object):
                variaveis.remove(i)
          self.variaveis.append(var)
 
+      self.check()
+
       self.termo = self.toString(self.variaveis, self.numero)
 
    def prepare(self, termo):
+      """
+         resolve multiplicações e divisões da expressão.
+      """
       i = 0
       while i < len(termo):
          if termo[i].startswith("*"):
@@ -199,6 +237,9 @@ class Expressao(object):
       return termo
    
    def toString(var, num=0):
+      """
+         cria a representação em string da expressão.
+      """
       term = ""
       for i in var:
          if i == 0: continue
@@ -215,6 +256,14 @@ class Expressao(object):
       return term
 
    toString = staticmethod(toString)
+
+   def check(self):
+      var = ''
+      for i in self.variaveis:
+         if var != '' and i.var != var:
+            raise InvalidArgumentException("A equação contém mais que uma variável")
+         else: var = i.var
+      
       
 if __name__ == '__main__':
    e = Expressao("5x+5")

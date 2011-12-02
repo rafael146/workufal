@@ -7,8 +7,19 @@ from expressao import Expressao
 from utils import Bhaskara
 
 class Equacao(object):
+   """
+      Classe que representa a equação do segundo grau.
+
+   """
 
    def __init__(self, app, expr):
+      """
+         Construtor da classe.
+
+         Faz as primeiras verificações da equação.
+         cria as instancias das expressões dadas, caso seja dado apenas uma,
+         inicializa a outra com o valor 0.
+      """
       expr = expr.replace(" ","").replace(",",".")
       self.app = app
       if expr.count("=") > 1:
@@ -21,7 +32,11 @@ class Equacao(object):
       self.last  = Expressao(term2)
 
    def resolve(self):
-      print self.first
+      """
+         Faz a segunda verificação, checa se a equação é valida, se for válida resolve usando
+         Bhaskara, se não lança uma excessão.
+
+      """
       if self.first != 0 :
          if self.last != 0:
             expressao = self.first + (-self.last)
@@ -31,7 +46,6 @@ class Equacao(object):
       
       if self.isValidExpressao(expressao):
          a, b, c = self.getCoeficientesFromExpressao(expressao)
-         #print "a",a, "b",b, "c",c
          result = Bhaskara(a,b,c)
 
          self.showResult(result)
@@ -39,6 +53,10 @@ class Equacao(object):
          raise InvalidEquacaoException("A equação dada não é do 2º grau:\n  "+str(expressao))
 
    def getCoeficientesFromExpressao(self, expr):
+      """
+         recebe a expressão e retorna os coeficientes das variaveis.
+
+      """
       a = b = c = 0
       for i in expr.variaveis:
          if i.getExpoente() == 2:
@@ -49,6 +67,11 @@ class Equacao(object):
       return a, b, c
 
    def isValidExpressao(expr):
+      """
+         verifica se a expressao é válida i.e se é uma equação do segundo grau ou de primeiro grau.
+         verificando se os expoentes estão entre 2 e 0
+
+      """
       if isinstance(expr, Expressao):
          for i in expr.variaveis:
             if i.getExpoente() > 2 or i.getExpoente() < 0:

@@ -45,10 +45,13 @@ class Application(object):
       # Estabelece a conexão entre eventos e funções
       self.struct.signal_autoconnect(funcs)
 
+      #mostre a aplicação para o úsuario
       self.window.show()
 
    def calcular(self, widget, arg0=None, arg1=None):
       """
+         Recebe a string que representa a equação dada pelo úsuario, converte
+         em uma instancia de equação e chama o método para resolver a equação.
          
       """
       if len(widget.get_text()) < 1:
@@ -60,18 +63,29 @@ class Application(object):
          equacao.resolve()
       except ExpressaoException, e:
          self.mostrar(self.msgErr + str(e))
+      except InvalidArgumentException, e:
+         self.mostrar(e)
+         self.mostrar(widget.get_text())
       except Exception, e:
-         print e
+         self.mostrar(self.msgErr)
 
    def mostrarSobre(self, widget):
+      """
+         Mostra a janela sobre ao úsuario.
+
+      """
       widget.show()
 
    def sobreResponse(self, widget, arg0=None):
+      """
+         Manipula os eventos ocorrido na janela sobre.
+         XXX Atualmente só implementado o fechar.
+      """
       widget.hide()
 
    def mostrar(self, texto):
       """
-         Imprima o texto na saida da aplicação.
+         Imprime o texto na saida da aplicação.
          o texto é colocado ao final do texto já existente na saida.
       """
       self.buffer.insert(self.buffer.get_end_iter(), "\n %s" % texto)

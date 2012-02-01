@@ -1,5 +1,8 @@
 #-*- coding: utf-8 -*-
-# Autor: Alisson Oliveira
+# Alisson Oliveira
+# Anderson Felipe
+# Danylo Souza
+# Marcus Aurélio
 
 import pygtk
 pygtk.require('2.0')
@@ -61,8 +64,10 @@ class Application(object):
       try:
          equacao = Equacao(self, widget.get_text())
          equacao.resolve()
-      except ExpressaoException, e:
+      except EmptyEquacaoException, e:
          self.mostrar(self.msgErr + str(e))
+      except ExpressaoException, e:
+         self.mostrar(str(e))
       except InvalidArgumentException, e:
          self.mostrar(e)
          self.mostrar(widget.get_text())

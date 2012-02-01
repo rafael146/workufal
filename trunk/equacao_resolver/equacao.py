@@ -66,6 +66,7 @@ class Equacao(object):
       c = expr.numero
       return a, b, c
 
+   @staticmethod
    def isValidExpressao(expr):
       """
          verifica se a expressao é válida i.e se é uma equação do segundo grau ou de primeiro grau.
@@ -78,8 +79,6 @@ class Equacao(object):
                return False
          return True
       return False
-
-   isValidExpressao = staticmethod(isValidExpressao)
 
    def showResult(self, result):
       """

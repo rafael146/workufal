@@ -241,6 +241,7 @@ class Variavel(object):
          return Expressao(str(self) + "-" + str(val))
       raise TypeError("unsuported operand type(s) for -: <type 'Variavel'> and "+ str(type(val)))
 
+   @staticmethod
    def variavelFromStr(arg):
       """
          Recebe uma string que representa uma variavel e retorna uma instancia de variavel
@@ -374,8 +375,6 @@ class Variavel(object):
       variavel *= coef 
 
       return variavel
-
-   variavelFromStr = staticmethod(variavelFromStr)
 
    def getExpoente(self):
       """

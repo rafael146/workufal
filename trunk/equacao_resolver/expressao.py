@@ -235,7 +235,8 @@ class Expressao(object):
             continue
          i += 1
       return termo
-   
+
+   @staticmethod
    def toString(var, num=0):
       """
          cria a representação em string da expressão.
@@ -254,8 +255,6 @@ class Expressao(object):
       else:
          term += str(num)
       return term
-
-   toString = staticmethod(toString)
 
    def check(self):
       var = ''

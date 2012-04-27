@@ -1,0 +1,44 @@
+from network import SendablePacket, ReadablePacket
+from security import SecurityManager
+
+class Connect(ReadablePacket):
+   #OPCODE: 0x01
+   def __init__(self, packet):
+      super(Connect,self).__init__(packet)
+      
+   def read(self):
+      length = self.readInt()
+      self.key = self.readBytes(length)
+   
+   def process(self, conn):
+      conn.setKey(self.key)
+
+class ProtocolReceiver(ReadablePacket):
+   #OPCODE: 0x02
+   def __init__(self, packet):
+      super(ProtocolReceiver,self).__init__(packet)
+      
+   def read(self):
+      self.protocol = self.readInt()
+
+   def process(self, conn):
+      if self.protocol != SecurityManager.PROTOCOL:
+         conn.shutdown(2)
+         conn.close()
+         conn.game.State = 3
+         #Show wrong protocol to client
+         conn.game.login.writeTxt("Wrong Protocol Revision")
+      else:
+         conn.writePacket(AuthRequest())
+
+class AuthRequest(SendablePacket):
+   OPCODE = 0x01
+   def write(self, conn=None):
+      self.writeString(conn.user)
+      self.writeString(conn.game.login.pwd)
+
+class Close(SendablePacket):
+   OPCODE = 0x00
+   def write(self, conn=None):
+      #Do Nothing, only send exit info to server
+      pass

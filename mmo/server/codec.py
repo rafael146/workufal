@@ -13,7 +13,6 @@ class PacketWriter(object):
         print 'sending opcode', hex(packet.OPCODE)
         packet.write(self.conn)
         if self.isKeySetted:
-            print 'encrypting'
             self.crypt(packet)
         else:
             self.isKeySetted = True
@@ -54,7 +53,6 @@ class PacketReader(object):
         packet = self.decoder(packet)
         packet = NetworkBuffer.wrap(packet)
         if self.key:
-            print 'decrypting'
             self.decrypt(packet)
         self.handlePacket(packet)
 

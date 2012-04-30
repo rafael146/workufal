@@ -1,6 +1,20 @@
 from network import SendablePacket, ReadablePacket
 from security import SecurityManager
 
+# ** Sendable Packetes **
+class AuthRequest(SendablePacket):
+   OPCODE = 0x01
+   def write(self, conn=None):
+      self.writeString(conn.user)
+      self.writeString(conn.game.login.pwd)
+
+class Close(SendablePacket):
+   OPCODE = 0x00
+   def write(self, conn=None):
+      #Do Nothing, only send exit info to server
+      pass
+
+# ** Readable Packet **
 class Connect(ReadablePacket):
    #OPCODE: 0x01
    def __init__(self, packet):
@@ -25,20 +39,24 @@ class ProtocolReceiver(ReadablePacket):
       if self.protocol != SecurityManager.PROTOCOL:
          conn.shutdown(2)
          conn.close()
+         #set wait state
          conn.game.State = 3
          #Show wrong protocol to client
          conn.game.login.writeTxt("Wrong Protocol Revision")
       else:
          conn.writePacket(AuthRequest())
 
-class AuthRequest(SendablePacket):
-   OPCODE = 0x01
-   def write(self, conn=None):
-      self.writeString(conn.user)
-      self.writeString(conn.game.login.pwd)
+class LoginFail(ReadablePacket):
+   #OPCODE: 0x03
+   msgs = ["","User or Password wrong"]
+   def __init__(self, packet):
+      super(LoginFail, self).__init__(packet)
 
-class Close(SendablePacket):
-   OPCODE = 0x00
-   def write(self, conn=None):
-      #Do Nothing, only send exit info to server
-      pass
+   def read(self):
+      self.reason = self.readInt()
+
+   def process(self, conn):
+      #set wait state
+      conn.game.State = 3
+      #Show wrong protocol to client
+      conn.game.login.writeTxt(self.msgs[self.reason])

@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-import sys, pygame, thread
+import sys, pygame
 from codec import PacketWriter, PacketReader
-from copy import copy
 from concurrent import ThreadPoolManager
+from copy import copy
+from packets import *
 from pygame.locals import *
 from pgu import text, gui, timer
 from socket import socket
-from packets import *
 
 WIDTH, HEIGHT = 1200, 680
 WHITE = (255,255,255)
@@ -164,7 +164,6 @@ class Client(socket):
       self.send(self.writer.process(packet))
 
    def setKey(self, key):
-      print "setting key"
       key2 = copy(key)
       self.reader.setKey(key)
       self.writer.setKey(key2)

@@ -94,6 +94,8 @@ class PacketReader(object):
             readable = ProtocolReceiver(packet)
         elif opcode == 0x03:
             readable = LoginFail(packet)
+        elif opcode == 0x04:
+            readable = LoginOk(packet)
         else:
             print "Invalid Packet opcode:", hex(opcode)
             return

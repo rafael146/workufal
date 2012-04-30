@@ -1,6 +1,8 @@
 from network import SendablePacket, ReadablePacket
 from security import SecurityManager
+from accountManager import tryLogin
 
+# ** Sendable Packets **
 class StaticPacket(SendablePacket):
    OPCODE = 0x00
    def write(self,conn=None):
@@ -20,6 +22,18 @@ class ProtocolSender(SendablePacket):
    def write(self,conn=None):
       self.writeInt(SecurityManager.PROTOCOL)
 
+class LoginFail(SendablePacket):
+   OPCODE = 0x03
+   # reasons
+   # 0x01 - USER OR PASSWORD WRONG
+   def __init__(self, reason):
+      SendablePacket.__init__(self)
+      self.reason = reason
+
+   def write(self, conn=None):
+      self.writeInt(self.reason)
+
+# ** Readable Packets **
 class AuthRequest(ReadablePacket):
    #OPCODE: 0x01
    def __init__(self, packet):
@@ -30,6 +44,9 @@ class AuthRequest(ReadablePacket):
       self.pwd = self.readString()
 
    def process(self, conn):
-      print self.user
-      print self.pwd
-      conn.writePacket(StaticPacket())
+      if not tryLogin(self.user, self.pwd):
+         conn.writePacket(LoginFail(0x01))
+      else:
+         conn.writePacket(StaticPacket())
+
+

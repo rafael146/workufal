@@ -1,4 +1,5 @@
-import socket, thread, copy
+import copy
+from accountManager import RegisterManager
 from codec import PacketWriter, PacketReader
 from concurrent import Runnable, ThreadPoolManager
 from packets import *
@@ -77,7 +78,6 @@ class ConnectionHandler(Runnable):
       while True:
          try:
             packet = self.connection.recv(1024)
-            print 'incoming',self.connection.addr
             if not packet:
                break
             self.connection.readPacket(packet)
@@ -85,6 +85,7 @@ class ConnectionHandler(Runnable):
             print e
             break
       self.connection.close()
-      
+
+RegisterManager()
 server = Server()
 server.openConnection()

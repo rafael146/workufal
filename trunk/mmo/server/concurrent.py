@@ -15,6 +15,7 @@ class ScheduledThread(Thread):
       self.delay = delay
       self.scheduler = Timer
       Thread.__init__(self)
+      self.setDaemon(True)
       
    def run(self):
       self.scheduler(self.delay, self.runnable.run).start()
@@ -28,6 +29,7 @@ class ScheduledThreadAtFixedRate(Thread):
       self.scheduler = Timer
       self.scheduler(initial, self.run).start()
       Thread.__init__(self)
+      self.setDaemon(True)
 
    def run(self):
       if not self._canceled:
@@ -48,10 +50,12 @@ class ThreadPoolManager(object):
 
    @staticmethod
    def getInstance():
-      return SingletonHolder.instance
+      return SingletonHolder.INSTANCE
 
-   def generalExecuter(self, func, delay):
-      self.Executor(delay, func).start()
+   def generalExecuter(self, func, delay, *args, **kargs):
+      t = self.Executor(delay, func, *args, **kargs)
+      t.setDaemon(True)
+      t.start()
 
    def scheduleGeneral(self, runnable, delay=0, *args):
       return self.Scheduler(runnable, delay).start()
@@ -61,7 +65,7 @@ class ThreadPoolManager(object):
 
 
 class SingletonHolder(object):
-   instance = ThreadPoolManager()
+   INSTANCE = ThreadPoolManager()
 
 class Mytest(Runnable):
    def run(self):

@@ -1,6 +1,6 @@
 from network import SendablePacket, ReadablePacket
 from security import SecurityManager
-from accountManager import tryLogin
+from accountManager import tryLogin, updateIP
 
 # ** Sendable Packets **
 class StaticPacket(SendablePacket):
@@ -33,6 +33,12 @@ class LoginFail(SendablePacket):
    def write(self, conn=None):
       self.writeInt(self.reason)
 
+class LoginOk(SendablePacket):
+   OPCODE = 0x04
+   def write(self, conn=None):
+      #do nothing, only send login sucessful.
+      pass
+
 # ** Readable Packets **
 class AuthRequest(ReadablePacket):
    #OPCODE: 0x01
@@ -44,9 +50,10 @@ class AuthRequest(ReadablePacket):
       self.pwd = self.readString()
 
    def process(self, conn):
-      if not tryLogin(self.user, self.pwd):
-         conn.writePacket(LoginFail(0x01))
+      if tryLogin(self.user, self.pwd):
+         conn.writePacket(LoginOk())
+         updateIP(self.user, conn.addr[0])
       else:
-         conn.writePacket(StaticPacket())
+         conn.writePacket(LoginFail(0x01))
 
 

@@ -1,14 +1,50 @@
-import copy, sys, os, hashlib
+# Autor: Alisson Oliveira
+import sys, os, hashlib
 from base64 import encodestring as encode, decodestring as decode
 from concurrent import ThreadPoolManager
 from database import DatabaseManager as DB
 from socket import socket, SOL_SOCKET, SO_REUSEADDR
 
+def passEncrypter(password):
+      """
+         @arg - password.
+         @return - password encrypted.
+      """
+      tmp = ""
+      for i, c in enumerate(str(password)):
+         tmp += (chr(~(ord(c)+i)&0x7F^0xFF))
+      md = hashlib.sha1(tmp)
+      offset = os.urandom(9)
+      md.update(offset)
+      return encode(md.digest() + offset)
+
+def checkPassword(password, expected):
+   """
+      Check if password is the expected.
+      @return - True if is a same, otherwise False.
+   """
+   expected = decode(expected)
+   offset = expected[20:]
+   expected = expected[:20]
+   tmp = ""
+   for i, c in enumerate(str(password)):
+      tmp += (chr(~(ord(c)+i)&0x7F^0xFF))
+   password = hashlib.sha1(tmp)
+   password.update(offset)
+   return expected == password.digest()
+
 def alreadyRegistered(user):
     return not DB.getInstance().query("SELECT ID FROM Accounts WHERE ID=%s",user).empty()
 
 def tryLogin(user,pwd):
-    return not DB.getInstance().query("SELECT ID FROM Accounts WHERE ID=%s AND pass=%s",(user,pwd)).empty()
+    result = DB.getInstance().query("SELECT ID, pass FROM Accounts WHERE ID=%s",user)
+    if result.empty():
+        return False
+    result.next()
+    return checkPassword(pwd, result.getString('pass'))
+
+def updateIP(user, ip):
+    DB.getInstance().query("UPDATE Accounts SET last_ip = %s WHERE ID = %s",(ip,user))
 
 class RegisterManager(socket):
    def __init__(self):
@@ -33,19 +69,6 @@ class RegisterManager(socket):
          con.send('1')
       con.close()
       
-   def passEncrypter(self, password):
-      """
-         @arg - password.
-         @return - password encrypted.
-      """
-      tmp = ""
-      for i, c in enumerate(str(password)):
-         tmp += (chr(~(ord(c)+i)&0x7F^0xFF))
-      md = hashlib.sha1(tmp)
-      offset = os.urandom(9)
-      md.update(offset)
-      return encode(md.digest() + offset)
-
    def register(self, user, pwd, ip):
-      pwd = self.passEncrypter(pwd)
+      pwd = passEncrypter(pwd)
       DB.getInstance().query("""INSERT INTO Accounts VALUES (%s,%s,%s)""",(user,pwd,ip))

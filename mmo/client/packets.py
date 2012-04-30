@@ -60,3 +60,17 @@ class LoginFail(ReadablePacket):
       conn.game.State = 3
       #Show wrong protocol to client
       conn.game.login.writeTxt(self.msgs[self.reason])
+
+class LoginOk(ReadablePacket):
+   #OPCODE: 0x04
+   def __init__(self, packet):
+      super(LoginOk, self).__init__(packet)
+
+   def read(self):
+      # dummy packet
+      pass
+
+   def process(self, conn):
+      #set Connected State
+      conn.game.State = 1
+      conn.game.login.writeTxt("Login Sucessful")

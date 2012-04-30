@@ -1,7 +1,8 @@
-import copy
+import sys
 from accountManager import RegisterManager
 from codec import PacketWriter, PacketReader
 from concurrent import Runnable, ThreadPoolManager
+from copy import copy
 from packets import *
 from socket import socket, SOL_SOCKET, SO_REUSEADDR
 
@@ -60,7 +61,7 @@ class Connection(object):
       self.serv.broadcastToAll(packet)
 
    def setKey(self,key):
-      key2 = copy.copy(key)
+      key2 = copy(key)
       self.writer.setKey(key)
       self.reader.setKey(key2)
 

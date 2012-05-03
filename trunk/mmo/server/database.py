@@ -33,7 +33,6 @@ class ResultSet(object):
     def next(self):
         if len(self.result):
             self.row = self.result.pop(0)
-            print self.row
             return True
         self.row = None
         return False

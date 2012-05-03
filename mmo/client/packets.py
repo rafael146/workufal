@@ -74,3 +74,4 @@ class LoginOk(ReadablePacket):
       #set Connected State
       conn.game.State = 1
       conn.game.login.writeTxt("Login Sucessful")
+      conn.game.change()

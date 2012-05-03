@@ -71,46 +71,41 @@ class Register(gui.Dialog):
       else:
          self.label.set_text("Password not macht")
       
-
 class Login(gui.Table):
    def __init__(self,game):
-      gui.Table.__init__(self, width=WIDTH, height=HEIGHT)
+      gui.Table.__init__(self, name="login",width=WIDTH, height=HEIGHT)
       self.game = game
       font = pygame.font.SysFont("helvetica",12)
       self.txt = gui.Label("",font=font,color=WHITE)
       self.form = gui.Form()
-      self.tb = gui.Table(vpadding=3)
-      self.tb.tr()
-      self.tb.td(gui.Label("Username: ",color=WHITE))
-      self.tb.td(gui.Input(size=16, name="user"), colspan=2)
-      self.tb.tr()
-      self.tb.td(gui.Label("Password: ",color=WHITE))
-      self.tb.td(gui.Password(size=16, name="pwd"), colspan=2)
-      self.tb.tr()
+      tb = gui.Table(vpadding=3)
+      tb.tr()
+      tb.td(gui.Label("Username: ",color=WHITE))
+      tb.td(gui.Input(size=16, name="user"), colspan=2)
+      tb.tr()
+      tb.td(gui.Label("Password: ",color=WHITE))
+      tb.td(gui.Password(size=16, name="pwd"), colspan=2)
+      tb.tr()
       bt= gui.Button("Register")
       bt.connect(gui.CLICK, self.register)
-      self.tb.td(bt,align=-1)
+      tb.td(bt,align=-1)
       bt= gui.Button("Login", width=40)
       bt.connect(gui.CLICK, self.onJoin)
-      self.tb.td(bt, align=1)
+      tb.td(bt, align=1)
       bt = gui.Button("Exit", width=40)
       bt.connect(gui.CLICK, self.onExit)
-      self.tb.td(bt,align=0)
-      self.add(self.tb,WIDTH/2-110,HEIGHT/2-60)
+      tb.td(bt,align=0)
+      self.add(tb,WIDTH/2-110,HEIGHT/2-60)
       self.add(self.txt,WIDTH/2-self.txt.style.width/2,HEIGHT-self.txt.style.height-10)
       
    def onExit(self):
-      print "exiting"
-      self.game.running = False
-      if self.game.client:
-         self.game.client.writePacket(Close())
+      self.game.close()
 
    def register(self):
       r = Register()
       r.open()
 
    def onJoin(self):
-      self.writeTxt("Requesting Login")
       try:
          self.game.connectToServer()
       except Exception, e:
@@ -128,24 +123,46 @@ class Login(gui.Table):
    def pwd(self):
       return self.form['pwd'].value
 
+class CharacterScreen(gui.Table):
+   def __init__(self,game):
+      gui.Table.__init__(self, name="screen", width=WIDTH, height=HEIGHT)
+      self.game = game
+      self.add(gui.Label("Choose your Style"))
+
 class Game(gui.App):
-   def __init__(self):
+   def __init__(self,screen):
       gui.App.__init__(self)
+      self.screen= screen
       self.running = 0
       self.client = None
       self.ctn = gui.Container(height=HEIGHT,width=WIDTH)
       self.login = Login(self)
-      self.ctn.add(self.login,0,0)
+      #self.ctn.add(self.login,0,0)
+      self.ctn.add(CharacterScreen(self),0,0)
       self.State = GameState.WAIT
 
-   def init(self, screen=None, area=None):
+   def init(self):
       self.running = 1
-      super(Game, self).init(self.ctn,screen,area)
+      super(Game, self).init(self.ctn,self.screen)
       
    def connectToServer(self):
       if self.State == GameState.WAIT:
+         self.login.writeTxt("Requesting Login")
          self.State = GameState.CONNECTING
          self.client = Client(self, self.login.user)
+
+   def change(self):
+      w = self.ctn.find("login")
+      self.ctn.remove(w)
+
+   def close(self):
+      self.running = 0
+      if self.client:
+         self.client.writePacket(Close())
+
+   def write(self):
+      font = pygame.font.SysFont("Arial", 13, False, True)
+      self.screen.blit(font.render("Alisson Oliveira",1,WHITE),(20, HEIGHT-30))
       
 class Client(socket):
    def __init__(self, game, user):
@@ -185,16 +202,16 @@ class Client(socket):
       self.game.State = GameState.WAIT
       self.client = None
       
-game = Game()
-game.init(screen)
+game = Game(screen)
+game.init()
 clock = timer.Timer(7)
 
 while game.running:
    for ev in pygame.event.get():
-      if ev.type is QUIT: game.running = False
+      if ev.type is QUIT: game.close()
       game.event(ev)
 
    clock.tick()
-   screen.fill((0,145,120))
+   game.screen.fill((0,145,120))
    game.paint()
    pygame.display.flip()

@@ -2,6 +2,8 @@
 #
 # ID allocador based in BitSet
 #
+from database import DatabaseManager as DB
+
 #Actually the word is a long which consists of 64bits,
 #requires 6 address bits.
 WORD_ADDRESS = 6
@@ -70,11 +72,13 @@ class IDAllocador(object):
                 print "ID is less"
                 return
             self.set(ID - FIRST_ID)
-            self.nextId = self.nextClearBit()
+            self.nextID = self.nextClearBit()
 
     def loads(self):
-        #TODO loads all IDs usedes on previous executions
-        pass
+        rs = DB.getInstance().query("SELECT ID FROM Players")
+        while rs.next():
+            self.allocate(rs.getInt('ID'))
+        print "All IDs loaded"
 
 class SingletonHolder(object):
     INSTANCE = IDAllocador(10000)

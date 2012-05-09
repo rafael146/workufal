@@ -2,17 +2,38 @@ from network import SendablePacket, ReadablePacket
 from security import SecurityManager
 
 # ** Sendable Packetes **
+class Logout(SendablePacket):
+   OPCODE = 0x00
+   def write(self, conn=None):
+      #dummy packet
+      #Do Nothing, only send exit info to server
+      pass
+
 class AuthRequest(SendablePacket):
    OPCODE = 0x01
    def write(self, conn=None):
       self.writeString(conn.user)
-      self.writeString(conn.game.login.pwd)
+      self.writeString(conn.game.state.pwd)
 
-class Close(SendablePacket):
-   OPCODE = 0x00
+class CharacterCreate(SendablePacket):
+   OPCODE = 0x02
+   def __init__(self, name, model):
+      self.model = model
+      self.name  = name
+      SendablePacket.__init__(self)
+
    def write(self, conn=None):
-      #Do Nothing, only send exit info to server
-      pass
+      self.writeByte(self.model)
+      self.writeString(self.name)
+
+class CharacterDelete(SendablePacket):
+   OPCODE = 0x03
+   def __init__(self, ID):
+      SendablePacket.__init__(self)
+      self.ID = ID
+
+   def write(self, conn=None):
+      self.writeInt(self.ID)
 
 # ** Readable Packet **
 class Connect(ReadablePacket):
@@ -40,9 +61,9 @@ class ProtocolReceiver(ReadablePacket):
          conn.shutdown(2)
          conn.close()
          #set wait state
-         conn.game.State = 3
+         conn.game.GState = 3
          #Show wrong protocol to client
-         conn.game.login.writeTxt("Wrong Protocol Revision")
+         conn.game.state.write("Wrong Protocol Revision")
       else:
          conn.writePacket(AuthRequest())
 
@@ -53,25 +74,82 @@ class LoginFail(ReadablePacket):
       super(LoginFail, self).__init__(packet)
 
    def read(self):
-      self.reason = self.readInt()
+      self.reason = self.readByte()
 
    def process(self, conn):
       #set wait state
-      conn.game.State = 3
+      conn.game.GState = 3
       #Show wrong protocol to client
-      conn.game.login.writeTxt(self.msgs[self.reason])
+      conn.game.state.write(self.msgs[self.reason])
+      conn.game.client.close()
 
 class LoginOk(ReadablePacket):
    #OPCODE: 0x04
    def __init__(self, packet):
       super(LoginOk, self).__init__(packet)
+      self.hasPlayer = 0
+      self.ID = None
+      self.name = None
+      self.model = None
 
    def read(self):
-      # dummy packet
-      pass
+      self.hasPlayer = self.readByte()
+      if self.hasPlayer:
+         self.ID = self.readInt()
+         self.name = self.readString()
+         self.model = self.readByte()
 
    def process(self, conn):
       #set Connected State
-      conn.game.State = 1
-      conn.game.login.writeTxt("Login Sucessful")
-      conn.game.change()
+      conn.game.GState = 1
+      conn.game.toCharScreen(self.hasPlayer,self.ID,self.name,self.model)
+
+class CharOk(ReadablePacket):
+   #OPCODE: 0x05
+   def __init__(self, packet):
+      super(CharOk, self).__init__(packet)
+
+   def read(self):
+      self.ID = self.readInt()
+      self.name = self.readString()
+      self.model = self.readByte()
+
+   def process(self, conn):
+      conn.game.toCharScreen(1,self.ID,self.name,self.model)
+
+class CharFail(ReadablePacket):
+   #OPCODE: 0x06
+   def __init__(self, packet):
+      super(CharFail, self).__init__(packet)
+
+   def read(self):
+      #dummy packet
+      pass
+
+   def process(self, conn):
+      conn.game.state.write("Char creation Failed")
+
+class ActionFailed(ReadablePacket):
+   #OPCODE: 0x07
+   reasons = ["","Coldn't delete Character","Char Creation Failed",
+              "Character name Already in use"]
+   def __init__(self, packet):
+      super(ActionFailed, self).__init__(packet)
+
+   def read(self):
+      self.reason = self.readByte()
+
+   def process(self, conn):
+      conn.game.state.write(self.reasons[self.reason])
+
+class CharacterDeleted(ReadablePacket):
+   #OPCODE: 0x08
+   def __init__(self, packet):
+      super(CharacterDeleted, self).__init__(packet)
+
+   def read(self):
+      #dummy packet
+      pass
+
+   def process(self, conn):
+      conn.game.toCharScreen(0)

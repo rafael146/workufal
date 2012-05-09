@@ -1,4 +1,4 @@
-import sys
+import sys, idFactory
 from accountManager import RegisterManager
 from codec import PacketWriter, PacketReader
 from concurrent import Runnable, ThreadPoolManager
@@ -16,7 +16,7 @@ class Server(socket):
 
    def accept(self):
       con, addr =super(Server, self).accept()
-      connection = Connection(con,addr,self)
+      connection = Client(con,addr,self)
       return connection
       
    def close(self):
@@ -37,13 +37,14 @@ class BroadcastService(object):
       for player in World.getInstance().getKnownPlayers():
          player.send(packet)
          
-class Connection(object):
+class Client(object):
    def __init__(self, con, addr, serv):
       self.con = con
       self.addr = addr
       self.serv = serv
       self.writer = PacketWriter(self)
       self.reader = PacketReader(self)
+      self.name = None
 
    def recv(self, lenght):
       return self.con.recv(lenght)
@@ -65,6 +66,9 @@ class Connection(object):
       self.writer.setKey(key)
       self.reader.setKey(key2)
 
+   def setName(self, name):
+      self.name = name
+
 class ConnectionHandler(Runnable):
    def __init__(self, connection):
       self.connection = connection
@@ -83,10 +87,12 @@ class ConnectionHandler(Runnable):
                break
             self.connection.readPacket(packet)
          except Exception, e:
+            print "client desconnected"
             print e
             break
       self.connection.close()
 
+idFactory.getInstance().loads()
 RegisterManager()
 server = Server()
 server.openConnection()

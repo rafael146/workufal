@@ -35,7 +35,7 @@ class PacketWriter(object):
 
         self.key[8]  = old &0xFF
         self.key[9]  = old >> 0x08 &0xFF
-        self.key[10] = old >> 0x10 &0xFF00
+        self.key[10] = old >> 0x10 &0xFF
         self.key[11] = old >> 0x18 &0xFF
 
     def encoder(self, packet):
@@ -96,6 +96,14 @@ class PacketReader(object):
             readable = LoginFail(packet)
         elif opcode == 0x04:
             readable = LoginOk(packet)
+        elif opcode == 0x05:
+            readable = CharOk(packet)
+        elif opcode == 0x06:
+            readable = CharFail(packet)
+        elif opcode == 0x07:
+            readable = ActionFailed(packet)
+        elif opcode == 0x08:
+            readable = CharacterDeleted(packet)
         else:
             print "Invalid Packet opcode:", hex(opcode)
             return

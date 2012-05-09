@@ -66,7 +66,7 @@ class NetworkBuffer(object):
         """
             return the byte in the readerIndex and increase readerIndex by 1.
         """
-        byte = self.array[readIndex]
+        byte = self.array[self.readIndex]
         self.readIndex += _BYTE
         return byte
 

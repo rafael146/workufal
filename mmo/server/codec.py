@@ -35,7 +35,7 @@ class PacketWriter(object):
 
         self.key[8]  = old &0xFF
         self.key[9]  = old >> 0x08 &0xFF
-        self.key[10] = old >> 0x10 &0xFF00
+        self.key[10] = old >> 0x10 &0xFF
         self.key[11] = old >> 0x18 &0xFF
 
     def encoder(self, packet):
@@ -50,8 +50,7 @@ class PacketReader(object):
         self.key = None
     
     def process(self, packet):
-        packet = self.decoder(packet)
-        packet = NetworkBuffer.wrap(packet)
+        packet = NetworkBuffer.wrap(self.decoder(packet))
         if self.key:
             self.decrypt(packet)
         self.handlePacket(packet)
@@ -74,8 +73,7 @@ class PacketReader(object):
         self.key[8]  = old &0xFF
         self.key[9]  = old >> 0x08 &0xFF
         self.key[10] = old >> 0x10 &0xFF
-        self.key[11] = old >> 0x18 &0xFF
-        
+        self.key[11] = old >> 0x18 &0xFF 
 
     def decoder(self,packet):
         return cPickle.loads(packet)
@@ -87,10 +85,15 @@ class PacketReader(object):
         opcode = packet.readShort() &0xFF
         print 'received opcode', hex(opcode)
         if opcode == 0x00:
-            self.conn.writePacket(StaticPacket())
+            #Only Close Connection
+            self.conn.close()
             return
         elif opcode == 0x01:
             readable = AuthRequest(packet)
+        elif opcode == 0x02:
+            readable = CharacterCreate(packet)
+        elif opcode == 0x03:
+            readable = CharacterDelete(packet)
         else:
             print "Invalid Packet opcode:", hex(opcode)
             return

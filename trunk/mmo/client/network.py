@@ -112,10 +112,10 @@ class NetworkBuffer(object):
             return the long in the readerIndex to readerIndex+7
             and increase readerIndex by 8.
         """
-        lon = self.array[readIndex] | (self.array[readIndex+1]<<8
-        ) | (self.array[readIndex+2]<<16) | (self.array[readIndex+3]<<24
-        ) | (self.array[readIndex+4]<<32) | (self.array[readIndex+5]<<40
-        ) | (self.array[readIndex+6]<<48) | (self.array[readIndex+7]<<56)
+        lon = self.array[self.readIndex] | (self.array[self.readIndex+1]<<8
+        ) | (self.array[self.readIndex+2]<<16) | (self.array[self.readIndex+3]<<24
+        ) | (self.array[self.readIndex+4]<<32) | (self.array[self.readIndex+5]<<40
+        ) | (self.array[self.readIndex+6]<<48) | (self.array[self.readIndex+7]<<56)
         self.readIndex += 8
         return lon
 

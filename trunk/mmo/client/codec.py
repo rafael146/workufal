@@ -83,6 +83,11 @@ class PacketReader(object):
     def setKey(self, key):
         self.key = key
 
+    # This must be a method of another class
+    # so, in constructor this class must be given an instance of
+    # another class with this handler.
+    # or this must be an abstract method.
+    # this class will be more general
     def handlePacket(self, packet):
         opcode = packet.readShort() &0xFF
         print 'received opcode', hex(opcode)
@@ -104,6 +109,10 @@ class PacketReader(object):
             readable = ActionFailed(packet)
         elif opcode == 0x08:
             readable = CharacterDeleted(packet)
+        elif opcode == 0x09:
+            readable = PlayerInfo(packet)
+        elif opcode == 0x0A:
+            readable = Appearing(packet)
         else:
             print "Invalid Packet opcode:", hex(opcode)
             return

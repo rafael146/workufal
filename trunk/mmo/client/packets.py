@@ -1,7 +1,8 @@
 from network import SendablePacket, ReadablePacket
 from security import SecurityManager
 
-# ** Sendable Packetes **
+# ** Sendable Packets **
+
 class Logout(SendablePacket):
    OPCODE = 0x00
    def write(self, conn=None):
@@ -35,7 +36,17 @@ class CharacterDelete(SendablePacket):
    def write(self, conn=None):
       self.writeInt(self.ID)
 
-# ** Readable Packet **
+class EnterWorld(SendablePacket):
+   OPCODE = 0x04
+   def __init__(self, ID):
+      SendablePacket.__init__(self)
+      self.ID = ID
+
+   def write(self, conn=None):
+      self.writeInt(self.ID)
+
+# ** Readables Packet **
+
 class Connect(ReadablePacket):
    #OPCODE: 0x01
    def __init__(self, packet):
@@ -47,6 +58,8 @@ class Connect(ReadablePacket):
    
    def process(self, conn):
       conn.setKey(self.key)
+      #set state Connected
+      conn.game.State = 1
 
 class ProtocolReceiver(ReadablePacket):
    #OPCODE: 0x02
@@ -81,7 +94,7 @@ class LoginFail(ReadablePacket):
       conn.game.GState = 3
       #Show wrong protocol to client
       conn.game.state.write(self.msgs[self.reason])
-      conn.game.client.close()
+      conn.game.connection.close()
 
 class LoginOk(ReadablePacket):
    #OPCODE: 0x04
@@ -140,7 +153,8 @@ class ActionFailed(ReadablePacket):
       self.reason = self.readByte()
 
    def process(self, conn):
-      conn.game.state.write(self.reasons[self.reason])
+      if self.reason:
+         conn.game.state.write(self.reasons[self.reason])
 
 class CharacterDeleted(ReadablePacket):
    #OPCODE: 0x08
@@ -153,3 +167,41 @@ class CharacterDeleted(ReadablePacket):
 
    def process(self, conn):
       conn.game.toCharScreen(0)
+
+class PlayerInfo(ReadablePacket):
+   #OPCODE: 0x09
+   def __init__(self, packet):
+      super(PlayerInfo, self).__init__(packet)
+
+   def read(self):
+      self.model = self.readByte()
+      self.ID = self.readInt()
+      self.name = self.readString()
+      self.level = self.readShort()
+      self.speed = self.readShort()
+      self.maxHp = self.readInt()
+      self.hp = self.readInt()
+      self.x = self.readInt()
+      self.y = self.readInt()
+      self.defense = self.readInt()
+      self.force = self.readInt()
+      self.exp = self.readLong()
+
+   def process(self, conn):
+      conn.game.updatePlayer(self.model, self.ID, self.name, self.level, self.speed, \
+                             self.maxHp, self.hp, self.x, self.y, self.defense, \
+                             self.force, self.exp)
+
+class Appearing(ReadablePacket):
+   #OPCODE: 0x0A
+   def __init__(self, packet):
+      super(Appearing, self).__init__(packet)
+
+   def read(self):
+      #dummy packet
+      pass
+
+   def process(self, conn):
+      conn.game.enterWorld()
+
+

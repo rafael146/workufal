@@ -6,12 +6,16 @@ from copy import copy
 from packets import *
 from pygame.locals import *
 from pgu import gui, engine
+from re import match
 from socket import socket
+
+# XXX: Externalize all strings
 
 WIDTH, HEIGHT = 1200, 680
 WHITE = (255,255,255)
 pygame.font.init()
-screen = pygame.display.set_mode((WIDTH,HEIGHT))
+screen = pygame.display.set_mode((WIDTH,HEIGHT),SRCALPHA)
+screen.set_alpha(50)
 pygame.display.set_caption("PyBot War")
 font = pygame.font.SysFont("default", 18)
 _font = pygame.font.SysFont("helvetica",16)
@@ -70,7 +74,7 @@ class Register(gui.Dialog):
          else:
             self.label.set_text("Invalid User or Password!")
       else:
-         self.label.set_text("Password not macht")
+         self.label.set_text("Passwords not macht")
             
 class Connection(socket):
    def __init__(self, game, user):
@@ -93,7 +97,6 @@ class Connection(socket):
       self.reader.setKey(key)
       self.writer.setKey(key2)
       self.writer.isKeySetted = True
-      self.game.State = GameState.CONNECTED
       
    def handlerConnection(self):
       while not self.game.quit:
@@ -103,7 +106,7 @@ class Connection(socket):
                break
             self.reader.process(packet)
          except Exception, e:
-            self.game.client = None
+            self.game.connection = None
             print e
             break
       else:
@@ -114,15 +117,16 @@ class Connection(socket):
 class Game(engine.Game):
    def __init__(self,screen):
       self.screen= screen
-      self.client = None
+      self.connection = None
+      self.player = None
       self.GState = GameState.WAIT
-      #self.run(Login(self),self.screen)
-      self.run(World(self),self.screen)
+      self.run(Login(self),self.screen)
+      #self.run(World(self),self.screen)
       
    def connectToServer(self):
       if self.GState == GameState.WAIT:
          self.GState = GameState.CONNECTING
-         self.client = Connection(self, self.state.user)
+         self.connection = Connection(self, self.state.user)
 
    def toCharScreen(self, hasPlayer, ID=None, name=None, model=None):
       self.state = CharacterScreen(self, hasPlayer, ID, name, model)
@@ -135,40 +139,99 @@ class Game(engine.Game):
 
    def close(self):
       self.quit = 1
-      if self.client:
-         self.client.writePacket(Logout())
+      if self.connection:
+         self.writePacket(Logout())
 
    def event(self, evt):
       if evt.type is QUIT:
          self.close()
 
-class Chat(gui.Container):
-   def __init__(self):
-      gui.Container.__init__(self, align=-1, valign=1)
-      tb = gui.Table(width=240,height=260)
-      tb.tr()
-      lines = gui.Table(background=(100,20,100,0))
-      box = gui.ScrollArea(lines,260,260,hscrollbar=False)
-      tb.td(box)
-      tb.tr()
-      tb.td(gui.Input(size=28, background=(0,0,0,0)))
-      self.add(tb,0,0)
+   def writePacket(self, packet):
+      self.connection.writePacket(packet)
+
+   def updatePlayer(self, model, ID, name, level, speed, maxHp, hp, x, y, defense, force, exp):
+      if self.player:
+         self.player.speed = speed
+         self.player.maxHp = maxHp
+         self.player.hp = hp
+         self.player.x = x
+         self.player.y = y
+         self.player.defense = defense
+         self.player.force = force
+         player.exp = exp
+      else:
+         self.player = Player(model, ID, name, level, speed, maxHp, hp, x, y, defense, force, exp)
+
+
+class Player(gui.Table):
+   def __init__(self, model, ID, name, level, speed, maxHp, hp, x, y, defense, force, exp):
+      gui.Table.__init__(self)
+      self.ID = ID
+      self.name = name
+      self.show = gui.Label(self.name)
+      self.level = level
+      self.maxHp = maxHp
+      self.hp = hp
+      # make others models
+      self.img = gui.Image("model.png")
+      self.tr()
+      self.td(self.show)
+      self.tr()
+      self.td(self.img)
+      self.x = x
+      self.y = y
+
+
+class Bar(object):
+   def __init__(self, player=None):
+      self.player = player
+      self.target = None
+      self.surf = pygame.Surface((160, 60), flags=SRCALPHA)
+
+   def update(self):
+      self.surf.fill((0,0,0,75))
+      self.surf.blit(_font.render("level: "+str(self.player.level),1,WHITE),(4,0))
+      self.surf.blit(_font.render("name: "+self.player.name,1,WHITE),(4,20))
+      self.surf.blit(_font.render("hp: %s / %s"%(str(self.player.hp), str(self.player.maxHp)),1,WHITE),(4,40))
+      screen.blit(self.surf, (5,0))
+
+class View(gui.Container):
+   def __init__(self, player):
+      gui.Container.__init__(self)
+      self.x = 0
+      self.y = 0
+      self.player = player
+      self.add(self.player,self.player.x+WIDTH/2,self.player.y+HEIGHT/2)
+
+   def render(self):
+      pass
+   """
+      for p in self.known:
+         self.remove(p)
+         self.add(p, p.x+WIDTH/2,p.y+HEIGHT/2)
+   """
 
 class World(engine.State):
    def __init__(self, game):
       self.game = game
-      self.app = gui.App()
-      self.app.init(Chat(),screen)
+      self.window = gui.App()
+      ctn= gui.Container(width=WIDTH, height=HEIGHT)
+      self.view = View(game.player)
+      ctn.add(self.view,0,0)
+      self.window.init(ctn)
+      self.bar = Bar(game.player)
 
    def update(self, screen):
       for x in xrange(WIDTH/40):
          for y in xrange(HEIGHT/40):
             screen.blit(pygame.image.load("tile1.png"),(x*40,y*40))
-      self.app.paint()
+      self.window.paint(screen)
+      self.view.render()
+      self.bar.update()
       pygame.display.flip()
 
    def event(self, evt):
-      self.app.event(evt)
+      self.view.event(evt)
 
 class CharacterScreen(engine.State):
    """
@@ -191,7 +254,7 @@ class CharacterScreen(engine.State):
          self.tb.td(gui.Label("Character:"))
          self.tb.td(gui.Input(size=16, name="pname"), colspan=2, align=-1)
          self.tb.tr()
-         # These buttons must be changed for Images
+         # These buttons must be changed for Images of models
          bt = gui.Button("First Model")
          bt.connect(gui.CLICK, self.create, 1)
          self.tb.td(bt)
@@ -201,6 +264,10 @@ class CharacterScreen(engine.State):
          bt = gui.Button("Third Model")
          bt.connect(gui.CLICK, self.create, 3)
          self.tb.td(bt)
+         self.tb.tr()
+         bt = gui.Button("Logout")
+         bt.connect(gui.CLICK, self.logout)
+         self.tb.td(bt, colspan=3)
       else:
          self.tb.td(gui.Label(name), colspan=3)
          self.tb.tr()
@@ -228,22 +295,22 @@ class CharacterScreen(engine.State):
       pygame.display.flip()
 
    def delChar(self, ID):
-      self.game.client.writePacket(CharacterDelete(ID))
+      self.game.writePacket(CharacterDelete(ID))
 
    def logout(self):
-      self.game.client.writePacket(Logout())
+      self.game.writePacket(Logout())
       self.game.toLoginScreen()
       
    def create(self, model):
       charname = form['pname'].value
-      if charname.isspace() or charname == '':
-         self.write("Choose a name")
+      m = match('\w{3,16}', charname)
+      if m and m.group() == charname:
+         self.game.writePacket(CharacterCreate(charname,model))
       else:
-         self.game.client.writePacket(CharacterCreate(charname,model))
+         self.write("Invalid Name! Your Charname must be only alphanumeric with 3 to 16 chars")
 
    def enterWorld(self, ID):
-      self.write("entering world with "+str(ID))
-      self.game.enterWorld()
+      self.game.writePacket(EnterWorld(ID))
          
    def write(self, txt):
       self.txt = pygame.Surface((WIDTH, 40), flags=SRCALPHA)
@@ -259,7 +326,6 @@ class Login(engine.State):
    def __init__(self,game):
       self.game = game
       self.txt =None
-      self.ctn = gui.Table(width=WIDTH, height=HEIGHT)
       self.tb = gui.Table(vpadding=3)
       self.tb.tr()
       self.tb.td(gui.Label("Username: ",color=WHITE))

@@ -45,11 +45,13 @@ def tryLogin(user,pwd):
 def updateIP(user, ip):
     DB.getInstance().query("UPDATE Accounts SET last_ip = %s WHERE ID = %s",(ip,user))
 
+#must be moved to another 
 def hasPlayer(name):
     return not DB.getInstance().query("SELECT ID FROM Players WHERE name = %s",name).empty()
 
 #must be moved to another 
 def saveCharacter(account, name, model):
+    
     if hasPlayer(name):
         raise CharacterAlreadyExists()
     try:
@@ -73,7 +75,6 @@ def saveCharacter(account, name, model):
         DB.getInstance().query("INSERT INTO Players (ID, account, name, speed, defense, `force`, hp, model)" \
                                "Values (%s,%s,%s,%s,%s,%s,%s,%s)",(ID,account,name,spd,df,fc,hp,model))
     except Exception, e:
-        print e
         return False
     return True
 
@@ -81,12 +82,17 @@ def saveCharacter(account, name, model):
 def getPlayer(account):
     return DB.getInstance().query("SELECT * FROM Players WHERE account = %s",account)
 
+#must be moved to another 
 def deletePlayer(ID):
     try:
         DB.getInstance().query("DELETE FROM Players WHERE ID = %s",ID)
     except:
         return False
     return True
+
+#must be moved to another
+def loadPlayer(ID):
+    return DB.getInstance().query("SELECT * FROM Players WHERE ID = %s",ID)
 
 class RegisterManager(socket):
    def __init__(self):

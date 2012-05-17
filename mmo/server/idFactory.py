@@ -85,3 +85,6 @@ class SingletonHolder(object):
 
 def getInstance():
     return SingletonHolder.INSTANCE
+
+def createID():
+    return getInstance().allocate()

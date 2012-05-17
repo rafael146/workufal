@@ -22,21 +22,11 @@ class Server(socket):
    def close(self):
       super(Server, self).close()
 
-   def broadcastToAll(self, packet):
-      for client in self.clients:
-         client.send(packet)
-
    def handlerConnections(self):
       while 1:
          connection = self.accept()
          ThreadPoolManager.getInstance().scheduleGeneral(ConnectionHandler(connection),0)
 
-class BroadcastService(object):
-   @staticmethod
-   def broadcastToAll(packet):
-      for player in World.getInstance().getKnownPlayers():
-         player.send(packet)
-         
 class Client(object):
    def __init__(self, con, addr, serv):
       self.con = con
@@ -58,9 +48,6 @@ class Client(object):
    def close(self):
       self.con.close()
 
-   def broadcastToAll(self, packet):
-      self.serv.broadcastToAll(packet)
-
    def setKey(self,key):
       key2 = copy(key)
       self.writer.setKey(key)
@@ -68,6 +55,10 @@ class Client(object):
 
    def setName(self, name):
       self.name = name
+
+   def setPlayer(self, player):
+      self.player = player
+      player.client = self
 
 class ConnectionHandler(Runnable):
    def __init__(self, connection):

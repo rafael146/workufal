@@ -94,6 +94,8 @@ class PacketReader(object):
             readable = CharacterCreate(packet)
         elif opcode == 0x03:
             readable = CharacterDelete(packet)
+        elif opcode == 0x04:
+            readable = EnterWorld(packet)
         else:
             print "Invalid Packet opcode:", hex(opcode)
             return

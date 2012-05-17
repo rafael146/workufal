@@ -1,11 +1,13 @@
+import worldManager
 from exception import *
-from accountManager import tryLogin, updateIP, saveCharacter, getPlayer, \
-     deletePlayer
+from accountManager import tryLogin, updateIP
+from charManager import createCharacter, getPlayer, deletePlayer, loadPlayer
 from network import SendablePacket, ReadablePacket
 from security import SecurityManager
 
 
 # ** Sendable Packets **
+
 class StaticPacket(SendablePacket):
    OPCODE = 0x00
    def write(self,conn=None):
@@ -90,7 +92,31 @@ class CharacterDeleted(SendablePacket):
       #dummy packet
       pass
 
+class PlayerInfo(SendablePacket):
+   OPCODE = 0x09
+   def write(self, conn=None):
+      player = conn.player
+      self.writeByte(player.model)
+      self.writeInt(player.ID)
+      self.writeString(player.name)
+      self.writeShort(player.level)
+      self.writeShort(player.speed)
+      self.writeInt(player.maxHp)
+      self.writeInt(player.hp)
+      self.writeInt(player.x)
+      self.writeInt(player.y)
+      self.writeInt(player.defense)
+      self.writeInt(player.force)
+      self.writeLong(player.exp)
+
+class Appearing(SendablePacket):
+   OPCODE = 0x0A
+   def write(self, conn=None):
+      #dummy packet
+      pass
+
 # ** Readable Packets **
+
 class AuthRequest(ReadablePacket):
    #OPCODE: 0x01
    def __init__(self, packet):
@@ -127,7 +153,7 @@ class CharacterCreate(ReadablePacket):
 
    def process(self, conn):
       try:
-         if saveCharacter(conn.name, self.name, self.model):
+         if createCharacter(conn.name, self.name, self.model):
             rs = getPlayer(conn.name)
             rs.next()
             conn.writePacket(CharOk(rs.getInt('ID'),self.name,self.model))
@@ -149,3 +175,18 @@ class CharacterDelete(ReadablePacket):
          conn.writePacket(CharacterDeleted())
       else:
          conn.writePacket(ActionFailed(0x01))
+
+class EnterWorld(ReadablePacket):
+   #OPCODE: 0x04
+   def __init__(self, packet):
+      super(EnterWorld, self).__init__(packet)
+
+   def read(self):
+      self.ID = self.readInt()
+
+   def process(self, conn):
+      player = loadPlayer(self.ID)
+      conn.setPlayer(player)
+      worldManager.getInstance().onEnter(player)
+      conn.writePacket(PlayerInfo())
+      conn.writePacket(Appearing())

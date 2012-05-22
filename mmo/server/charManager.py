@@ -1,4 +1,5 @@
 from database import DatabaseManager as DB
+import idFactory
 def hasPlayer(name):
     return not DB.getInstance().query("SELECT ID FROM Players WHERE name = %s",name).empty()
 
@@ -25,9 +26,10 @@ def createCharacter(account, name, model):
             df = 1
             fc = 2
             hp = 250
-        DB.getInstance().query("INSERT INTO Players (ID, account, name, speed, defense, `force`, hp, model)" \
-                               "Values (%s,%s,%s,%s,%s,%s,%s,%s)",(ID,account,name,spd,df,fc,hp,model))
+        DB.getInstance().query("INSERT INTO Players (ID, account, name, speed, defense, `force`, maxHp, hp, model)" \
+                               "Values (%s,%s,%s,%s,%s,%s,%s,%s,%s)",(ID,account,name,spd,df,fc,hp,hp,model))
     except Exception, e:
+        print e
         return False
     return True
 

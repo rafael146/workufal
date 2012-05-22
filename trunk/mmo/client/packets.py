@@ -13,7 +13,7 @@ class Logout(SendablePacket):
 class AuthRequest(SendablePacket):
    OPCODE = 0x01
    def write(self, conn=None):
-      self.writeString(conn.user)
+      self.writeString(conn.game.state.user)
       self.writeString(conn.game.state.pwd)
 
 class CharacterCreate(SendablePacket):

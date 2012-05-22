@@ -1,25 +1,33 @@
 # -*- coding: utf-8 -*-
-import sys, pygame
+import sys, pygame, math
 from codec import PacketWriter, PacketReader
 from concurrent import ThreadPoolManager
 from copy import copy
 from packets import *
 from pygame.locals import *
+from pygame.sprite import Sprite
 from pgu import gui, engine
 from re import match
 from socket import socket
 
 # XXX: Externalize all strings
 
+# initialize only necessary modules making so speed up.
+pygame.font.init()
+
+# Constants
 WIDTH, HEIGHT = 1200, 680
 WHITE = (255,255,255)
-pygame.font.init()
+
 screen = pygame.display.set_mode((WIDTH,HEIGHT),SRCALPHA)
-screen.set_alpha(50)
 pygame.display.set_caption("PyBot War")
 font = pygame.font.SysFont("default", 18)
-_font = pygame.font.SysFont("helvetica",16)
+_font = pygame.font.SysFont("helvetica",14)
 form = gui.Form()
+
+# temporary
+model1 = pygame.image.load('model.png').convert_alpha()
+
 
 class GameState(object):
    CONNECTED=1
@@ -77,10 +85,9 @@ class Register(gui.Dialog):
          self.label.set_text("Passwords not macht")
             
 class Connection(socket):
-   def __init__(self, game, user):
-      self.game = game
-      self.user = user
+   def __init__(self, game):
       socket.__init__(self)
+      self.game = game
       self.reader = PacketReader(self)
       self.writer = PacketWriter(self)
       self.connect('',7777)
@@ -106,7 +113,6 @@ class Connection(socket):
                break
             self.reader.process(packet)
          except Exception, e:
-            self.game.connection = None
             print e
             break
       else:
@@ -121,12 +127,11 @@ class Game(engine.Game):
       self.player = None
       self.GState = GameState.WAIT
       self.run(Login(self),self.screen)
-      #self.run(World(self),self.screen)
       
    def connectToServer(self):
       if self.GState == GameState.WAIT:
          self.GState = GameState.CONNECTING
-         self.connection = Connection(self, self.state.user)
+         self.connection = Connection(self)
 
    def toCharScreen(self, hasPlayer, ID=None, name=None, model=None):
       self.state = CharacterScreen(self, hasPlayer, ID, name, model)
@@ -162,31 +167,59 @@ class Game(engine.Game):
       else:
          self.player = Player(model, ID, name, level, speed, maxHp, hp, x, y, defense, force, exp)
 
-
-class Player(gui.Table):
+class Player(Sprite):
    def __init__(self, model, ID, name, level, speed, maxHp, hp, x, y, defense, force, exp):
-      gui.Table.__init__(self)
+      Sprite.__init__(self)
       self.ID = ID
       self.name = name
-      self.show = gui.Label(self.name)
+      self.model = model
+      #make others models and initialize rotation with heading
+      #self.image = pygame.transform.rotate(eval("model"+str(model)), heading)
+      self.image = model1
+      self.rect = self.image.get_rect()
       self.level = level
       self.maxHp = maxHp
       self.hp = hp
-      # make others models
-      self.img = gui.Image("model.png")
-      self.tr()
-      self.td(self.show)
-      self.tr()
-      self.td(self.img)
       self.x = x
       self.y = y
+      self.speed = speed
+      # must be persistent date
+      self.heading = 0
+      self.target = None
+      self.knownlist = []
 
+   def turn(self, degree):
+      self.heading = degree
+      center = self.rect.center
+      #self.image = pygame.transform.rotate(eval("model"+str(self.model)), self.heading)
+      self.image = pygame.transform.rotate(model1, self.heading)
+      self.rect = self.image.get_rect(center=center)
 
+   def walk(self, heading):
+      print 'walking'
+      # These moves must be implemented on server side
+      if heading == 1:
+         self.y += self.speed
+      elif heading == 2:
+         self.y -= self.speed
+      elif heading == 3:
+         self.x += self.speed
+      elif heading == 4:
+         self.x -= self.speed
+
+   def fire(self):
+      if self.target:
+         print 'firing'
+
+   def cancelTarget(self):
+      self.target = None
+         
 class Bar(object):
    def __init__(self, player=None):
       self.player = player
-      self.target = None
       self.surf = pygame.Surface((160, 60), flags=SRCALPHA)
+      # for target porpuse
+      self.t_surf = pygame.Surface((100, 40), flags=SRCALPHA)
 
    def update(self):
       self.surf.fill((0,0,0,75))
@@ -194,44 +227,59 @@ class Bar(object):
       self.surf.blit(_font.render("name: "+self.player.name,1,WHITE),(4,20))
       self.surf.blit(_font.render("hp: %s / %s"%(str(self.player.hp), str(self.player.maxHp)),1,WHITE),(4,40))
       screen.blit(self.surf, (5,0))
-
-class View(gui.Container):
-   def __init__(self, player):
-      gui.Container.__init__(self)
-      self.x = 0
-      self.y = 0
-      self.player = player
-      self.add(self.player,self.player.x+WIDTH/2,self.player.y+HEIGHT/2)
-
-   def render(self):
-      pass
-   """
-      for p in self.known:
-         self.remove(p)
-         self.add(p, p.x+WIDTH/2,p.y+HEIGHT/2)
-   """
+      if self.player.target:
+         self.t_surf.fill((0,0,0,75))
+         name = self.player.target.name
+         dx,dy = _font.size(name)
+         self.t_surf.blit(_font.render(name,1,WHITE), (50-dx/2,20-dy/2))
+         screen.blit(self.t_surf,(WIDTH/2-50,0))
 
 class World(engine.State):
    def __init__(self, game):
       self.game = game
-      self.window = gui.App()
-      ctn= gui.Container(width=WIDTH, height=HEIGHT)
-      self.view = View(game.player)
-      ctn.add(self.view,0,0)
-      self.window.init(ctn)
-      self.bar = Bar(game.player)
+      self.player = game.player
+      self.bar = Bar(self.player)
 
    def update(self, screen):
       for x in xrange(WIDTH/40):
          for y in xrange(HEIGHT/40):
             screen.blit(pygame.image.load("tile1.png"),(x*40,y*40))
-      self.window.paint(screen)
-      self.view.render()
+      # player must always appear on center screen
+      self.blitOwner(screen)
       self.bar.update()
       pygame.display.flip()
 
+   def blitOwner(self,screen):
+      screen.blit(_font.render(self.player.name,1,WHITE),(WIDTH/2,HEIGHT/2-15))
+      screen.blit(self.player.image, (WIDTH/2,HEIGHT/2))
+      self.player.rect.topleft = (WIDTH/2,HEIGHT/2)
+
    def event(self, evt):
-      self.view.event(evt)
+      if evt.type == MOUSEBUTTONDOWN:
+         if self.player.rect.collidepoint(evt.pos):
+            self.onAction(self.player)
+         center = self.player.rect.center
+         dx = evt.pos[0] - center[0]
+         dy = center[1] - evt.pos[1]
+         angle = math.degrees(math.atan2(dy,dx))-90
+         self.player.turn(angle)
+      if evt.type == KEYDOWN:
+         if evt.key == K_a:
+            self.player.walk(4)
+         elif evt.key == K_w:
+            self.player.walk(1)
+         elif evt.key == K_s:
+            self.player.walk(2)
+         elif evt.key == K_d:
+            self.player.walk(3)
+         elif evt.key == K_f:
+            self.player.fire()
+         elif evt.key == K_ESCAPE:
+            self.player.cancelTarget()
+         print evt.key
+
+   def onAction(self, player):
+      self.player.target = player      
 
 class CharacterScreen(engine.State):
    """
@@ -302,6 +350,7 @@ class CharacterScreen(engine.State):
       self.game.toLoginScreen()
       
    def create(self, model):
+      # I don't like this, this check must be server side.
       charname = form['pname'].value
       m = match('\w{3,16}', charname)
       if m and m.group() == charname:
@@ -380,6 +429,8 @@ class Login(engine.State):
       except Exception, e:
          print e
          self.write("Can't Resolve Hostname. Try again later")
+         self.game.connection = None
+         self.game.GState = GameState.WAIT
 
    @property
    def user(self):

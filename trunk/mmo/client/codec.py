@@ -113,6 +113,10 @@ class PacketReader(object):
             readable = PlayerInfo(packet)
         elif opcode == 0x0A:
             readable = Appearing(packet)
+        elif opcode == 0x0B:
+            readable = TargetSelected(packet)
+        elif opcode == 0x0C:
+            readable = Disconnected(packet)
         else:
             print "Invalid Packet opcode:", hex(opcode)
             return

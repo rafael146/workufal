@@ -120,6 +120,10 @@ class Connection(socket):
          self.close()
       self.game.GState = GameState.WAIT
 
+   @property
+   def player(self):
+      return self.game.player
+
 class Game(engine.Game):
    def __init__(self,screen):
       self.screen= screen
@@ -134,12 +138,14 @@ class Game(engine.Game):
          self.connection = Connection(self)
 
    def toCharScreen(self, hasPlayer, ID=None, name=None, model=None):
+      self.player = None
       self.state = CharacterScreen(self, hasPlayer, ID, name, model)
 
    def enterWorld(self):
       self.state = World(self)
 
    def toLoginScreen(self):
+      self.player = None
       self.state = Login(self)
 
    def close(self):
@@ -163,7 +169,7 @@ class Game(engine.Game):
          self.player.y = y
          self.player.defense = defense
          self.player.force = force
-         player.exp = exp
+         self.player.exp = exp
       else:
          self.player = Player(model, ID, name, level, speed, maxHp, hp, x, y, defense, force, exp)
 
@@ -250,14 +256,16 @@ class World(engine.State):
       pygame.display.flip()
 
    def blitOwner(self,screen):
-      screen.blit(_font.render(self.player.name,1,WHITE),(WIDTH/2,HEIGHT/2-15))
-      screen.blit(self.player.image, (WIDTH/2,HEIGHT/2))
-      self.player.rect.topleft = (WIDTH/2,HEIGHT/2)
+      name = self.player.name
+      size = font.size(name)
+      screen.blit(_font.render(name,1,WHITE),(WIDTH/2-size[0]/2,HEIGHT/2-40))
+      self.player.rect.center = (WIDTH/2,HEIGHT/2)
+      screen.blit(self.player.image, (WIDTH/2-20,HEIGHT/2-25))
 
    def event(self, evt):
       if evt.type == MOUSEBUTTONDOWN:
          if self.player.rect.collidepoint(evt.pos):
-            self.onAction(self.player)
+            self.onAction(self.player, evt.pos)
          center = self.player.rect.center
          dx = evt.pos[0] - center[0]
          dy = center[1] - evt.pos[1]
@@ -278,8 +286,8 @@ class World(engine.State):
             self.player.cancelTarget()
          print evt.key
 
-   def onAction(self, player):
-      self.player.target = player      
+   def onAction(self, character):
+      self.game.writePacket(Action(character.ID))
 
 class CharacterScreen(engine.State):
    """

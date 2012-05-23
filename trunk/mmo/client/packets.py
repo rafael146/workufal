@@ -45,6 +45,16 @@ class EnterWorld(SendablePacket):
    def write(self, conn=None):
       self.writeInt(self.ID)
 
+class Action(SendablePacket):
+   OPCODE = 0x05
+   def __init__(self, ID):
+      SendablePacket.__init__(self)
+      self.ID = ID
+
+   def write(self, conn):
+      self.writeInt(self.ID)
+      
+
 # ** Readables Packet **
 
 class Connect(ReadablePacket):
@@ -82,7 +92,7 @@ class ProtocolReceiver(ReadablePacket):
 
 class LoginFail(ReadablePacket):
    #OPCODE: 0x03
-   msgs = ["","User or Password wrong"]
+   msgs = ["","User Or Password Wrong", "Account Already In Use"]
    def __init__(self, packet):
       super(LoginFail, self).__init__(packet)
 
@@ -204,4 +214,25 @@ class Appearing(ReadablePacket):
    def process(self, conn):
       conn.game.enterWorld()
 
+class TargetSelected(ReadablePacket):
+   #OPCODE : 0x0B
+   def __init__(self, packet):
+      super(TargetSelected, self).__init__(packet)
 
+   def read(self):
+      targetId = self.readInt()
+
+   def process(self, conn):
+      # implement discover player system
+      pass
+
+class Disconnected(ReadablePacket):
+   #OPCODE: 0x0C
+   def read(self):
+      #dummy packet
+      pass
+
+   def process(self, conn):
+      conn.game.toLoginScreen()
+      conn.game.state.write("Disconnected From Server")
+      conn.writePacket(Logout())

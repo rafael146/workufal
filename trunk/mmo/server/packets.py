@@ -30,7 +30,8 @@ class ProtocolSender(SendablePacket):
 class LoginFail(SendablePacket):
    OPCODE = 0x03
    # reasons
-   # 0x01 - USER OR PASSWORD WRONG
+   # 0x01 - User or Password Wrong
+   # 0x02 - Account Already in use
    def __init__(self, reason):
       SendablePacket.__init__(self)
       self.reason = reason
@@ -115,7 +116,34 @@ class Appearing(SendablePacket):
       #dummy packet
       pass
 
+class TargetSelected(SendablePacket):
+   OPCODE = 0x0B
+   def __init__(self, Id):
+      SendablePacket.__init__(self)
+      self.Id = Id
+
+   def write(self, conn=None):
+      self.writeInt(self.Id)   
+
+class Disconnected(SendablePacket):
+   OPCODE = 0x0C
+   def write(self, conn=None):
+      #dummy packet
+      pass
+
 # ** Readable Packets **
+
+class Logout(ReadablePacket):
+   #OPCODE: 0x00
+   def __init__(self, packet):
+      super(Logout, self).__init__(packet)
+
+   def read(self):
+      #dummy packet
+      pass
+
+   def process(self, conn):
+      conn.logout()
 
 class AuthRequest(ReadablePacket):
    #OPCODE: 0x01
@@ -129,6 +157,10 @@ class AuthRequest(ReadablePacket):
    def process(self, conn):
       if tryLogin(self.user, self.pwd):
          rs = getPlayer(self.user)
+         if conn.isConnected(self.user):
+            conn.writePacket(LoginFail(0x02))
+            return
+         conn.clientConnected(self.user)
          if rs.next():
             ID = rs.getInt('ID')
             name = rs.getString('name')
@@ -137,8 +169,6 @@ class AuthRequest(ReadablePacket):
          else:
             conn.writePacket(LoginOk(0x00))
          updateIP(self.user, conn.addr[0])
-         #this must be removed
-         conn.setName(self.user)
       else:
          conn.writePacket(LoginFail(0x01))
 
@@ -190,3 +220,19 @@ class EnterWorld(ReadablePacket):
       worldManager.getInstance().onEnter(player)
       conn.writePacket(PlayerInfo())
       conn.writePacket(Appearing())
+
+class Action(ReadablePacket):
+   #OPCODE: 0x04
+   def __init__(self, packet):
+      super(Action, self).__init__(packet)
+
+   def read(self):
+      self.targetId = self.readInt()
+
+   def process(self, conn):
+      target = worldManager.find(self.targetId)
+      if target and target != conn.player.target:
+         conn.player.target = target
+         conn.writePacket(TargetSelected(target.ID))
+      else :
+         conn.writePacket(StaticPacket())

@@ -62,4 +62,5 @@ def loadPlayer(ID):
         return player   
 
 class Player(object):
-    pass
+    def __init__(self):
+        self.target = None

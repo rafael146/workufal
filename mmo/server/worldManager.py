@@ -6,9 +6,19 @@ class World(object):
         self.players.append(player)
         # All player in known area must be notified
 
+    def onLogout(self, player):
+        self.players.remove(player)
+
     @property
     def KnownPlayers(self):
         return self.players
+
+    def find(self, Id):
+        for player in self.players:
+            if player.ID == Id:
+                return player
+        return None
+            
 
 class BroadcastService(object):
     @staticmethod

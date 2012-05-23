@@ -8,7 +8,7 @@ from socket import socket, SOL_SOCKET, SO_REUSEADDR
 
 class Server(socket):
    def openConnection(self,host='',port=7777):
-      self.clients = []
+      self.clients = dict()
       self.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
       self.bind((host,port))
       self.listen(7)
@@ -27,6 +27,18 @@ class Server(socket):
          connection = self.accept()
          ThreadPoolManager.getInstance().scheduleGeneral(ConnectionHandler(connection),0)
 
+   def register(self, client, conn):
+      self.clients[client] = conn
+
+   def logout(self, client):
+      del self.clients[client]
+
+   def hasClient(self, client):
+      if self.clients.has_key(client):
+         self.clients[client].writePacket(Disconnected())
+         return True
+      return False
+
 class Client(object):
    def __init__(self, con, addr, serv):
       self.con = con
@@ -34,7 +46,7 @@ class Client(object):
       self.serv = serv
       self.writer = PacketWriter(self)
       self.reader = PacketReader(self)
-      self.name = None
+      self.user = None
 
    def recv(self, lenght):
       return self.con.recv(lenght)
@@ -53,12 +65,20 @@ class Client(object):
       self.writer.setKey(key)
       self.reader.setKey(key2)
 
-   def setName(self, name):
-      self.name = name
-
    def setPlayer(self, player):
       self.player = player
       player.client = self
+
+   def clientConnected(self, user):
+      self.serv.register(user,self)
+      self.user = user
+
+   def isConnected(self, user):
+      return self.serv.hasClient(user)
+
+   def logout(self):
+      self.serv.logout(self.user)
+      self.close()
 
 class ConnectionHandler(Runnable):
    def __init__(self, connection):

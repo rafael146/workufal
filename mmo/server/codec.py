@@ -85,9 +85,7 @@ class PacketReader(object):
         opcode = packet.readShort() &0xFF
         print 'received opcode', hex(opcode)
         if opcode == 0x00:
-            #Only Close Connection
-            self.conn.close()
-            return
+            readable = Logout(packet)
         elif opcode == 0x01:
             readable = AuthRequest(packet)
         elif opcode == 0x02:
@@ -96,6 +94,8 @@ class PacketReader(object):
             readable = CharacterDelete(packet)
         elif opcode == 0x04:
             readable = EnterWorld(packet)
+        elif opcode == 0x05:
+            readable = Action(packet)
         else:
             print "Invalid Packet opcode:", hex(opcode)
             return

@@ -1,5 +1,7 @@
-from database import DatabaseManager as DB
 import idFactory
+from character import Player
+from database import DatabaseManager as DB
+
 def hasPlayer(name):
     return not DB.getInstance().query("SELECT ID FROM Players WHERE name = %s",name).empty()
 
@@ -59,8 +61,5 @@ def loadPlayer(ID):
         player.y = rs.getInt('y')
         player.exp = rs.getInt('exp')
         player.model = rs.getInt('model')
-        return player   
-
-class Player(object):
-    def __init__(self):
-        self.target = None
+        player.heading = rs.getInt('heading')
+        return player

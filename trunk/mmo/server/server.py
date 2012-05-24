@@ -1,4 +1,5 @@
-import sys, idFactory
+import sys, idFactory, time
+start = time.time()
 from accountManager import RegisterManager
 from codec import PacketWriter, PacketReader
 from concurrent import Runnable, ThreadPoolManager
@@ -29,6 +30,7 @@ class Server(socket):
 
    def register(self, client, conn):
       self.clients[client] = conn
+      print self.clients
 
    def logout(self, client):
       del self.clients[client]
@@ -47,6 +49,7 @@ class Client(object):
       self.writer = PacketWriter(self)
       self.reader = PacketReader(self)
       self.user = None
+      self.player = None
 
    def recv(self, lenght):
       return self.con.recv(lenght)
@@ -103,7 +106,8 @@ class ConnectionHandler(Runnable):
             break
       self.connection.close()
 
-idFactory.getInstance().loads()
+idFactory.getInstance().load()
 RegisterManager()
 server = Server()
+print 'loaded in %.3f seconds'% (time.time()-start)
 server.openConnection()

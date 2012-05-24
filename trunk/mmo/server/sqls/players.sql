@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS Players (
  `level` decimal(10,0) not null default 1,
  x decimal(11,0) not null default 0,
  y decimal(11,0) not null default 0,
+ heading decimal(6,0) not null default 0,
  `exp` decimal(20,0) not null default 0,
  model decimal(1,0) not null,
 

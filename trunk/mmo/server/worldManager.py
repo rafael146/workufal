@@ -1,10 +1,12 @@
 class World(object):
     def __init__(self):
-        self.players = []
+        self.players = set()
 
     def onEnter(self, player):
-        self.players.append(player)
-        # All player in known area must be notified
+        self.players.add(player)
+        print len(self.players)
+        for p in self.players:
+            print p.name
 
     def onLogout(self, player):
         self.players.remove(player)

@@ -265,7 +265,7 @@ class World(engine.State):
    def event(self, evt):
       if evt.type == MOUSEBUTTONDOWN:
          if self.player.rect.collidepoint(evt.pos):
-            self.onAction(self.player, evt.pos)
+            self.onAction(self.player)
          center = self.player.rect.center
          dx = evt.pos[0] - center[0]
          dy = center[1] - evt.pos[1]

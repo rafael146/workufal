@@ -143,6 +143,8 @@ class Logout(ReadablePacket):
       pass
 
    def process(self, conn):
+      if conn.player:
+         worldManager.getInstance().onLogout(conn.player)
       conn.logout()
 
 class AuthRequest(ReadablePacket):
@@ -183,8 +185,8 @@ class CharacterCreate(ReadablePacket):
 
    def process(self, conn):
       try:
-         if createCharacter(conn.name, self.name, self.model):
-            rs = getPlayer(conn.name)
+         if createCharacter(conn.user, self.name, self.model):
+            rs = getPlayer(conn.user)
             rs.next()
             conn.writePacket(CharOk(rs.getInt('ID'),self.name,self.model))
          else:

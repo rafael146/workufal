@@ -74,7 +74,7 @@ class IDAllocador(object):
             self.set(ID - FIRST_ID)
             self.nextID = self.nextClearBit()
 
-    def loads(self):
+    def load(self):
         rs = DB.getInstance().query("SELECT ID FROM Players")
         while rs.next():
             self.allocate(rs.getInt('ID'))

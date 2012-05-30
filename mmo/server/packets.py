@@ -1,4 +1,4 @@
-import worldManager
+import services
 from exception import *
 from accountManager import tryLogin, updateIP
 from charManager import createCharacter, getPlayer, deletePlayer, loadPlayer
@@ -106,6 +106,7 @@ class PlayerInfo(SendablePacket):
       self.writeInt(player.hp)
       self.writeInt(player.x)
       self.writeInt(player.y)
+      self.writeInt(player.heading)
       self.writeInt(player.defense)
       self.writeInt(player.force)
       self.writeLong(player.exp)
@@ -131,6 +132,20 @@ class Disconnected(SendablePacket):
       #dummy packet
       pass
 
+class CharInfo(SendablePacket):
+   OPCODE = 0x0D
+   def __init__(self, character):
+      SendablePacket.__init__(self)
+      self.character = character
+      
+   def write(self, conn=None):
+      self.writeInt(self.character.ID)
+      self.writeString(self.character.name)
+      self.writeByte(self.character.model)
+      self.writeInt(self.character.x)
+      self.writeInt(self.character.y)
+      self.writeInt(self.character.heading)
+
 # ** Readable Packets **
 
 class Logout(ReadablePacket):
@@ -144,7 +159,7 @@ class Logout(ReadablePacket):
 
    def process(self, conn):
       if conn.player:
-         worldManager.getInstance().onLogout(conn.player)
+         services.getWorldInstance().onLogout(conn.player)
       conn.logout()
 
 class AuthRequest(ReadablePacket):
@@ -219,12 +234,17 @@ class EnterWorld(ReadablePacket):
    def process(self, conn):
       player = loadPlayer(self.ID)
       conn.setPlayer(player)
-      worldManager.getInstance().onEnter(player)
+      services.getWorldInstance().onEnter(player)
       conn.writePacket(PlayerInfo())
       conn.writePacket(Appearing())
-
+      # broadcast all players in same area
+      broadcastService = services.getBroadcastInstance()
+      broadcastService.broadcastToArea(player, CharInfo(player))
+      broadcastService.broadcastAll(player, [CharInfo(char) for char in
+                                             player.getKnown()])
+      
 class Action(ReadablePacket):
-   #OPCODE: 0x04
+   #OPCODE: 0x05
    def __init__(self, packet):
       super(Action, self).__init__(packet)
 
@@ -232,7 +252,7 @@ class Action(ReadablePacket):
       self.targetId = self.readInt()
 
    def process(self, conn):
-      target = worldManager.find(self.targetId)
+      target = services.getWorldInstance().find(self.targetId)
       if target and target != conn.player.target:
          conn.player.target = target
          conn.writePacket(TargetSelected(target.ID))

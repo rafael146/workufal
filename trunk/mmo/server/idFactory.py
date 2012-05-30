@@ -1,6 +1,6 @@
 # Autor: Alisson Oliveira
 #
-# ID allocador based in BitSet
+# ID allocator based in BitSet
 #
 from database import DatabaseManager as DB
 
@@ -16,7 +16,7 @@ FIRST_ID = 0x10000000
 LAST_ID  = 0x7FFFFFFF
 ALLOCABLES_ID = LAST_ID - FIRST_ID
 
-class IDAllocador(object):
+class IDAllocator(object):
     def __init__(self, capacity):
         self.words = [0L]*(capacity/BITS_WORD+1)
         self.nextID = self.nextClearBit()
@@ -81,7 +81,7 @@ class IDAllocador(object):
         print "All IDs loaded"
 
 class SingletonHolder(object):
-    INSTANCE = IDAllocador(10000)
+    INSTANCE = IDAllocator(10000)
 
 def getInstance():
     return SingletonHolder.INSTANCE

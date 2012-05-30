@@ -17,6 +17,7 @@ pygame.font.init()
 
 # Constants
 WIDTH, HEIGHT = 1200, 680
+CENTER = WIDTH/2, HEIGHT/2
 WHITE = (255,255,255)
 
 screen = pygame.display.set_mode((WIDTH,HEIGHT),SRCALPHA)
@@ -27,7 +28,6 @@ form = gui.Form()
 
 # temporary
 model1 = pygame.image.load('model.png').convert_alpha()
-
 
 class GameState(object):
    CONNECTED=1
@@ -160,22 +160,34 @@ class Game(engine.Game):
    def writePacket(self, packet):
       self.connection.writePacket(packet)
 
-   def updatePlayer(self, model, ID, name, level, speed, maxHp, hp, x, y, defense, force, exp):
+   def updatePlayer(self, model, ID, name, level, speed, maxHp, hp, x, y, heading, defense, force, exp):
       if self.player:
          self.player.speed = speed
          self.player.maxHp = maxHp
          self.player.hp = hp
          self.player.x = x
          self.player.y = y
+         self.player.heading = heading
          self.player.defense = defense
          self.player.force = force
          self.player.exp = exp
+         self.level = level
       else:
-         self.player = Player(model, ID, name, level, speed, maxHp, hp, x, y, defense, force, exp)
+         self.player = Player(model, ID, name, level, speed, maxHp, hp, x, y, heading, defense, force, exp)
 
-class Player(Sprite):
-   def __init__(self, model, ID, name, level, speed, maxHp, hp, x, y, defense, force, exp):
-      Sprite.__init__(self)
+   def showCharacter(self, ID, name, model, x, y, heading):
+      # if char is in knowlist only update location
+      for char in self.player.knownlist:
+         if char.ID == ID:
+            char.x = x
+            char.y = y
+            char.heading = heading
+            break
+      else:
+         self.player.knownlist.add(Character(ID,name,model,x,y,heading))
+         
+class Character(Sprite):
+   def __init__(self, ID, name, model, x, y, heading):
       self.ID = ID
       self.name = name
       self.model = model
@@ -183,16 +195,9 @@ class Player(Sprite):
       #self.image = pygame.transform.rotate(eval("model"+str(model)), heading)
       self.image = model1
       self.rect = self.image.get_rect()
-      self.level = level
-      self.maxHp = maxHp
-      self.hp = hp
       self.x = x
       self.y = y
-      self.speed = speed
-      # must be persistent date
-      self.heading = 0
-      self.target = None
-      self.knownlist = []
+      self.heading = heading
 
    def turn(self, degree):
       self.heading = degree
@@ -200,6 +205,17 @@ class Player(Sprite):
       #self.image = pygame.transform.rotate(eval("model"+str(self.model)), self.heading)
       self.image = pygame.transform.rotate(model1, self.heading)
       self.rect = self.image.get_rect(center=center)
+      
+class Player(Character):
+   def __init__(self, model, ID, name, level, speed, maxHp, hp, x, y, heading, defense, force, exp):
+      Character.__init__(self, ID, name, model, x, y, heading)
+      self.level = level
+      self.maxHp = maxHp
+      self.hp = hp
+      self.speed = speed
+      # must be persistent date
+      self.target = None
+      self.knownlist = set()
 
    def walk(self, heading):
       print 'walking'
@@ -250,17 +266,26 @@ class World(engine.State):
       for x in xrange(WIDTH/40):
          for y in xrange(HEIGHT/40):
             screen.blit(pygame.image.load("tile1.png"),(x*40,y*40))
-      # player must always appear on center screen
       self.blitOwner(screen)
+      for char in self.player.knownlist:
+         self.blitChar(char)
       self.bar.update()
       pygame.display.flip()
 
    def blitOwner(self,screen):
+      # player must always appear on center screen
       name = self.player.name
-      size = font.size(name)
-      screen.blit(_font.render(name,1,WHITE),(WIDTH/2-size[0]/2,HEIGHT/2-40))
-      self.player.rect.center = (WIDTH/2,HEIGHT/2)
-      screen.blit(self.player.image, (WIDTH/2-20,HEIGHT/2-25))
+      size = _font.size(name)
+      screen.blit(_font.render(name,1,WHITE),(CENTER[0]-size[0]/2,CENTER[1]-40))
+      self.player.rect.center = (CENTER)
+      screen.blit(self.player.image, (CENTER[0]-20,CENTER[1]-25))
+
+   def blitChar(self, char):
+      dx = CENTER[0] - self.player.x - char.x-20
+      dy = CENTER[1] - self.player.y - char.y-25
+      screen.blit(_font.render(char.name,1,WHITE),(dx,dy-15))
+      screen.blit(char.image, (dx, dy))
+      char.rect.center = dx+20,dy+25
 
    def event(self, evt):
       if evt.type == MOUSEBUTTONDOWN:

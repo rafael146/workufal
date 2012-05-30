@@ -58,10 +58,7 @@ class Action(SendablePacket):
 # ** Readables Packet **
 
 class Connect(ReadablePacket):
-   #OPCODE: 0x01
-   def __init__(self, packet):
-      super(Connect,self).__init__(packet)
-      
+   #OPCODE: 0x01      
    def read(self):
       length = self.readInt()
       self.key = self.readBytes(length)
@@ -72,10 +69,7 @@ class Connect(ReadablePacket):
       conn.game.State = 1
 
 class ProtocolReceiver(ReadablePacket):
-   #OPCODE: 0x02
-   def __init__(self, packet):
-      super(ProtocolReceiver,self).__init__(packet)
-      
+   #OPCODE: 0x02      
    def read(self):
       self.protocol = self.readInt()
 
@@ -93,9 +87,6 @@ class ProtocolReceiver(ReadablePacket):
 class LoginFail(ReadablePacket):
    #OPCODE: 0x03
    msgs = ["","User Or Password Wrong", "Account Already In Use"]
-   def __init__(self, packet):
-      super(LoginFail, self).__init__(packet)
-
    def read(self):
       self.reason = self.readByte()
 
@@ -129,9 +120,6 @@ class LoginOk(ReadablePacket):
 
 class CharOk(ReadablePacket):
    #OPCODE: 0x05
-   def __init__(self, packet):
-      super(CharOk, self).__init__(packet)
-
    def read(self):
       self.ID = self.readInt()
       self.name = self.readString()
@@ -142,9 +130,6 @@ class CharOk(ReadablePacket):
 
 class CharFail(ReadablePacket):
    #OPCODE: 0x06
-   def __init__(self, packet):
-      super(CharFail, self).__init__(packet)
-
    def read(self):
       #dummy packet
       pass
@@ -156,9 +141,6 @@ class ActionFailed(ReadablePacket):
    #OPCODE: 0x07
    reasons = ["","Coldn't delete Character","Char Creation Failed",
               "Character name Already in use"]
-   def __init__(self, packet):
-      super(ActionFailed, self).__init__(packet)
-
    def read(self):
       self.reason = self.readByte()
 
@@ -180,9 +162,6 @@ class CharacterDeleted(ReadablePacket):
 
 class PlayerInfo(ReadablePacket):
    #OPCODE: 0x09
-   def __init__(self, packet):
-      super(PlayerInfo, self).__init__(packet)
-
    def read(self):
       self.model = self.readByte()
       self.ID = self.readInt()
@@ -193,20 +172,18 @@ class PlayerInfo(ReadablePacket):
       self.hp = self.readInt()
       self.x = self.readInt()
       self.y = self.readInt()
+      self.heading = self.readInt()
       self.defense = self.readInt()
       self.force = self.readInt()
       self.exp = self.readLong()
 
    def process(self, conn):
-      conn.game.updatePlayer(self.model, self.ID, self.name, self.level, self.speed, \
-                             self.maxHp, self.hp, self.x, self.y, self.defense, \
-                             self.force, self.exp)
+      conn.game.updatePlayer(self.model, self.ID, self.name, self.level, self.speed,
+                             self.maxHp, self.hp, self.x, self.y, self.heading,
+                             self.defense, self.force, self.exp)
 
 class Appearing(ReadablePacket):
    #OPCODE: 0x0A
-   def __init__(self, packet):
-      super(Appearing, self).__init__(packet)
-
    def read(self):
       #dummy packet
       pass
@@ -216,9 +193,6 @@ class Appearing(ReadablePacket):
 
 class TargetSelected(ReadablePacket):
    #OPCODE : 0x0B
-   def __init__(self, packet):
-      super(TargetSelected, self).__init__(packet)
-
    def read(self):
       targetId = self.readInt()
 
@@ -236,3 +210,19 @@ class Disconnected(ReadablePacket):
       conn.game.toLoginScreen()
       conn.game.state.write("Disconnected From Server")
       conn.writePacket(Logout())
+
+class CharInfo(ReadablePacket):
+   #OPCODE: 0x0D
+   def read(self):
+      self.charID = self.readInt()
+      self.charName = self.readString()
+      self.model = self.readByte()
+      self.posX = self.readInt()
+      self.posY = self.readInt()
+      self.heading = self.readInt()
+
+   def process(self, conn):
+      conn.game.showCharacter(self.charID, self.charName, self.model,
+                              self.posX, self.posY,self.heading)
+         
+      

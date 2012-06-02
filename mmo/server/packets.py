@@ -145,14 +145,18 @@ class CharInfo(SendablePacket):
       self.writeInt(self.character.x)
       self.writeInt(self.character.y)
       self.writeInt(self.character.heading)
+      print "Sending"
+      print self.character.ID
+      print self.character.name
+      print self.character.model
+      print self.character.x
+      print self.character.y
+      print self.character.heading
 
 # ** Readable Packets **
 
 class Logout(ReadablePacket):
    #OPCODE: 0x00
-   def __init__(self, packet):
-      super(Logout, self).__init__(packet)
-
    def read(self):
       #dummy packet
       pass
@@ -164,9 +168,6 @@ class Logout(ReadablePacket):
 
 class AuthRequest(ReadablePacket):
    #OPCODE: 0x01
-   def __init__(self, packet):
-      super(AuthRequest, self).__init__(packet)
-
    def read(self):
       self.user = self.readString()
       self.pwd = self.readString()
@@ -191,9 +192,6 @@ class AuthRequest(ReadablePacket):
 
 class CharacterCreate(ReadablePacket):
    #OPCODE: 0x02
-   def __init__(self, packet):
-      super(CharacterCreate, self).__init__(packet)
-
    def read(self):
       self.model = self.readByte()
       self.name  = self.readString()
@@ -211,9 +209,6 @@ class CharacterCreate(ReadablePacket):
 
 class CharacterDelete(ReadablePacket):
    #OPCODE: 0x03
-   def __init__(self, packet):
-      super(CharacterDelete, self).__init__(packet)
-
    def read(self):
       self.ID = self.readInt()
 
@@ -225,9 +220,6 @@ class CharacterDelete(ReadablePacket):
 
 class EnterWorld(ReadablePacket):
    #OPCODE: 0x04
-   def __init__(self, packet):
-      super(EnterWorld, self).__init__(packet)
-
    def read(self):
       self.ID = self.readInt()
 
@@ -245,9 +237,6 @@ class EnterWorld(ReadablePacket):
       
 class Action(ReadablePacket):
    #OPCODE: 0x05
-   def __init__(self, packet):
-      super(Action, self).__init__(packet)
-
    def read(self):
       self.targetId = self.readInt()
 
@@ -258,3 +247,26 @@ class Action(ReadablePacket):
          conn.writePacket(TargetSelected(target.ID))
       else :
          conn.writePacket(StaticPacket())
+
+class Move(ReadablePacket):
+   #OPCODE: 0x06
+   # directions:
+   # 1 - North
+   # 2 - South
+   # 3 - West
+   # 4 - Oest
+   def read(self):
+      self.direction = self.readByte()
+
+   def process(self, conn):
+      player = conn.player
+      if self.direction == 1:
+         player.y -= player.speed
+      elif self.direction == 2:
+         player.y += player.speed
+      elif self.direction == 3:
+         player.x += player.speed
+      elif self.direction == 4:
+         player.x -= player.speed
+      conn.writePacket(PlayerInfo())
+      services.getBroadcastInstance().broadcastToArea(player, CharInfo(player))

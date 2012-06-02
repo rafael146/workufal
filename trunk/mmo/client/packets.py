@@ -53,7 +53,20 @@ class Action(SendablePacket):
 
    def write(self, conn):
       self.writeInt(self.ID)
-      
+
+class Move(SendablePacket):
+   # directions:
+   # 1 - North
+   # 2 - South
+   # 3 - West
+   # 4 - Oest
+   OPCODE = 0x06
+   def __init__(self, direction):
+      SendablePacket.__init__(self)
+      self.direction = direction
+
+   def write(self, conn):
+      self.writeByte(self.direction)
 
 # ** Readables Packet **
 

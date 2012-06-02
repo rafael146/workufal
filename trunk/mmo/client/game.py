@@ -221,9 +221,9 @@ class Player(Character):
       print 'walking'
       # These moves must be implemented on server side
       if heading == 1:
-         self.y += self.speed
-      elif heading == 2:
          self.y -= self.speed
+      elif heading == 2:
+         self.y += self.speed
       elif heading == 3:
          self.x += self.speed
       elif heading == 4:
@@ -281,8 +281,8 @@ class World(engine.State):
       screen.blit(self.player.image, (CENTER[0]-20,CENTER[1]-25))
 
    def blitChar(self, char):
-      dx = CENTER[0] - self.player.x - char.x-20
-      dy = CENTER[1] - self.player.y - char.y-25
+      dx = CENTER[0] - self.player.x + char.x-20
+      dy = CENTER[1] - self.player.y + char.y-25
       screen.blit(_font.render(char.name,1,WHITE),(dx,dy-15))
       screen.blit(char.image, (dx, dy))
       char.rect.center = dx+20,dy+25
@@ -297,14 +297,14 @@ class World(engine.State):
          angle = math.degrees(math.atan2(dy,dx))-90
          self.player.turn(angle)
       if evt.type == KEYDOWN:
-         if evt.key == K_a:
-            self.player.walk(4)
-         elif evt.key == K_w:
-            self.player.walk(1)
+         if evt.key == K_w:
+            self.game.writePacket(Move(1))
          elif evt.key == K_s:
-            self.player.walk(2)
+            self.game.writePacket(Move(2))
          elif evt.key == K_d:
-            self.player.walk(3)
+            self.game.writePacket(Move(3))
+         elif evt.key == K_a:
+            self.game.writePacket(Move(4))
          elif evt.key == K_f:
             self.player.fire()
          elif evt.key == K_ESCAPE:

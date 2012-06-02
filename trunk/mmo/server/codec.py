@@ -96,6 +96,8 @@ class PacketReader(object):
             readable = EnterWorld(packet)
         elif opcode == 0x05:
             readable = Action(packet)
+        elif opcode == 0x06:
+            readable = Move(packet)
         else:
             print "Invalid Packet opcode:", hex(opcode)
             return

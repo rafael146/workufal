@@ -1,5 +1,6 @@
 # Autor: Alisson Oliveira
 from abc import *
+from struct import pack, unpack
 _BYTE  = 1
 _SHORT = 2
 _INT = 4
@@ -10,14 +11,14 @@ class NetworkBuffer(object):
         A Byte Buffer using Little Endian.
     """
     def __init__(self,packet=None):
-        if packet==None:
-            self.readIndex = 0
-            self.writeIndex = 0
-            self.array = []
-        else:
+        if packet:
             self.readIndex = packet.readIndex
             self.writeIndex = packet.writeIndex
             self.array = packet.array
+        else:
+            self.readIndex = 0
+            self.writeIndex = 0
+            self.array = []
 
     def __len__(self):
         return len(self.array)
@@ -84,9 +85,9 @@ class NetworkBuffer(object):
         """
             return the char in the readerIndex and increase readerIndex by 1.
         """
-        char = self.array[self.readIndex]
+        char = chr(self.array[self.readIndex])
         self.readIndex += _BYTE
-        return chr(char)
+        return char
 
     def readShort(self):
         """
@@ -95,6 +96,8 @@ class NetworkBuffer(object):
         """
         short = self.array[self.readIndex] | (self.array[self.readIndex+1]<<8)
         self.readIndex += _SHORT
+        if short & 1<<_SHORT*8-1:
+            return short - (1<<_SHORT*8)
         return short
 
     def readInt(self):
@@ -102,22 +105,33 @@ class NetworkBuffer(object):
             return the short in the readerIndex to readerIndex+3
             and increase readerIndex by 4.
         """
-        integer = self.array[self.readIndex] | (self.array[self.readIndex+1]<<8
+        value = self.array[self.readIndex] | (self.array[self.readIndex+1]<<8
         ) |(self.array[self.readIndex+2]<<16) | (self.array[self.readIndex+3]<<24)
         self.readIndex += _INT
-        return integer
+        if value & 1<<_INT*8-1:
+            return value - (1<<_INT*8)
+        return value
+    
+    def readFloat(self):
+        """
+            return the float in the readerIndex to readerIndex+7
+            and increase readerIndex by 8.
+        """
+        return unpack('d', pack('Q',self.readLong()))[0]
 
     def readLong(self):
         """
             return the long in the readerIndex to readerIndex+7
             and increase readerIndex by 8.
         """
-        lon = self.array[readIndex] | (self.array[readIndex+1]<<8
-        ) | (self.array[readIndex+2]<<16) | (self.array[readIndex+3]<<24
-        ) | (self.array[readIndex+4]<<32) | (self.array[readIndex+5]<<40
-        ) | (self.array[readIndex+6]<<48) | (self.array[readIndex+7]<<56)
-        self.readIndex += 8
-        return lon
+        value = self.array[self.readIndex] | (self.array[self.readIndex+1]<<8
+        ) | (self.array[self.readIndex+2]<<16) | (self.array[self.readIndex+3]<<24
+        ) | (self.array[self.readIndex+4]<<32) | (self.array[self.readIndex+5]<<40
+        ) | (self.array[self.readIndex+6]<<48) | (self.array[self.readIndex+7]<<56)
+        self.readIndex += _LONG
+        if value & 1<<_LONG*8-1:
+            return value - (1<<_LONG*8)
+        return value
 
     def readString(self):
         """
@@ -186,6 +200,13 @@ class NetworkBuffer(object):
         self.array.append((integer >> 16) &0xFF)
         self.array.append((integer >> 24) &0xFF)
         self.writeIndex += _INT
+
+    def writeFloat(self, value):
+        """
+            appends the value argument at end of the array.
+            and increase writerIndex by 8.
+        """
+        self.writeLong(unpack('Q', pack('d', value))[0])
 
     def writeLong(self, lon):
         """

@@ -7,7 +7,6 @@ class Logout(SendablePacket):
    OPCODE = 0x00
    def write(self, conn=None):
       #dummy packet
-      #Do Nothing, only send exit info to server
       pass
 
 class AuthRequest(SendablePacket):
@@ -67,6 +66,12 @@ class Move(SendablePacket):
 
    def write(self, conn):
       self.writeByte(self.direction)
+
+class CancelTarget(SendablePacket):
+   OPCODE = 0x07
+   def write(self, conn):
+      #dummy packet
+      pass
 
 # ** Readables Packet **
 
@@ -185,7 +190,7 @@ class PlayerInfo(ReadablePacket):
       self.hp = self.readInt()
       self.x = self.readInt()
       self.y = self.readInt()
-      self.heading = self.readInt()
+      self.heading = self.readFloat()
       self.defense = self.readInt()
       self.force = self.readInt()
       self.exp = self.readLong()
@@ -207,12 +212,13 @@ class Appearing(ReadablePacket):
 class TargetSelected(ReadablePacket):
    #OPCODE : 0x0B
    def read(self):
-      targetId = self.readInt()
+      self.targetId = self.readInt()
 
    def process(self, conn):
-      # implement discover player system
-      pass
-
+      for char in conn.player.knownlist:
+         if char.ID == self.targetId:
+            conn.player.target = char
+   
 class Disconnected(ReadablePacket):
    #OPCODE: 0x0C
    def read(self):
@@ -232,10 +238,12 @@ class CharInfo(ReadablePacket):
       self.model = self.readByte()
       self.posX = self.readInt()
       self.posY = self.readInt()
-      self.heading = self.readInt()
+      self.heading = self.readFloat()
 
    def process(self, conn):
       conn.game.showCharacter(self.charID, self.charName, self.model,
                               self.posX, self.posY,self.heading)
+
+
          
       

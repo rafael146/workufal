@@ -117,7 +117,7 @@ class NetworkBuffer(object):
             return the float in the readerIndex to readerIndex+7
             and increase readerIndex by 8.
         """
-        return unpack('d', pack('Q',self.readLong()))[0]
+        return unpack('d', pack('q',self.readLong()))[0]
 
     def readLong(self):
         """
@@ -206,7 +206,7 @@ class NetworkBuffer(object):
             appends the value argument at end of the array.
             and increase writerIndex by 8.
         """
-        self.writeLong(unpack('Q', pack('d', value))[0])
+        self.writeLong(unpack('q', pack('d', value))[0])
 
     def writeLong(self, lon):
         """

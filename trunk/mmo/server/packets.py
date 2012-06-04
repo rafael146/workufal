@@ -1,4 +1,4 @@
-import services
+import services, math
 from exception import *
 from accountManager import tryLogin, updateIP
 from charManager import createCharacter, getPlayer, deletePlayer, loadPlayer
@@ -106,7 +106,11 @@ class PlayerInfo(SendablePacket):
       self.writeInt(player.hp)
       self.writeInt(player.x)
       self.writeInt(player.y)
-      self.writeInt(player.heading)
+      if player.target:
+         dx = player.target.x - player.x
+         dy = player.y - player.target.y
+         player.heading = math.degrees(math.atan2(dy,dx))-90
+      self.writeFloat(player.heading)
       self.writeInt(player.defense)
       self.writeInt(player.force)
       self.writeLong(player.exp)
@@ -144,14 +148,11 @@ class CharInfo(SendablePacket):
       self.writeByte(self.character.model)
       self.writeInt(self.character.x)
       self.writeInt(self.character.y)
-      self.writeInt(self.character.heading)
-      print "Sending"
-      print self.character.ID
-      print self.character.name
-      print self.character.model
-      print self.character.x
-      print self.character.y
-      print self.character.heading
+      if self.character.target:
+         dx = self.character.target.x - self.character.x
+         dy = self.character.y - self.character.target.y
+         self.character.heading = math.degrees(math.atan2(dy,dx))-90
+      self.writeFloat(self.character.heading)
 
 # ** Readable Packets **
 
@@ -230,10 +231,9 @@ class EnterWorld(ReadablePacket):
       conn.writePacket(PlayerInfo())
       conn.writePacket(Appearing())
       # broadcast all players in same area
-      broadcastService = services.getBroadcastInstance()
-      broadcastService.broadcastToArea(player, CharInfo(player))
-      broadcastService.broadcastAll(player, [CharInfo(char) for char in
-                                             player.getKnown()])
+      for char in player.getKnown():
+         char.send(CharInfo(player))
+         conn.writePacket(CharInfo(char))
       
 class Action(ReadablePacket):
    #OPCODE: 0x05
@@ -241,10 +241,14 @@ class Action(ReadablePacket):
       self.targetId = self.readInt()
 
    def process(self, conn):
+      player = conn.player
       target = services.getWorldInstance().find(self.targetId)
-      if target and target != conn.player.target:
+      if target and target != player.target:
          conn.player.target = target
          conn.writePacket(TargetSelected(target.ID))
+         conn.writePacket(PlayerInfo())
+         for char in player.getKnown():
+            char.send(CharInfo(player))
       else :
          conn.writePacket(StaticPacket())
 
@@ -269,4 +273,14 @@ class Move(ReadablePacket):
       elif self.direction == 4:
          player.x -= player.speed
       conn.writePacket(PlayerInfo())
-      services.getBroadcastInstance().broadcastToArea(player, CharInfo(player))
+      for char in player.getKnown():
+         char.send(CharInfo(player))
+
+class CancelTarget(ReadablePacket):
+   #OPCODE: 0x07
+   def read(self):
+      #dummy packet
+      pass
+
+   def process(self, conn):
+      conn.player.target = None

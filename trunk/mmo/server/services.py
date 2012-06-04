@@ -28,23 +28,8 @@ class World(object):
                 return player
         return None
 
-class BroadcastService(object):
-    @staticmethod
-    def broadcastToArea(player, packet):
-        for char in player.getKnown():
-            char.send(packet)
-
-    #this sends all packets to player
-    @staticmethod
-    def broadcastAll(player, packets):
-        for packet in packets:
-            player.send(packet)
             
 SingleWorld = World()
-SingleBroadcast = BroadcastService()
     
 def getWorldInstance():
     return SingleWorld
-
-def getBroadcastInstance():
-    return SingleBroadcast

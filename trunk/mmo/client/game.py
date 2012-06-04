@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import sys, pygame, math
+import sys, pygame
 from codec import PacketWriter, PacketReader
 from concurrent import ThreadPoolManager
 from copy import copy
@@ -172,6 +172,7 @@ class Game(engine.Game):
          self.player.force = force
          self.player.exp = exp
          self.level = level
+         self.player.turn(self.player.heading)
       else:
          self.player = Player(model, ID, name, level, speed, maxHp, hp, x, y, heading, defense, force, exp)
 
@@ -182,6 +183,7 @@ class Game(engine.Game):
             char.x = x
             char.y = y
             char.heading = heading
+            char.turn(heading)
             break
       else:
          self.player.knownlist.add(Character(ID,name,model,x,y,heading))
@@ -216,18 +218,6 @@ class Player(Character):
       # must be persistent date
       self.target = None
       self.knownlist = set()
-
-   def walk(self, heading):
-      print 'walking'
-      # These moves must be implemented on server side
-      if heading == 1:
-         self.y -= self.speed
-      elif heading == 2:
-         self.y += self.speed
-      elif heading == 3:
-         self.x += self.speed
-      elif heading == 4:
-         self.x -= self.speed
 
    def fire(self):
       if self.target:
@@ -283,19 +273,17 @@ class World(engine.State):
    def blitChar(self, char):
       dx = CENTER[0] - self.player.x + char.x-20
       dy = CENTER[1] - self.player.y + char.y-25
-      screen.blit(_font.render(char.name,1,WHITE),(dx,dy-15))
+      size = _font.size(char.name)
+      screen.blit(_font.render(char.name,1,WHITE),(dx-size[0]/2+20,dy-15))
       screen.blit(char.image, (dx, dy))
       char.rect.center = dx+20,dy+25
 
    def event(self, evt):
       if evt.type == MOUSEBUTTONDOWN:
-         if self.player.rect.collidepoint(evt.pos):
-            self.onAction(self.player)
-         center = self.player.rect.center
-         dx = evt.pos[0] - center[0]
-         dy = center[1] - evt.pos[1]
-         angle = math.degrees(math.atan2(dy,dx))-90
-         self.player.turn(angle)
+         for char in self.player.knownlist:
+            if char.rect.collidepoint(evt.pos):
+               self.onAction(char)
+               break
       if evt.type == KEYDOWN:
          if evt.key == K_w:
             self.game.writePacket(Move(1))
@@ -308,8 +296,8 @@ class World(engine.State):
          elif evt.key == K_f:
             self.player.fire()
          elif evt.key == K_ESCAPE:
+            self.game.writePacket(CancelTarget())
             self.player.cancelTarget()
-         print evt.key
 
    def onAction(self, character):
       self.game.writePacket(Action(character.ID))

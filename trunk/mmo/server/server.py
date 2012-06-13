@@ -6,10 +6,11 @@ from concurrent import Runnable, ThreadPoolManager
 from copy import copy
 from packets import *
 from socket import socket, SOL_SOCKET, SO_REUSEADDR
+from weakref import WeakValueDictionary, proxy
 
 class Server(socket):
    def openConnection(self,host='',port=7777):
-      self.clients = dict()
+      self.clients = WeakValueDictionary()
       self.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
       self.bind((host,port))
       self.listen(7)
@@ -30,11 +31,8 @@ class Server(socket):
 
    def register(self, client, conn):
       self.clients[client] = conn
-      print self.clients
-
-   def logout(self, client):
-      del self.clients[client]
-
+      print self.clients.data
+   
    def hasClient(self, client):
       if self.clients.has_key(client):
          self.clients[client].writePacket(Disconnected())
@@ -50,6 +48,7 @@ class Client(object):
       self.reader = PacketReader(self)
       self.user = None
       self.player = None
+      self.connected = True
 
    def recv(self, lenght):
       return self.con.recv(lenght)
@@ -61,6 +60,7 @@ class Client(object):
       self.reader.process(packet)
 
    def close(self):
+      self.con.shutdown(2)
       self.con.close()
 
    def setKey(self,key):
@@ -70,7 +70,7 @@ class Client(object):
 
    def setPlayer(self, player):
       self.player = player
-      player.client = self
+      player.client = proxy(self)
 
    def clientConnected(self, user):
       self.serv.register(user,self)
@@ -79,9 +79,11 @@ class Client(object):
    def isConnected(self, user):
       return self.serv.hasClient(user)
 
-   def logout(self):
-      self.serv.logout(self.user)
-      self.close()
+   def disconnect(self):
+      self.connected = False
+
+   def __del__(self):
+      print 'deleting client'
 
 class ConnectionHandler(Runnable):
    def __init__(self, connection):
@@ -94,17 +96,23 @@ class ConnectionHandler(Runnable):
       
    def run(self):
       self.initializeConnection()
-      while True:
+      while self.connection.connected:
          try:
-            packet = self.connection.recv(1024)
-            if not packet:
+            packet = self.connection.recv(2048)
+            if not packet or packet == '':
+               print 'no packet received'
                break
             self.connection.readPacket(packet)
          except Exception, e:
             print "client desconnected"
             print e
             break
+      print 'closing socket'
       self.connection.close()
+            
+
+   def __del__(self):
+      print 'delleting handler'
 
 idFactory.getInstance().load()
 RegisterManager()

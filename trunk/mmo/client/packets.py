@@ -244,6 +244,10 @@ class CharInfo(ReadablePacket):
       conn.game.showCharacter(self.charID, self.charName, self.model,
                               self.posX, self.posY,self.heading)
 
+class Forget(ReadablePacket):
+   #OPCODE: 0x0D
+   def read(self):
+      self.Id = self.readInt()
 
-         
-      
+   def process(self, conn):
+      conn.game.forget(self.Id)

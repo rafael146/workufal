@@ -1,3 +1,4 @@
+from weakref import ref, proxy
 class Player(object):
     def __init__(self):
         self.ID = 0
@@ -15,18 +16,32 @@ class Player(object):
         self.exp = 0
         self.model = 1
         self.target = None
-        self.AI = PlayerAI(self)
+        self.knownList = KnownList()
         
     def addToKnown(self, character):
-        self.AI.knownList.add(character)
+        self.knownList.add(character)
 
     def getKnown(self):
-        return self.AI.knownList
+        return self.knownList
 
     def send(self, packet):
         self.client.writePacket(packet)
 
-class PlayerAI(object):
-    def __init__(self, owner):
-        self.owner = owner
-        self.knownList = set()
+    def updateLocation(self):
+        pass
+
+    def __del__(self):
+        print 'deleting player'
+    
+class KnownList(list):
+    def __init__(self, *args):
+        list.__init__(self, *args)
+        def remove(obj, selfref=ref(self)):
+            self = selfref()
+            if self is not None:
+                print 'removing',obj
+                self.remove(obj)
+        self._remove = remove
+
+    def add(self, obj):
+        self.append(proxy(obj,self._remove))

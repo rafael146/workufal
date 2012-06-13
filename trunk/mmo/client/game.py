@@ -9,6 +9,7 @@ from pygame.sprite import Sprite
 from pgu import gui, engine
 from re import match
 from socket import socket
+from weakref import proxy
 
 # XXX: Externalize all strings
 
@@ -108,34 +109,33 @@ class Connection(socket):
    def handlerConnection(self):
       while not self.game.quit:
          try:
-            packet = self.recv(1024)
-            if not packet:
+            packet = self.recv(2048)
+            if not packet or packet == '':
+               self.close()
                break
             self.reader.process(packet)
          except Exception, e:
             print e
             break
-      else:
-         self.shutdown(2)
-         self.close()
       self.game.GState = GameState.WAIT
 
    @property
    def player(self):
       return self.game.player
 
+   def __del__(self):
+      print 'deleting connection'
+
 class Game(engine.Game):
-   def __init__(self,screen):
-      self.screen= screen
+   def __init__(self):
       self.connection = None
       self.player = None
       self.GState = GameState.WAIT
-      self.run(Login(self),self.screen)
       
    def connectToServer(self):
       if self.GState == GameState.WAIT:
          self.GState = GameState.CONNECTING
-         self.connection = Connection(self)
+         self.connection = Connection(proxy(self))
 
    def toCharScreen(self, hasPlayer, ID=None, name=None, model=None):
       self.player = None
@@ -145,13 +145,13 @@ class Game(engine.Game):
       self.state = World(self)
 
    def toLoginScreen(self):
-      self.player = None
+      self.connection = None
       self.state = Login(self)
 
    def close(self):
-      self.quit = 1
       if self.connection:
          self.writePacket(Logout())
+      self.quit = 1
 
    def event(self, evt):
       if evt.type is QUIT:
@@ -159,6 +159,9 @@ class Game(engine.Game):
 
    def writePacket(self, packet):
       self.connection.writePacket(packet)
+
+   def __del__(self):
+      print 'deletting game'
 
    def updatePlayer(self, model, ID, name, level, speed, maxHp, hp, x, y, heading, defense, force, exp):
       if self.player:
@@ -187,6 +190,13 @@ class Game(engine.Game):
             break
       else:
          self.player.knownlist.add(Character(ID,name,model,x,y,heading))
+
+   def forget(self, ID):
+      for char in self.player.knownlist:
+         if char.ID == ID:
+            self.player.knownlist.remove(char)
+            print 'forgeting', char.name
+            break
          
 class Character(Sprite):
    def __init__(self, ID, name, model, x, y, heading):
@@ -248,8 +258,9 @@ class Bar(object):
 
 class World(engine.State):
    def __init__(self, game):
-      self.game = game
+      engine.State.__init__(self, proxy(game))
       self.player = game.player
+      game.player = proxy(self.player)
       self.bar = Bar(self.player)
 
    def update(self, screen):
@@ -313,7 +324,7 @@ class CharacterScreen(engine.State):
 
    """
    def __init__(self,game,hasPlayer,ID,name,model):
-      self.game = game
+      engine.State.__init__(self, proxy(game))
       self.txt = None
       self.tb = gui.Table(vpadding=3, hpadding=3)
       self.tb.tr()
@@ -394,7 +405,7 @@ class CharacterScreen(engine.State):
 
 class Login(engine.State):
    def __init__(self,game):
-      self.game = game
+      engine.State.__init__(self,proxy(game))
       self.txt =None
       self.tb = gui.Table(vpadding=3)
       self.tb.tr()
@@ -413,6 +424,8 @@ class Login(engine.State):
       bt = gui.Button("Exit", width=40)
       bt.connect(gui.CLICK, self.onExit)
       self.tb.td(bt,align=0)
+      self.app = gui.App()
+      self.app.init(self.tb, screen)
 
    def write(self, txt):
       self.txt = pygame.Surface((WIDTH, 40), flags=SRCALPHA)
@@ -423,10 +436,6 @@ class Login(engine.State):
    def showTxt(self, screen):
       if self.txt:
          screen.blit(self.txt,(0,HEIGHT-60))
-
-   def paint(self, screen):
-      self.app = gui.App()
-      self.app.init(self.tb, screen)
 
    def event(self, evt):
       self.app.event(evt)
@@ -461,4 +470,6 @@ class Login(engine.State):
    def pwd(self):
       return form['pwd'].value
 
-Game(screen)
+game = Game()
+game.run(Login(game),screen)
+sys.exit()

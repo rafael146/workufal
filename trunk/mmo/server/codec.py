@@ -1,10 +1,11 @@
 import cPickle
 from network import NetworkBuffer
 from packets import *
+from weakref import proxy
 
 class PacketWriter(object):
     def __init__(self, conn):
-        self.conn = conn
+        self.conn = proxy(conn)
         self.key = None
         self.isKeySetted = False
 
@@ -13,7 +14,8 @@ class PacketWriter(object):
         print 'sending opcode', hex(packet.OPCODE)
         packet.write(self.conn)
         if self.isKeySetted:
-            self.crypt(packet)
+            pass
+            #self.crypt(packet)
         else:
             self.isKeySetted = True
         return self.encoder(packet)
@@ -46,13 +48,14 @@ class PacketWriter(object):
 
 class PacketReader(object):
     def __init__(self, conn):
-        self.conn = conn
+        self.conn = proxy(conn)
         self.key = None
     
     def process(self, packet):
         packet = NetworkBuffer.wrap(self.decoder(packet))
         if self.key:
-            self.decrypt(packet)
+            pass
+            #self.decrypt(packet)
         self.handlePacket(packet)
 
     def decrypt(self,packet):

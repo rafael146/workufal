@@ -14,9 +14,7 @@ class World(object):
                 p.addToKnown(player)
                 player.addToKnown(p)
         self.players.add(player)
-                
-    def onLogout(self, player):
-        self.players.remove(player)
+        print 'players in game', self.players
 
     @property
     def KnownPlayers(self):
@@ -28,7 +26,10 @@ class World(object):
                 return player
         return None
 
-            
+    def onLogout(self, player):
+        self.players.remove(player)
+        print 'players in game ',self.players
+  
 SingleWorld = World()
     
 def getWorldInstance():

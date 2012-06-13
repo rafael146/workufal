@@ -5,7 +5,6 @@ from charManager import createCharacter, getPlayer, deletePlayer, loadPlayer
 from network import SendablePacket, ReadablePacket
 from security import SecurityManager
 
-
 # ** Sendable Packets **
 
 class StaticPacket(SendablePacket):
@@ -154,8 +153,16 @@ class CharInfo(SendablePacket):
          self.character.heading = math.degrees(math.atan2(dy,dx))-90
       self.writeFloat(self.character.heading)
 
-# ** Readable Packets **
+class Forget(SendablePacket):
+   OPCODE = 0x0E
+   def __init__(self, Id):
+      self.Id = Id
+      SendablePacket.__init__(self)
 
+   def write(self, conn=None):
+      self.writeInt(self.Id)
+
+# ** Readable Packets **
 class Logout(ReadablePacket):
    #OPCODE: 0x00
    def read(self):
@@ -164,8 +171,10 @@ class Logout(ReadablePacket):
 
    def process(self, conn):
       if conn.player:
+         for char in conn.player.getKnown():
+            char.send(Forget(conn.player.ID))
          services.getWorldInstance().onLogout(conn.player)
-      conn.logout()
+      conn.disconnect()
 
 class AuthRequest(ReadablePacket):
    #OPCODE: 0x01
@@ -272,9 +281,12 @@ class Move(ReadablePacket):
          player.x += player.speed
       elif self.direction == 4:
          player.x -= player.speed
+      player.updateLocation()
       conn.writePacket(PlayerInfo())
+      print "knowned ", player.getKnown()
       for char in player.getKnown():
          char.send(CharInfo(player))
+         player.send(CharInfo(char))
 
 class CancelTarget(ReadablePacket):
    #OPCODE: 0x07

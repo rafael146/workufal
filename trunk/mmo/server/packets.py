@@ -285,8 +285,11 @@ class Move(ReadablePacket):
       conn.writePacket(PlayerInfo())
       print "knowned ", player.getKnown()
       for char in player.getKnown():
-         char.send(CharInfo(player))
-         player.send(CharInfo(char))
+         try:
+            char.send(CharInfo(player))
+            player.send(CharInfo(char))
+         except:
+            print 'char reference is gone'
 
 class CancelTarget(ReadablePacket):
    #OPCODE: 0x07

@@ -80,6 +80,7 @@ class Client(object):
       return self.serv.hasClient(user)
 
    def disconnect(self):
+      self.player = None
       self.connected = False
 
    def __del__(self):

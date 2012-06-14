@@ -39,7 +39,6 @@ class KnownList(list):
         def remove(obj, selfref=ref(self)):
             self = selfref()
             if self is not None:
-                print 'removing',obj
                 self.remove(obj)
         self._remove = remove
 

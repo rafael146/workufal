@@ -196,6 +196,9 @@ class Game(engine.Game):
          if char.ID == ID:
             self.player.knownlist.remove(char)
             print 'forgeting', char.name
+            if char == self.player.target:
+               self.writePacket(CancelTarget())
+               self.player.cancelTarget()
             break
          
 class Character(Sprite):

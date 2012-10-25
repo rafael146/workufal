@@ -13,7 +13,7 @@ from weakref import proxy
 
 # XXX: Externalize all strings
 
-# initialize only necessary modules making so speed up.
+# initialize only necessary modules doing so speed up.
 pygame.font.init()
 
 # Constants

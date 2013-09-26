@@ -1,3 +1,8 @@
+/**
+ * @author Leonardo Maxwell
+ *
+ */
+
 package filaencadeadajava;
 
 public class Lista {

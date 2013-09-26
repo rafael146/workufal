@@ -4,7 +4,7 @@
 package filaencadeadajava;
 
 /**
- * @author zannenunes
+ * @author Leonardo Maxwell
  *
  */
 public class FilaEncadeada{

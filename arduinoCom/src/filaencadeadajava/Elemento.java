@@ -5,7 +5,7 @@ package filaencadeadajava;
 
 /**
  * @author Leonardo Maxwell
- *
+ * @author Danylo Souza
  */
 public class Elemento{
 	

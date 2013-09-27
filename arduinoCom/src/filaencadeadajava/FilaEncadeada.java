@@ -1,6 +1,6 @@
 /**
  * @author Leonardo Maxwell
- *
+ * @author Danylo Souza
  */
 
 package filaencadeadajava;
@@ -9,9 +9,15 @@ public class FilaEncadeada {
 	private Elemento prim;
 	private Elemento fim;
 	
+	public FilaEncadeada(Elemento e){
+		prim = e;
+		fim = e;
+	}
+	
 	public Boolean isEmpty() {
 		return prim == null;
 	}
+	
 	public void enfileira(Elemento n){
 		if(isEmpty()){
 			prim = n;

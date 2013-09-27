@@ -5,7 +5,7 @@ import java.nio.ByteBuffer;
 public class Test {
 
 	public static void main(String[] args) {
-		ByteBuffer buf = ByteBuffer.allocate(20);
+		ByteBuffer buf = ByteBuffer.allocate(10);
 		buf.putInt(4);
 		buf.putInt(5);
 		buf.putShort((short)2);
@@ -20,7 +20,6 @@ public class Test {
 		buf.flip();
 		System.out.println(buf.getInt());
 		System.out.println(buf.getInt());		
-
 	}
 
 }

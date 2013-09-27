@@ -1,5 +1,6 @@
 /**
  * @author Leonardo Maxwell
+ * @author Danylo Souza
  * @author Alisson Oliveira
  *
  */

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package arduino.conn;
+package arduino.conn.packet;
 
 import java.nio.ByteBuffer;
 
@@ -9,7 +9,7 @@ import java.nio.ByteBuffer;
  * @author Alisson Oliveira
  *
  */
-public abstract class AbstractWritablePacket<T extends Connection> implements WritablePacket<T> {
+public abstract class AbstractWritablePacket implements WritablePacket {
 	
 	protected void putString(ByteBuffer buf, String str) {
 		if(str != null) {

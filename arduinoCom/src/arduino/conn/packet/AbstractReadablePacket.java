@@ -1,7 +1,7 @@
 /**
  * 
  */
-package arduino.conn;
+package arduino.conn.packet;
 
 import java.nio.ByteBuffer;
 
@@ -9,7 +9,7 @@ import java.nio.ByteBuffer;
  * @author Alisson Oliveira
  *
  */
-public abstract class AbstractReadablePacket<T extends Connection> implements ReadablePacket<T> {
+public abstract class AbstractReadablePacket implements ReadablePacket {
 	
 	protected String readString(ByteBuffer buf) {
 		char ch;

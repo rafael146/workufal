@@ -22,6 +22,7 @@ public class Main implements SerialPortEventListener {
 			"/dev/ttyACM0", // Linux
 			"COM3", // Windows
 	};
+	
 	/**
 	* A BufferedReader which will be fed by a InputStreamReader 
 	* converting the bytes into characters 

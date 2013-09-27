@@ -51,7 +51,7 @@ public class SerialComm {
 	/** */
 	public static class SerialReader implements Runnable {
 		InputStream in;
-
+		
 		public SerialReader(InputStream in) {
 			this.in = in;
 		}

@@ -4,113 +4,75 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 import arduino.conn.packet.WritablePacket;
 
 public abstract class Connection {
+	
+	private static final int HEADER_SIZE = 2;
+	private static final ByteOrder BYTE_ORDER = ByteOrder.LITTLE_ENDIAN;
+	private int WRITE_BUFFER_SIZE = 64 * 1024;
 
 	protected BufferedReader input;
-	
 	protected OutputStream output;
-	
 	private ByteBuffer readBuffer;
-	
-	private ByteBuffer primaryWriteBuffer;
-	
-	private ByteBuffer secondaryWriteBuffer;
-	
-	protected PacketQueue<WritablePacket> sendQueue;
-	
-	private PacketExecutor executor;
-	
-	
+	private final ByteBuffer writeBuffer;
+
 	public Connection() {
-		sendQueue = new PacketQueue<>();
-		executor = new PacketExecutor(this);
-		sendQueue.addListener(executor);
+		writeBuffer = ByteBuffer.allocateDirect(WRITE_BUFFER_SIZE).order(BYTE_ORDER);
+		readBuffer = ByteBuffer.wrap(new byte[WRITE_BUFFER_SIZE]).order(BYTE_ORDER);
+		
 	}
-	
-	final boolean hasPendingWriteBuffer()
-	{
-		return primaryWriteBuffer != null;
-	}
-	
-	final void movePendingWriteBufferTo(final ByteBuffer dest)
-	{
-		primaryWriteBuffer.flip();
-		dest.put(primaryWriteBuffer);
-		//_selectorThread.recycleBuffer(_primaryWriteBuffer);
-		primaryWriteBuffer = secondaryWriteBuffer;
-		secondaryWriteBuffer = null;
-	}
-	
-	final void createWriteBuffer(final ByteBuffer buf)
-	{
-		if (primaryWriteBuffer == null)
-		{
-			primaryWriteBuffer = executor.getPooledBuffer();
-			primaryWriteBuffer.put(buf);
-		}
-		else
-		{
-			final ByteBuffer temp = executor.getPooledBuffer();
-			temp.put(buf);
-			
-			final int remaining = temp.remaining();
-			primaryWriteBuffer.flip();
-			final int limit = primaryWriteBuffer.limit();
-			
-			if (remaining >= primaryWriteBuffer.remaining())
-			{
-				temp.put(primaryWriteBuffer);
-				executor.recycleBuffer(primaryWriteBuffer);
-				primaryWriteBuffer = temp;
-			}
-			else
-			{
-				primaryWriteBuffer.limit(remaining);
-				temp.put(primaryWriteBuffer);
-				primaryWriteBuffer.limit(limit);
-				primaryWriteBuffer.compact();
-				secondaryWriteBuffer = primaryWriteBuffer;
-				primaryWriteBuffer = temp;
-			}
-		}
-	}
-	
-	final synchronized boolean write(final ByteBuffer buf) throws IOException
-	{
-		if(output !=null) {
+
+	protected synchronized void write(final ByteBuffer buf) throws IOException {
+		if (output != null) {
 			output.write(buf.array());
-			return true;
 		}
-		return false;
 	}
-	
-	public PacketQueue<WritablePacket> getSendQueue() {
-		return sendQueue;
-	}
-	
+
 	public void close() {
 		try {
 			input.close();
-		} catch(IOException e) {
-			
+		} catch (IOException e) {
+
 		} finally {
 			input = null;
 		}
-		
+
 		try {
 			output.close();
-		} catch(IOException e) {
-			
+		} catch (IOException e) {
+
 		} finally {
 			output = null;
 		}
 	}
 
+	public final void sendPacket(WritablePacket packet) throws IOException {
+		if (packet == null) {
+			return;
+		}
+		writeBuffer.clear();
 
-	public final void sendPacket(WritablePacket packet) {
-		sendQueue.addLast(packet);
+		// reserve space for the size
+		final int headerPos = writeBuffer.position();
+		final int dataPos = headerPos + HEADER_SIZE;
+		writeBuffer.position(dataPos);
+
+		// write content to buffer
+		packet.write(this, writeBuffer);
+
+		// size (inclusive header)
+		int dataSize = writeBuffer.position() - dataPos;
+
+		writeBuffer.position(headerPos);
+		// write header
+		writeBuffer.putShort((short) (dataSize + HEADER_SIZE));
+		writeBuffer.position(dataPos + dataSize);
+
+		writeBuffer.flip();
+		write(writeBuffer);
+
 	}
 }

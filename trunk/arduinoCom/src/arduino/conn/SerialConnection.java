@@ -40,10 +40,10 @@ public class SerialConnection extends Connection  implements SerialPortEventList
 	}
 
 	public SerialConnection(String portname) throws NoSuchPortException {
-		Connect(findPort(portname));
+		connect(findPort(portname));
 	}
 
-	public void Connect(CommPortIdentifier portId) {
+	public void connect(CommPortIdentifier portId) {
 		try {
 			// open serial port, and use class name for the appName.
 			serialPort = (SerialPort) portId.open(getClass().getName(), TIME_OUT);
@@ -61,6 +61,10 @@ public class SerialConnection extends Connection  implements SerialPortEventList
 		}
 
 	}
+	
+	public boolean isConnected() {
+		return serialPort != null; 
+	}
 
 	protected CommPortIdentifier findPort(String portName)
 			throws NoSuchPortException {
@@ -76,6 +80,8 @@ public class SerialConnection extends Connection  implements SerialPortEventList
 
 			for (String portName : PORT_NAMES) {
 				if (currPortId.getName().equals(portName)) {
+					if(serialPort == null)
+						connect(currPortId	);
 					serialPorts.put(portName, currPortId);
 				}
 			}
@@ -93,6 +99,10 @@ public class SerialConnection extends Connection  implements SerialPortEventList
 			serialPort.close();
 		}
 		serialPort = null;
+	}
+	
+	public Map<String, CommPortIdentifier> getSerialPorts() {
+		return serialPorts;
 	}
 
 	@Override

@@ -8,6 +8,6 @@ public interface WritablePacket extends Packet {
 	
 	public void write(Connection conn, ByteBuffer buffer);
 	
-	public int getOpcode();
+	public short getOpcode();
 
 }

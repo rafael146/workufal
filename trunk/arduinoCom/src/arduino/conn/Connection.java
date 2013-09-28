@@ -10,7 +10,6 @@ import arduino.conn.packet.WritablePacket;
 
 public abstract class Connection {
 	
-	private static final int HEADER_SIZE = 2;
 	private static final ByteOrder BYTE_ORDER = ByteOrder.LITTLE_ENDIAN;
 	private int WRITE_BUFFER_SIZE = 64 * 1024;
 
@@ -54,25 +53,9 @@ public abstract class Connection {
 			return;
 		}
 		writeBuffer.clear();
-
-		// reserve space for the size
-		final int headerPos = writeBuffer.position();
-		final int dataPos = headerPos + HEADER_SIZE;
-		writeBuffer.position(dataPos);
-
 		// write content to buffer
 		packet.write(this, writeBuffer);
-
-		// size (inclusive header)
-		int dataSize = writeBuffer.position() - dataPos;
-
-		writeBuffer.position(headerPos);
-		// write header
-		writeBuffer.putShort((short) (dataSize + HEADER_SIZE));
-		writeBuffer.position(dataPos + dataSize);
-
 		writeBuffer.flip();
 		write(writeBuffer);
-
 	}
 }

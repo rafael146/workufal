@@ -1,10 +1,15 @@
 package gui;
 
+import java.awt.FlowLayout;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
@@ -22,11 +27,13 @@ public class ControlUIArduino {
 	}
 	private void addTextField(JTextField tField) {
 		JPanel painelCampoMensagem = new JPanel();
+		painelCampoMensagem.add(tField);
 		adicionarPaineis(painelCampoMensagem);
 	}
 	
 	private void addTextField(){
 		JTextField campoMensagem = new JTextField();
+		campoMensagem.setColumns(10);
 		addTextField(campoMensagem);
 	}
 	
@@ -86,11 +93,13 @@ public class ControlUIArduino {
 	private void prepararJanela(){
 		janela = new JFrame("Controlando o Arduíno");
 		janela.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		janela.setLayout(new GridLayout());
 	}
 	
 	public void mostrarJanela(int largura, int altura){
-		janela.pack(); // faz com que os componentes ocupem o menor espaço possível
+		//janela.pack(); // faz com que os componentes ocupem o menor espaço possível
 		janela.setSize(largura, altura);
+		janela.setLocationRelativeTo(null);
 		janela.setVisible(true);
 	}
 	
@@ -106,6 +115,17 @@ public class ControlUIArduino {
 		mostrarJanela();
 		
 		
+		
+		
 	}
+	
+	
+	
+	
 
+	public static void main(String[] args){
+		new ControlUIArduino().montarTela();
+	}
+	
 }
+

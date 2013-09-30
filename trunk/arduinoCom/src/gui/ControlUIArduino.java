@@ -17,6 +17,14 @@ public class ControlUIArduino {
 	
 	JFrame janela;
 	JPanel painelBotoes;
+	JButton[] botoes;
+	
+	private void inicializarArrayBotao() {
+		botoes = new JButton[3];
+		botoes[0] = new JButton("Ligar");
+		botoes[1] = new JButton("Desligar");
+		botoes[2] = new JButton("Enviar mensagem");
+	}
 	
 	public void adicionarPaineis(JPanel painel){
 		janela.add(painel);
@@ -28,26 +36,23 @@ public class ControlUIArduino {
 	private void addTextField(JTextField tField) {
 		JPanel painelCampoMensagem = new JPanel();
 		painelCampoMensagem.add(tField);
+		painelCampoMensagem.add(botoes[2]);
 		adicionarPaineis(painelCampoMensagem);
 	}
 	
 	private void addTextField(){
 		JTextField campoMensagem = new JTextField();
-		campoMensagem.setColumns(10);
+		campoMensagem.setColumns(20);
 		addTextField(campoMensagem);
 	}
 	
 	public void addBotoesAoPainel(JPanel painel, JButton[] botoes) {
-		for (int i = 0; i < botoes.length; i++) {
+		for (int i = 0; i < botoes.length-1; i++) {
 			painel.add(botoes[i]);
 		}
 	}
 	
 	private void addBotoesAoPainel(){
-		JButton[] botoes = new JButton[3];
-		botoes[0] = new JButton("Ligar");
-		botoes[1] = new JButton("Desligar");
-		botoes[2] = new JButton("Enviar mensagem");
 		addBotoesAoPainel(painelBotoes, botoes);
 		prepararBotoesDefault(botoes);
 	}
@@ -56,6 +61,8 @@ public class ControlUIArduino {
 		String msg = btMsg.getText().toString();
 		return msg;
 	}
+	
+	
 	
 	private void prepararBotoesDefault(JButton[] botoes) {
 		final JButton btMsg = botoes[2];
@@ -104,12 +111,13 @@ public class ControlUIArduino {
 	}
 	
 	private void mostrarJanela(){
-		mostrarJanela(514, 514);
+		mostrarJanela(614, 84);
 	}
 	
 	public void montarTela(){
 		prepararJanela();
 		adicionarPaineis();
+		inicializarArrayBotao();
 		addTextField();
 		addBotoesAoPainel();		
 		mostrarJanela();
@@ -118,11 +126,8 @@ public class ControlUIArduino {
 		
 		
 	}
-	
-	
-	
-	
 
+	
 	public static void main(String[] args){
 		new ControlUIArduino().montarTela();
 	}

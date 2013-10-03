@@ -121,8 +121,8 @@ public class Main implements SerialPortEventListener {
 		public void run() {
 			try {
 				int c = 0;
-				while ((c = System.in.read()) > -1) {
-					this.out.write(c);
+				while ((c = System.in.read() - '0' ) > -1) {
+					this.out.write(1);
 				}
 			} catch (IOException e) {
 				e.printStackTrace();

@@ -38,6 +38,10 @@ public class SerialConnection extends Connection  implements SerialPortEventList
 	public SerialConnection() throws NoSuchPortException {
 		findPorts();
 	}
+	
+	public SerialPort getSerialPort() {
+		return serialPort;
+	}
 
 	public SerialConnection(String portname) throws NoSuchPortException {
 		connect(findPort(portname));
@@ -50,11 +54,12 @@ public class SerialConnection extends Connection  implements SerialPortEventList
 
 			// set port parameters
 			serialPort.setSerialPortParams(DATA_RATE, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
-
+			
 			// open the streams
 			input = new BufferedReader(new InputStreamReader(serialPort.getInputStream()));
 			output = serialPort.getOutputStream();
-			
+			serialPort.addEventListener(this);
+			serialPort.notifyOnDataAvailable(true);
 
 		} catch (Exception e) {
 			System.err.println(e.toString());
@@ -108,6 +113,7 @@ public class SerialConnection extends Connection  implements SerialPortEventList
 	@Override
 	public void serialEvent(SerialPortEvent evt) {
 		if (evt.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
+			System.out.println("receiving by " + Thread.currentThread().getName());
 			try {
 				String inputLine=input.readLine();
 				System.out.println(inputLine);

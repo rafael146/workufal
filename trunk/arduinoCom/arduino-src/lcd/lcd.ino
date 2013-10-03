@@ -32,7 +32,7 @@ void loop()
 
 }
 
-lcdProcess() {
+void lcdProcess() {
   // clear lcd
   if(Serial.read()) {
     lcd.clear();
@@ -44,12 +44,10 @@ lcdProcess() {
   lcd.setCursor(x, y);
   
   //text
-  string st= "";
   char c;
   while((c = Serial.read(), c != '\000')) {
-    st += c;
+    lcd.write(c);
   }
-  lcd.write(st);
   
   //show cursor
   if(Serial.read()) {

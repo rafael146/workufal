@@ -18,14 +18,16 @@ lcd.print("kkkkkkkkk"); //Escreve no LCD "LabdeGaragem"
 void loop()
 {
   
-  if (Serial.available()) {
-     //read serial as ascii integer
-    short opcode = Serial.read() | (Serial.read() << 8);
-    Serial.write("recebido ");
-    Serial.write(opcode);
+  if (Serial.available() > 1) {
+    int length = Serial.read() | (Serial.read() << 8);
+    while(Serial.available() < length) {
+    	delay(100);
+    }
+    int opcode = Serial.read() | (Serial.read() << 8);
     switch(opcode) {
       case 0x01:
         lcdProcess();
+        break;
       
     }
   }

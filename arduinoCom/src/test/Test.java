@@ -16,6 +16,9 @@ public class Test {
 		for(byte b : array) {
 			System.out.println(b);
 		}
+		buf.position(0);
+		System.out.println("DAsd");
+		System.out.println(buf.getInt());
 //		
 //		System.out.println();
 //		System.out.println(buf.getInt());

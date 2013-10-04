@@ -42,11 +42,11 @@ public class LCDPacket extends AbstractWritablePacket {
 	String text = "";
 	byte line = 0;
 	byte column = 0;
-	boolean cursor = true;
-	boolean blink = true;
+	boolean cursor = false;
+	boolean blink = false;
 	boolean display = true;
-	boolean toright = true;
-	boolean scroll = false;
+	boolean toright = false;
+	boolean scroll = true;
 	boolean clear = true;
 	
 	public LCDPacket() {

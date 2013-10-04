@@ -113,7 +113,6 @@ public class SerialConnection extends Connection  implements SerialPortEventList
 	@Override
 	public void serialEvent(SerialPortEvent evt) {
 		if (evt.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
-			System.out.println("receiving by " + Thread.currentThread().getName());
 			try {
 				String inputLine=input.readLine();
 				System.out.println(inputLine);

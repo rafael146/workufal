@@ -26,9 +26,10 @@ public abstract class Connection {
 
 	public synchronized void write(final ByteBuffer buf) throws IOException {
 		if (output != null) {
-			byte[] array = new byte[buf.getShort()];
+			int l = buf.getShort();
+			byte[] array = new byte[l+HEADER_SIZE];
 			buf.position(0);
-			buf.get(array);
+			buf.get(array, 0, l);
 			output.write(array);
 			output.flush();
 		}
@@ -65,10 +66,11 @@ public abstract class Connection {
 		packet.write(this, writeBuffer);
 		
 		 // size (inclusive header) 
-		int dataSize = writeBuffer.position(); 
+		int dataSize = writeBuffer.position() - HEADER_SIZE; 
 		writeBuffer.position(0); 
 		// write header 
 		writeBuffer.putShort((short) (dataSize)); 
+		
 		writeBuffer.position(dataSize); 
 		
 		writeBuffer.flip();

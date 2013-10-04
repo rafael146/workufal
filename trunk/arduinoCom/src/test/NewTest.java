@@ -52,7 +52,7 @@ public class NewTest {
 		
 		@Override
 		public void run() {
-			LCDPacket packet = new LCDPacket("texto");
+			LCDPacket packet = new LCDPacket("Alisson Oliveira Valério");
 			try {
 				conn.sendPacket(packet);
 			} catch (IOException e) {

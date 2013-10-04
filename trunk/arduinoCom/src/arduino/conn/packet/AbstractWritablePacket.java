@@ -14,10 +14,10 @@ public abstract class AbstractWritablePacket implements WritablePacket {
 	protected void putString(ByteBuffer buf, String str) {
 		if(str != null) {
 			for(int i = 0; i < str.length(); i++) {
-				buf.putChar(str.charAt(i));
+				buf.put((byte)str.charAt(i));
 			}
 		}
-		buf.putChar('\000');
+		buf.put((byte)0);
 	}
 	
 	@Override

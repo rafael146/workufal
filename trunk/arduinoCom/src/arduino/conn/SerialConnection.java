@@ -98,6 +98,7 @@ public class SerialConnection extends Connection  implements SerialPortEventList
 
 	@Override
 	public void close() {
+		System.out.println("Clossing connection");
 		super.close();
 		if (serialPort != null) {
 			serialPort.removeEventListener();

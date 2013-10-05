@@ -29,12 +29,12 @@ import arduino.conn.Connection;
  *  byte
  *  byte
  *  byte
+ *  byte
+ *  byte
+ *  byte
+ *  byte
+ *  byte
  *  String
- *  byte
- *  byte
- *  byte
- *  byte
- *  byte
  *
  */
 public class LCDPacket extends AbstractWritablePacket {
@@ -45,9 +45,21 @@ public class LCDPacket extends AbstractWritablePacket {
 	boolean cursor = false;
 	boolean blink = false;
 	boolean display = true;
-	boolean toright = false;
-	boolean scroll = true;
-	boolean clear = true;
+	boolean toright = true;
+	boolean scroll = false;
+	boolean clear = false;
+	
+	public void reset() {
+		text = "";
+		line = 0;
+		column = 0;
+		cursor = false;
+		blink = false;
+		display = true;
+		toright = true;
+		scroll = false;
+		clear = false;
+	}
 	
 	public LCDPacket() {
 		
@@ -123,15 +135,14 @@ public class LCDPacket extends AbstractWritablePacket {
 	public void write(Connection conn, ByteBuffer buffer) {
 		buffer.putShort(getOpcode());
 		buffer.put((byte) (clear ? 1 : 0));
-		buffer.put(line);
-		buffer.put(column);
-		putString(buffer, text);
+		buffer.put((byte) (scroll ? 1 : 0));
 		buffer.put((byte) (cursor ? 1 : 0));
 		buffer.put((byte) (blink ? 1 : 0));
 		buffer.put((byte) (display ? 1 : 0));
 		buffer.put((byte) (toright ? 1 : 0));
-		buffer.put((byte) (scroll ? 1 : 0));
-
+		buffer.put(column);
+		buffer.put(line);
+		putString(buffer, text);
 	}
 
 	/* (non-Javadoc)

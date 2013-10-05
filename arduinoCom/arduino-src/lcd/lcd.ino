@@ -9,9 +9,7 @@ void setup()
 Serial.begin(9600);
 lcd.begin(16, 2); //Inicia o LCD com dimensões 16x2(Colunas x Linhas)
 lcd.setCursor(0, 0); //Posiciona o cursor na primeira coluna(0) e na primeira linha(0) do LCD
-lcd.print("Chupa coco!"); //Escreve no LCD "Olá Garagista!"
-lcd.setCursor(0, 1); //Posiciona o cursor na primeira coluna(0) e na segunda linha(1) do LCD
-lcd.print("kkkkkkkkk"); //Escreve no LCD "LabdeGaragem"
+lcd.print("Esperando..."); //Escreve no LCD "Olá Garagista!"
 
 }
  
@@ -21,18 +19,26 @@ void loop()
   if (Serial.available() > 1) {
     Serial.println("ok");
     int length = Serial.read() | (Serial.read() << 8);
+    Serial.print("received tamanho :");
+    Serial.println(length);
     while(Serial.available() < length) {
       // wait all packet
+      Serial.println("esperando o restante");
+      delay(100);
     }
      int opcode = Serial.read() | (Serial.read() << 8);
+     Serial.print("received code :");
+     Serial.println(opcode);
      switch(opcode) {
        case 0x01:
          lcdProcess();
          break;
      }
      delay(1000); 
-
   }
+  delay(500);
+  Serial.println("Esperando packet");
+  Serial.println(Serial.available());
 }
 
 void lcdProcess() {
@@ -42,37 +48,23 @@ void lcdProcess() {
   if(Serial.read()) {
     lcd.clear();
     Serial.println("limpando lcd");
-    delay(1000);
   } else {
      Serial.println("no limpando lcd"); 
   }
   
-  // positions
-  byte x = Serial.read();
-  byte y = Serial.read();
-  Serial.print("localizacao ");
-  Serial.print(x);
-  Serial.println(y);
-  lcd.setCursor(x, y);
-  delay(1000);
-  
-  //text
-  String st = "";
-  char c;
-  Serial.println("pegando string");
-  while((c = Serial.read()) != 0) {
-     st += c;
+  // autoscroll
+   int scroll = Serial.read();
+  if(scroll) {
+    Serial.println("autoscrooling");
+    lcd.autoscroll();
+  } else {
+    Serial.println("no scrooling");
+    lcd.noAutoscroll();
   }
-  Serial.print(" Texto: ");
-  Serial.println(st);
-  lcd.print(st);
-  delay(1000);
-
   //show cursor
   if(Serial.read()) {
     lcd.cursor();
     Serial.println("mostrando cursor");
-    delay(1000);
   } else {
     Serial.println("nao mostrar cursor");
     lcd.noCursor();
@@ -82,7 +74,6 @@ void lcdProcess() {
   if(Serial.read()) {
      lcd.blink(); 
      Serial.println("blinking");
-     delay(1000);
   } else {
     Serial.println("no blinking");
     lcd.noBlink();
@@ -92,7 +83,6 @@ void lcdProcess() {
   if(Serial.read()) {
     Serial.println("Displaying");
      lcd.display(); 
-     delay(1000);
   } else {
     Serial.println("no displaying");
      lcd.noDisplay(); 
@@ -102,20 +92,31 @@ void lcdProcess() {
   if(Serial.read()) {
     Serial.println("left to right");
     lcd.leftToRight();
-    delay(1000);
   } else {
     Serial.println("right to left");
     lcd.rightToLeft();
   }
+
+// positions
+  byte x = Serial.read();
+  byte y = Serial.read();
+  Serial.print("localizacao ");
+  Serial.print(x);
+  Serial.println(y);
+  lcd.setCursor(x, y);
   
-  // autoscroll
-  if(Serial.read() == 1) {
-    Serial.println("autoscrooling");
-    lcd.autoscroll();
-    delay(1000);
-  } else {
-    Serial.println("no scrooling");
-    lcd.noAutoscroll();
+  //text
+  String st = "";
+  char c;
+  Serial.println("pegando string");
+  while((c = Serial.read()) != 0) {
+     st += c;
+     lcd.print(c);
+     if(scroll)
+       delay(350);  
   }
+  Serial.read(); // ler o byte nulo;
+  Serial.print(" Texto: ");
+  Serial.println(st);
   
 }

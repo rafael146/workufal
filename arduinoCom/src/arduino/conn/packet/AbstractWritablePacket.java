@@ -17,6 +17,7 @@ public abstract class AbstractWritablePacket implements WritablePacket {
 				buf.put((byte)str.charAt(i));
 			}
 		}
+		buf.put((byte)'\0');
 		buf.put((byte)0);
 	}
 	

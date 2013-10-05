@@ -15,6 +15,7 @@ public abstract class Connection {
 	private static final int HEADER_SIZE = 2; 
 	protected BufferedReader input;
 	protected OutputStream output;
+	@SuppressWarnings("unused")
 	private ByteBuffer readBuffer;
 	private final ByteBuffer writeBuffer;
 

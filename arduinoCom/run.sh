@@ -1,1 +1,1 @@
-sudo java -Djava.library.path=. -cp ./*: test.Main
+sudo java -Djava.library.path=lib -cp lib/*: arduino.gui.ArduinoUi

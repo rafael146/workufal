@@ -98,6 +98,7 @@ public class Main implements SerialPortEventListener {
 	/**
 	 * Handle an event on the serial port. Read the data and print it.
 	 */
+	@Override
 	public synchronized void serialEvent(SerialPortEvent oEvent) {
 		if (oEvent.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
 			try {
@@ -118,6 +119,7 @@ public class Main implements SerialPortEventListener {
 			this.out = out;
 		}
 
+		@Override
 		public void run() {
 			try {
 				int c = 0;
@@ -135,6 +137,7 @@ public class Main implements SerialPortEventListener {
 		try {
 		main.initialize();
 		Thread t=new Thread() {
+			@Override
 			public void run() {
 				//the following line will keep this app alive for 1000 seconds,
 				//waiting for events to occur and responding to them (printing incoming messages to console).

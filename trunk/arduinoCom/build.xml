@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="ArduinoCon" default="dist-local" basedir=".">
+	<description>
+        This script will build the Application.
+    </description>
+
+	<property file="build.properties" />
+	<property name="src" location="src" />
+	<property name="src-lib" location="lib" />
+	<property name="src-arduino" location="arduino-src" />
+	<property name="build" location="build" />
+
+	<target name="prepare-final" description="Prepare the final folders properties">
+
+		<property name="build.classes" location="${build}/classes" />
+		<property name="build.dist" location="${build}/dist" />
+		<property name="build.dist.lib" location="${build.dist}/lib" />
+		<property name="build.dist.arduino-src" location="${build.dist}/arduino-src" />
+
+	</target>
+
+	<path id="classpath">
+		<fileset dir="${src-lib}">
+			<include name="*.jar" />
+		</fileset>
+	</path>
+
+	<target name="init" description="Create the output directories.">
+
+		<mkdir dir="${build}" />
+		<mkdir dir="${build.classes}" />
+		<mkdir dir="${build.dist}" />
+		<mkdir dir="${build.dist.lib}" />
+		<mkdir dir="${build.dist.arduino-src}" />
+
+	</target>
+
+	<target name="compile" depends="init" description="Compile the source.">
+
+		<javac destdir="${build.classes}" includeantruntime="false" optimize="on" debug="on" source="1.7" target="1.7" encoding="utf-8" nowarn="off">
+			<src path="${src}" />
+			<classpath refid="classpath" />
+		</javac>
+	</target>
+
+	<target name="jar" depends="compile" description="Create the jar file">
+
+		<jar destfile="${build}/arduinocon.jar">
+			<fileset dir="${build.classes}" />
+		</jar>
+		
+		<copy todir="${build.dist.lib}">
+			<fileset dir="${build}">
+				<include name="arduinocon.jar" />
+			</fileset>
+		</copy>
+		
+	</target>
+
+	<target name="export" depends="jar">
+
+		<copy todir="${build.dist.lib}">
+			<fileset dir="${src-lib}">
+				<include name="*"/>
+			</fileset>
+		</copy>
+		
+		<copy todir="${build.dist}">
+			<fileset dir=".">
+				<include name="run.sh"/>
+			</fileset>
+		</copy>
+		
+		<copy todir="${build.dist.arduino-src}">
+			<fileset dir="${src-arduino}">
+				<include name="**/*"/>
+			</fileset>
+		</copy>
+		
+
+		<fixcrlf srcdir="${build.dist}" eol="lf" eof="remove" includes="**/*.sh">
+		</fixcrlf>
+
+		<delete dir="${build.classes}" />
+		<delete file="${build}/arduino.jar" />
+
+	</target>
+
+
+	<target name="dist-local" depends="prepare-final,export" description="Create distribution files and Zip one into 'build' folder">
+		<zip destfile="${build}/Arduinocon.zip" basedir="${build.dist}" update="true" />
+	</target>
+
+
+</project>

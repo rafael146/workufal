@@ -42,6 +42,7 @@ public class ControlGUIArduino extends JFrame {
 	
 	
 	private class EventWindownHandler extends WindowAdapter {
+		@Override
 		public void windowClosing(WindowEvent e) {
 			if(con != null) {
 				con.close();
@@ -53,6 +54,7 @@ public class ControlGUIArduino extends JFrame {
 	 * Create the frame.
 	 */
 	public ControlGUIArduino() {
+		setTitle("Mensageiro do Amor");
 		addWindowListener(new EventWindownHandler());
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 424, 199);
@@ -62,6 +64,7 @@ public class ControlGUIArduino extends JFrame {
 
 		JButton btnLigar = new JButton("LIGAR");
 		btnLigar.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				packet.setDisplay(true);
 				try {
@@ -74,6 +77,7 @@ public class ControlGUIArduino extends JFrame {
 
 		JButton btnDesligar = new JButton("DESLIGAR");
 		btnDesligar.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				packet.setDisplay(false);
 				try {
@@ -89,6 +93,7 @@ public class ControlGUIArduino extends JFrame {
 
 		JButton btnEnviarMensagem = new JButton("Enviar Mensagem");
 		btnEnviarMensagem.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				packet.setText(textField.getText());
 				try {
@@ -99,9 +104,6 @@ public class ControlGUIArduino extends JFrame {
 				}
 			}
 		});
-
-		JLabel lblMensageiro = new JLabel("MENSAGEIRO DO AMOR");
-		lblMensageiro.setFont(new Font("Tahoma", Font.BOLD, 18));
 		
 		JLabel lblStatus = new JLabel("status: ");
 		GroupLayout gl_contentPane = new GroupLayout(contentPane);
@@ -119,9 +121,6 @@ public class ControlGUIArduino extends JFrame {
 								.addComponent(textField)
 								.addComponent(btnEnviarMensagem, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
 						.addGroup(gl_contentPane.createSequentialGroup()
-							.addGap(69)
-							.addComponent(lblMensageiro, GroupLayout.PREFERRED_SIZE, 233, GroupLayout.PREFERRED_SIZE))
-						.addGroup(gl_contentPane.createSequentialGroup()
 							.addContainerGap()
 							.addComponent(lblStatus)
 							.addPreferredGap(ComponentPlacement.RELATED)
@@ -131,8 +130,7 @@ public class ControlGUIArduino extends JFrame {
 		gl_contentPane.setVerticalGroup(
 			gl_contentPane.createParallelGroup(Alignment.TRAILING)
 				.addGroup(gl_contentPane.createSequentialGroup()
-					.addComponent(lblMensageiro)
-					.addPreferredGap(ComponentPlacement.RELATED)
+					.addGap(28)
 					.addGroup(gl_contentPane.createParallelGroup(Alignment.BASELINE)
 						.addComponent(textField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 						.addComponent(btnLigar))
@@ -162,6 +160,7 @@ public class ControlGUIArduino extends JFrame {
 
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					ControlGUIArduino frame = new ControlGUIArduino();

@@ -46,6 +46,10 @@ public class SerialConnection extends Connection  implements SerialPortEventList
 	public SerialConnection(String portname) throws NoSuchPortException {
 		connect(findPort(portname));
 	}
+	
+	public void connect(String portname) throws NoSuchPortException {
+		connect(findPort(portname));
+	}
 
 	public void connect(CommPortIdentifier portId) {
 		try {
@@ -76,7 +80,7 @@ public class SerialConnection extends Connection  implements SerialPortEventList
 		return CommPortIdentifier.getPortIdentifier(portName);
 	}
 
-	private void findPorts() throws NoSuchPortException {
+	public void findPorts() throws NoSuchPortException {
 		Enumeration<?> portEnum = CommPortIdentifier.getPortIdentifiers();
 
 		// First, Find an instance of serial port as set in PORT_NAMES.

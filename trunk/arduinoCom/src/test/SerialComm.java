@@ -4,7 +4,6 @@ import gnu.io.CommPort;
 import gnu.io.CommPortIdentifier;
 import gnu.io.SerialPort;
 
-import java.io.FileDescriptor;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -56,6 +55,7 @@ public class SerialComm {
 			this.in = in;
 		}
 
+		@Override
 		public void run() {
 			byte[] buffer = new byte[1024];
 			int len = -1;
@@ -77,6 +77,7 @@ public class SerialComm {
 			this.out = out;
 		}
 
+		@Override
 		public void run() {
 			try {
 				int c = 0;

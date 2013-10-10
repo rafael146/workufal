@@ -20,6 +20,8 @@ import javax.swing.JButton;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.JTextField;
 import javax.swing.JCheckBox;
@@ -65,6 +67,15 @@ public class ArduinoUi {
 			}
 		});
 	}
+	
+	private class EventWindownHandler extends WindowAdapter {
+		@Override
+		public void windowClosing(WindowEvent e) {
+			if(con != null && con.isConnected()) {
+				con.close();
+			}
+		}
+	}
 
 	/**
 	 * Create the application.
@@ -75,7 +86,7 @@ public class ArduinoUi {
 		try {
 			con = new SerialConnection();
 			status.setText("Estabelecendo conexão");
-			Thread.sleep(3000);
+			Thread.sleep(2000);
 			status.setText("Conexão estabelecida");
 			for(String st : con.getSerialPorts().keySet()) {
 				portlist.addItem(st);
@@ -96,6 +107,7 @@ public class ArduinoUi {
 		frame = new JFrame();
 		frame.setTitle("Mensageiro do Amor");
 		frame.setBounds(100, 100, 450, 300);
+		frame.addWindowListener(new EventWindownHandler());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		SpringLayout springLayout = new SpringLayout();
 		frame.getContentPane().setLayout(springLayout);
@@ -116,32 +128,27 @@ public class ArduinoUi {
 		panel.setLayout(sl_panel);
 
 		JToggleButton btnLigar = new JToggleButton("On/Off");
-		btnLigar.addChangeListener(new ChangeListener() {
-			public void stateChanged(ChangeEvent e) {
+		sl_panel.putConstraint(SpringLayout.SOUTH, btnLigar, -41, SpringLayout.SOUTH, panel);
+		btnLigar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 				display ^= true;
 				packet.setDisplay(display);
 				try {
+					if(con == null) {
+						status.setText("Aguardando Conexão");
+						return;
+					}
+					if(!con.isConnected()) {
+						lblPorta_1.setText("Não conectado");
+						return;
+					}
 					con.sendPacket(packet);
 				} catch (IOException e1) {
-					e1.printStackTrace();
+					status.setText("Conexão não estabelecida");
 				}
 			}
 		});
 		panel.add(btnLigar);
-
-		JButton btnReset = new JButton("reset");
-		sl_panel.putConstraint(SpringLayout.WEST, btnReset, 339, SpringLayout.WEST, panel);
-		sl_panel.putConstraint(SpringLayout.EAST, btnReset, -10, SpringLayout.EAST, panel);
-		sl_panel.putConstraint(SpringLayout.WEST, btnLigar, 0, SpringLayout.WEST, btnReset);
-		sl_panel.putConstraint(SpringLayout.SOUTH, btnLigar, -6, SpringLayout.NORTH, btnReset);
-		sl_panel.putConstraint(SpringLayout.SOUTH, btnReset, -10, SpringLayout.SOUTH, panel);
-		
-		btnReset.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				packet.reset();
-			}
-		});
-		panel.add(btnReset);
 
 		textField = new JTextField();
 		sl_panel.putConstraint(SpringLayout.WEST, textField, 0, SpringLayout.WEST, panel);
@@ -165,9 +172,17 @@ public class ArduinoUi {
 				}
 				packet.setPosition((byte)x, (byte)y);
 				try {
+					if(con == null) {
+						status.setText("Aguardando Conexão");
+						return;
+					}
+					if(!con.isConnected()) {
+						lblPorta_1.setText("Não conectado");
+						return;
+					}
 					con.sendPacket(packet);
 				} catch (IOException e1) {
-					e1.printStackTrace();
+					status.setText("Conexão não estabelecida");
 				}
 			}
 		});
@@ -273,12 +288,17 @@ public class ArduinoUi {
 		panel.add(lblPorta);
 
 		JButton btnConectar = new JButton("conectar");
+		sl_panel.putConstraint(SpringLayout.NORTH, btnConectar, 6, SpringLayout.SOUTH, btnLigar);
+		sl_panel.putConstraint(SpringLayout.EAST, btnConectar, -10, SpringLayout.EAST, panel);
 		btnConectar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					if(con == null)
-						con = new SerialConnection();
-					con.connect((String) portlist.getSelectedItem());
+					if(con != null && con.isConnected()) {
+						con.close();	
+					}
+					con = new SerialConnection((String) portlist.getSelectedItem());
+					lblPorta_1.setText(con.getSerialPort().getName());
+					status.setText("Conexão estabelecida");
 				} catch (NoSuchPortException e1) {
 					status.setText("Serial Port Não encontrada");
 				} catch (Exception e2) {
@@ -286,13 +306,11 @@ public class ArduinoUi {
 				}
 			}
 		});
-		sl_panel.putConstraint(SpringLayout.NORTH, btnConectar, 0, SpringLayout.NORTH, btnReset);
-		sl_panel.putConstraint(SpringLayout.EAST, btnConectar, -6, SpringLayout.WEST, btnReset);
 		panel.add(btnConectar);
 
 		JLabel lblConectado = new JLabel("conectado:");
+		sl_panel.putConstraint(SpringLayout.NORTH, lblConectado, 7, SpringLayout.SOUTH, portlist);
 		sl_panel.putConstraint(SpringLayout.WEST, lblPorta, 0, SpringLayout.WEST, lblConectado);
-		sl_panel.putConstraint(SpringLayout.NORTH, lblConectado, 0, SpringLayout.NORTH, btnReset);
 		sl_panel.putConstraint(SpringLayout.WEST, lblConectado, 10, SpringLayout.WEST, panel);
 		panel.add(lblConectado);
 
@@ -301,17 +319,23 @@ public class ArduinoUi {
 		panel.add(lblPorta_1);
 
 		JButton btnProcurar = new JButton("procurar...");
+		sl_panel.putConstraint(SpringLayout.WEST, btnLigar, 6, SpringLayout.EAST, btnProcurar);
 		btnProcurar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
 					if(con == null)
 						con = new SerialConnection();
-					else
-						con.findPorts();
+					else {
+						con.close();
+						con = new SerialConnection();	
+					}
 					portlist.removeAllItems();
 					for(String s : con.getSerialPorts().keySet()) {
 						portlist.addItem(s);
 					}
+					status.setText("Conexão estabelecida");
+					lblPorta_1.setText(con.getSerialPort().getName());
+					
 				} catch (NoSuchPortException e1) {
 					status.setText("Porta Serial não encontrada");
 				} catch (Exception e2) {

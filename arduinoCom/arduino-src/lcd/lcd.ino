@@ -17,7 +17,6 @@ void loop()
 {
   
   if (Serial.available() > 1) {
-    Serial.println("ok");
     int length = Serial.read() | (Serial.read() << 8);
     Serial.print("received tamanho :");
     Serial.println(length);
@@ -37,8 +36,6 @@ void loop()
      delay(1000); 
   }
   delay(500);
-  Serial.println("Esperando packet");
-  Serial.println(Serial.available());
 }
 
 void lcdProcess() {
@@ -116,7 +113,5 @@ void lcdProcess() {
        delay(350);  
   }
   Serial.read(); // ler o byte nulo;
-  Serial.print(" Texto: ");
-  Serial.println(st);
   
 }

@@ -23,8 +23,8 @@ public class SerialConnection extends Connection  implements SerialPortEventList
 
 	private static final String PORT_NAMES[] = {
 		 	"/dev/tty.usbserial-A9007UX1", // Mac  OS  X
-			"/dev/ttyACM0", // Linux
-			"COM3", // Windows
+			"/dev/ttyACM","/dev/ttyUSB", // Linux
+			"COM", // Windows
 	};
 
 	private SerialPort serialPort;
@@ -88,10 +88,10 @@ public class SerialConnection extends Connection  implements SerialPortEventList
 			CommPortIdentifier currPortId = (CommPortIdentifier) portEnum.nextElement();
 
 			for (String portName : PORT_NAMES) {
-				if (currPortId.getName().equals(portName)) {
+				if (currPortId.getName().startsWith(portName)) {
 					if(serialPort == null)
 						connect(currPortId	);
-					serialPorts.put(portName, currPortId);
+					serialPorts.put(currPortId.getName(), currPortId);
 				}
 			}
 		}

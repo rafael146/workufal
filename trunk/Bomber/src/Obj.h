@@ -14,35 +14,31 @@
 class Obj3D {
 	GLfloat x=0, y=0, z=0, angle=0, angleX=0, angleY=0, angleZ=0;
 public:
-	virtual ~Obj3D(){
-	}
+	virtual ~Obj3D(){}
+
 	virtual void update();
+
 	virtual void draw();
+
+	virtual void mover(GLfloat x, GLfloat y, GLfloat z);
 };
 
-
-class Move {
-public:
-	virtual ~Move(){};
-	virtual void mover(GLfloat x, GLfloat y, GLfloat z) = 0;
-};
 
 class Bomba : Obj3D {
 
 };
 
-class Character : Obj3D, Move {
+class Camera : Obj3D {
 
 };
 
-class Camera : Obj3D, Move {
+class Luz : Obj3D {
 
 };
 
-class Luz : Obj3D, Move {
+class Character : Obj3D {
 
 };
-
 
 class BomberMan : Character {
 

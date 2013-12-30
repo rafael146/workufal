@@ -10,19 +10,14 @@
 
 #include<GL/gl.h>
 
-
 class Obj3D {
 	GLfloat x=0, y=0, z=0, angle=0, angleX=0, angleY=0, angleZ=0;
 public:
 	virtual ~Obj3D(){}
-
 	virtual void update();
-
 	virtual void draw();
-
 	virtual void mover(GLfloat x, GLfloat y, GLfloat z);
 };
-
 
 class Bomba : Obj3D {
 

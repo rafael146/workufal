@@ -7,6 +7,7 @@
 //============================================================================
 
 #include <GL/glut.h>
+#include "Obj.h"
 
 //Variaveis de Rotação
 static GLfloat xRot = 20.0f;
@@ -16,7 +17,7 @@ static GLfloat yRot = 0.0f;
 static GLfloat dist = -5.0f;
 
 //Tratamento de dimenções de janela
-void atualizaJanela(int w, int h) {
+GLvoid reshapeHandler(GLint w, GLint h) {
 	GLfloat fAspect;
 
 	// Previne divisão por 0
@@ -29,28 +30,28 @@ void atualizaJanela(int w, int h) {
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	// Produz a perspectiva da camera
-	gluPerspective(60.0, fAspect, 1.0, 40.0);
+	gluPerspective(60.0, fAspect, 0.02, 500.0);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 }
 
-void Inicializa(void) {
+GLvoid Inicializa() {
 	// Especifica que a cor de fundo da janela será preta
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 }
 
 //Entradas do Teclado
-void TeclasEspeciais(int key, int x, int y) {
+GLvoid specialHandler(GLint key, GLint x, GLint y) {
 	//Atualiza Janela
 	glutPostRedisplay();
 }
 
-void GerenciaTeclado(unsigned char key, int x, int y) {
+GLvoid keyboardHandler(GLubyte key, GLint x, GLint y) {
 	glutPostRedisplay();
 }
 
 
-void Desenha(void) {
+GLvoid displayHandler() {
 
 	GLUquadricObj *Quadro;    // Novo Quadric Objeto
 
@@ -62,23 +63,36 @@ void Desenha(void) {
 
 	// Salva mudanças de estado e rotações na matrix
 	glPushMatrix();
+		//Move os Objetos e Rotaciona de acordo com as entradas do teclado
+		glTranslatef(0.0f, 0.0f, dist);
+		glRotatef(xRot, 1.0f, 0.0f, 0.0f);
+		glRotatef(yRot, 0.0f, 1.0f, 0.0f);
 
-	//Move os Objetos e Rotaciona de acordo com as entradas do teclado
-	glTranslatef(0.0f, 0.0f, dist);
-	glRotatef(xRot, 1.0f, 0.0f, 0.0f);
-	glRotatef(yRot, 0.0f, 1.0f, 0.0f);
-
-	glPushMatrix();
-	glColor3f(1.0f, 1.0f, 1.0f);
-	glTranslatef(0.0f, 0.2f, 0.0f);
-	glRotatef(90, 1.0f, 0.0f, 0.0f);
-	gluCylinder(Quadro, 1.02f, 1.02f, 0.5f, 30, 15); //quad, top, base, height, slices, stack
-	glPopMatrix();
+		glPushMatrix();
+			glColor3f(1.0f, 0.0f, 1.0f);
+			glTranslatef(0.0f, 0.2f, 0.0f);
+			glRotatef(90, 1.0f, 0.0f, 0.0f);
+			gluCylinder(Quadro, 1.02f, 1.02f, 0.5f, 30, 15); //quad, top, base, height, slices, stack
+		glPopMatrix();
+		glPushMatrix();
+			glColor3f(1.0f, 1.0f, 0.0f);
+			glTranslatef(0.1f, 0.3f, 0.3f);
+			glRotatef(90, 1.0f, 0.0f, 0.0f);
+			gluCylinder(Quadro, 1.02f, 1.02f, 0.5f, 30, 15); //quad, top, base, height, slices, stack
+		glPopMatrix();
 
 	glPopMatrix();
 
 	// Buffer swap
 	glutSwapBuffers();
+}
+
+GLvoid mouseHandler(GLint button, GLint state, GLint x, GLint y) {
+
+}
+
+GLvoid motionHandler(GLint x, GLint y) {
+
 }
 
 int main(int argc, char *argv[]) {
@@ -87,10 +101,12 @@ int main(int argc, char *argv[]) {
 	glutInitWindowSize(800, 600);
 	glutCreateWindow("BomberMan");
 	Inicializa();                                      //Função de Inicialização
-	glutReshapeFunc(atualizaJanela);   //Função de Ajuste de Dimensões da Janela
-	glutSpecialFunc(TeclasEspeciais);     //Entrada de Teclado, teclas especiais
-	glutKeyboardFunc(GerenciaTeclado);                    //Entrada de Teclado
-	glutDisplayFunc(Desenha);                          //Renderização da Cena
+	glutReshapeFunc(reshapeHandler);   //Função de Ajuste de Dimensões da Janela
+	glutSpecialFunc(specialHandler);     //Entrada de Teclado, teclas especiais
+	glutKeyboardFunc(keyboardHandler);                    //Entrada de Teclado
+	glutDisplayFunc(displayHandler);                          //Renderização da Cena
+	glutMouseFunc(mouseHandler);
+	glutMotionFunc(motionHandler);
 	glutMainLoop();
 
 	return 0;

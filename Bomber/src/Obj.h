@@ -9,25 +9,33 @@
 #define OBJ_H_
 
 #include<GL/gl.h>
+#include<GL/glu.h>
 
+
+// Classe Base para todos os objetos.
 class Obj3D {
-	GLfloat x=0, y=0, z=0, angle=0, angleX=0, angleY=0, angleZ=0;
+	static GLUquadricObj *Quadro;    //Quadric Objeto
+	GLfloat x, y, z, angle, angleX, angleY, angleZ;
+	GLboolean pendingUpdate;
 public:
 	virtual ~Obj3D(){}
-	virtual void update();
-	virtual void draw();
-	virtual void mover(GLfloat x, GLfloat y, GLfloat z);
+	virtual GLboolean isPendingUpdate();
+	virtual GLvoid update();
+	virtual GLvoid draw();
+	virtual GLvoid mover(GLfloat x, GLfloat y, GLfloat z);
 };
 
-class Bomba : Obj3D {
-
-};
+GLUquadricObj* Obj3D::Quadro = NULL;
 
 class Camera : Obj3D {
 
 };
 
 class Luz : Obj3D {
+
+};
+
+class Bomba : Obj3D {
 
 };
 

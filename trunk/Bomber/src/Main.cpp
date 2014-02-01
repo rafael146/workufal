@@ -7,32 +7,51 @@
 //============================================================================
 
 #include <GL/glut.h>
+#include <math.h>
 #include "Obj.h"
+#include <iostream>
 
-//Variaveis de Rotação
-static GLfloat xRot = 20.0f;
-static GLfloat yRot = 0.0f;
+// variáveis de movimentação da Câmera
 
-//Variavel de Distancia da Camera
-static GLfloat dist = -5.0f;
+GLint xOrigin = -1;
+
+GLfloat red = 1, green = 0, blue = 0;
+
+// ângulo de rotação da câmera
+float angle = 0.0;
+// direção da câmera
+float lx = 0.0f, lz = -1.0f;
+// XZ posição da câmera
+float x = 0.0f, z = 5.0f;
+
+// the key states. These variables will be zero
+//when no key is being presses
+GLfloat deltaAngle = 0.0f;
+GLfloat deltaMove = 0;
 
 //Tratamento de dimenções de janela
 GLvoid reshapeHandler(GLint w, GLint h) {
-	GLfloat fAspect;
 
-	// Previne divisão por 0
+	//previne divisão por zero
 	if (h == 0)
 		h = 1;
-	// Viewport de acordo com as dimenssoes da janela
-	glViewport(0, 0, w, h);
-	fAspect = (GLfloat) w / (GLfloat) h;
-	// Reseta cordenadas do Sistema
+
+	float ratio = 1.0 * w / h;
+
+	// Use Matriz de projeção
 	glMatrixMode(GL_PROJECTION);
+
+	// Reseta Matriz
 	glLoadIdentity();
-	// Produz a perspectiva da camera
-	gluPerspective(60.0, fAspect, 0.02, 500.0);
+
+	// viewport do tamanho da janela
+	glViewport(0, 0, w, h);
+
+	// coloca a perspectiva correta
+	gluPerspective(45, ratio, 1, 1000);
+
+	// volta pra ModelView (usa matriz de model)
 	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
 }
 
 GLvoid Inicializa() {
@@ -40,73 +59,234 @@ GLvoid Inicializa() {
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 }
 
+/*
+ * key:
+ GLUT_KEY_F1		F1 function key
+ GLUT_KEY_F2		F2 function key
+ GLUT_KEY_F3		F3 function key
+ GLUT_KEY_F4		F4 function key
+ GLUT_KEY_F5		F5 function key
+ GLUT_KEY_F6		F6 function key
+ GLUT_KEY_F7		F7 function key
+ GLUT_KEY_F8		F8 function key
+ GLUT_KEY_F9		F9 function key
+ GLUT_KEY_F10		F10 function key
+ GLUT_KEY_F11		F11 function key
+ GLUT_KEY_F12		F12 function key
+ GLUT_KEY_LEFT		Left function key
+ GLUT_KEY_RIGHT		Right function key
+ GLUT_KEY_UP		Up function key
+ GLUT_KEY_DOWN		Down function key
+ GLUT_KEY_PAGE_UP	Page Up function key
+ GLUT_KEY_PAGE_DOWN	Page Down function key
+ GLUT_KEY_HOME		Home function key
+ GLUT_KEY_END		End function key
+ GLUT_KEY_INSERT		Insert function key
+ */
 //Entradas do Teclado
 GLvoid specialHandler(GLint key, GLint x, GLint y) {
-	//Atualiza Janela
-	glutPostRedisplay();
+	switch (key) {
+	case GLUT_KEY_LEFT:
+		deltaAngle = -0.01f;
+		break;
+	case GLUT_KEY_RIGHT:
+		deltaAngle = 0.01f;
+		break;
+	case GLUT_KEY_UP:
+		deltaMove = 0.5f;
+		break;
+	case GLUT_KEY_DOWN:
+		deltaMove = -0.5f;
+		break;
+	}
 }
 
+void specialUpHanler(int key, int x, int y) {
+
+	switch (key) {
+	case GLUT_KEY_LEFT:
+	case GLUT_KEY_RIGHT:
+		deltaAngle = 0.0f;
+		break;
+	case GLUT_KEY_UP:
+	case GLUT_KEY_DOWN:
+		deltaMove = 0;
+		break;
+	}
+}
+
+/*
+ * int glutGetModifiers(void);
+ * Modificadores
+ * GLUT_ACTIVE_SHIFT – Set if either you press the SHIFT key, or Caps Lock is on. Note that if they are both on then the constant is not set.
+ GLUT_ACTIVE_CTRL – Set if you press the CTRL key.
+ GLUT_ACTIVE_ALT – Set if you press the ALT key.
+ * Use Bitwise OR para combinações
+ *
+ */
 GLvoid keyboardHandler(GLubyte key, GLint x, GLint y) {
 	glutPostRedisplay();
 }
 
+GLvoid drawSnowMan() {
+
+	glColor3f(1.0f, 1.0f, 1.0f);
+
+// Draw Body
+	glTranslatef(0.0f, 0.75f, 0.0f);
+	glutSolidSphere(0.75f, 20, 20);
+
+// Draw Head
+	glTranslatef(0.0f, 1.0f, 0.0f);
+	glutSolidSphere(0.25f, 20, 20);
+
+// Draw Eyes
+	glPushMatrix();
+	glColor3f(0.0f, 0.0f, 0.0f);
+	glTranslatef(0.05f, 0.10f, 0.18f);
+	glutSolidSphere(0.05f, 10, 10);
+	glTranslatef(-0.1f, 0.0f, 0.0f);
+	glutSolidSphere(0.05f, 10, 10);
+	glPopMatrix();
+
+// Draw Nose
+	glColor3f(1.0f, 0.5f, 0.5f);
+	glRotatef(0.0f, 1.0f, 0.0f, 0.0f);
+	glutSolidCone(0.08f, 0.5f, 10, 2);
+}
+
+GLvoid computePos(GLfloat deltaMove) {
+
+	x += deltaMove * lx * 0.1f;
+	z += deltaMove * lz * 0.1f;
+}
+
+GLvoid computeDir(GLfloat deltaAngle) {
+
+	angle += deltaAngle;
+	lx = sin(angle);
+	lz = -cos(angle);
+}
 
 GLvoid displayHandler() {
 
-	GLUquadricObj *Quadro;    // Novo Quadric Objeto
+	if (deltaMove)
+		computePos(deltaMove);
+	if (deltaAngle)
+		computeDir(deltaAngle);
 
-	Quadro = gluNewQuadric();  //Cria novo Quadric
-	gluQuadricNormals(Quadro, GLU_SMOOTH);
+	// Clear Color and Depth Buffers
 
-	// Limpa a janela com a cor corrente
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	// Salva mudanças de estado e rotações na matrix
-	glPushMatrix();
-		//Move os Objetos e Rotaciona de acordo com as entradas do teclado
-		glTranslatef(0.0f, 0.0f, dist);
-		glRotatef(xRot, 1.0f, 0.0f, 0.0f);
-		glRotatef(yRot, 0.0f, 1.0f, 0.0f);
+	// Reset transformations
+	glLoadIdentity();
+	// Set the camera
+	gluLookAt(x, 1.0f, z, x + lx, 1.0f, z + lz, 0.0f, 1.0f, 0.0f);
 
-		glPushMatrix();
-			glColor3f(1.0f, 0.0f, 1.0f);
-			glTranslatef(0.0f, 0.2f, 0.0f);
-			glRotatef(90, 1.0f, 0.0f, 0.0f);
-			gluCylinder(Quadro, 1.02f, 1.02f, 0.5f, 30, 15); //quad, top, base, height, slices, stack
-		glPopMatrix();
-		glPushMatrix();
-			glColor3f(1.0f, 1.0f, 0.0f);
-			glTranslatef(0.1f, 0.3f, 0.3f);
-			glRotatef(90, 1.0f, 0.0f, 0.0f);
-			gluCylinder(Quadro, 1.02f, 1.02f, 0.5f, 30, 15); //quad, top, base, height, slices, stack
-		glPopMatrix();
+	// Draw ground
+	glColor3f(0.9f, 0.9f, 0.9f);
+	glBegin(GL_QUADS);
+	glVertex3f(-100.0f, 0.0f, -100.0f);
+	glVertex3f(-100.0f, 0.0f, 100.0f);
+	glVertex3f(100.0f, 0.0f, 100.0f);
+	glVertex3f(100.0f, 0.0f, -100.0f);
+	glEnd();
 
-	glPopMatrix();
+	// Draw 36 SnowMen
+	for (int i = -3; i < 3; i++)
+		for (int j = -3; j < 3; j++) {
+			glPushMatrix();
+			glTranslatef(i * 10.0, 0, j * 10.0);
+			drawSnowMan();
+			glPopMatrix();
+		}
 
-	// Buffer swap
 	glutSwapBuffers();
 }
 
+/*
+ button:
+ GLUT_LEFT_BUTTON
+ GLUT_MIDDLE_BUTTON
+ GLUT_RIGHT_BUTTON
+
+ state:
+ GLUT_DOWN
+ GLUT_UP
+ */
 GLvoid mouseHandler(GLint button, GLint state, GLint x, GLint y) {
+	// começa apenas quando o botão direito for clicado
+	if (button == GLUT_RIGHT_BUTTON) {
+
+		// Quando o botão for solto
+		if (state == GLUT_UP) {
+			angle += deltaAngle;
+			xOrigin = -1;
+		} else {
+			xOrigin = x;
+		}
+	}
 
 }
 
 GLvoid motionHandler(GLint x, GLint y) {
+	// Quando o botão direito estiver clicado
+	if (xOrigin >= 0) {
+
+		// atualiza deltaAngle
+		deltaAngle = (x - xOrigin) * 0.001f;
+
+		// atualiza a direção da câmera
+		lx = sin(angle + deltaAngle);
+		lz = -cos(angle + deltaAngle);
+	}
+
+}
+
+GLvoid passiveMotionHandler(GLint x, GLint y) {
+
+}
+
+/*
+ State:
+ GLUT_LEFT
+ GLUT_ENTERED
+
+ */
+GLvoid entryHandler(GLint state) {
+
+}
+
+GLvoid idleHandler() {
 
 }
 
 int main(int argc, char *argv[]) {
 	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
 	glutInitWindowSize(800, 600);
 	glutCreateWindow("BomberMan");
-	Inicializa();                                      //Função de Inicialização
+
+	Inicializa();                                   //Função de Inicialização
 	glutReshapeFunc(reshapeHandler);   //Função de Ajuste de Dimensões da Janela
-	glutSpecialFunc(specialHandler);     //Entrada de Teclado, teclas especiais
-	glutKeyboardFunc(keyboardHandler);                    //Entrada de Teclado
-	glutDisplayFunc(displayHandler);                          //Renderização da Cena
-	glutMouseFunc(mouseHandler);
-	glutMotionFunc(motionHandler);
+	glutSpecialFunc(specialHandler);      //Entrada de Teclado, teclas especiais
+	glutKeyboardFunc(keyboardHandler);                      //Entrada de Teclado
+	glutDisplayFunc(displayHandler);                      //Renderização da Cena
+	glutMouseFunc(mouseHandler);                               //função de mouse
+	glutMotionFunc(motionHandler);                //função de movimento de mouse
+	glutPassiveMotionFunc(passiveMotionHandler); //função de movimento passivo, mouse não clicado
+	glutEntryFunc(entryHandler);     //função entrada e saida do mouse da janela
+	glutIdleFunc(displayHandler);                      // função executa em idle
+
+	// here are the new entries
+	// 0 to enable repeat
+	glutIgnoreKeyRepeat(1);
+
+	glutSpecialUpFunc(specialUpHanler);
+
+	glEnable(GL_DEPTH_TEST);
+
 	glutMainLoop();
 
 	return 0;

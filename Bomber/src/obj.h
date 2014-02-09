@@ -10,25 +10,36 @@
 
 #include<GL/gl.h>
 #include<GL/glu.h>
+#include <GL/glut.h>
 
 
 // Classe Base para todos os objetos.
 class Obj3D {
 	static GLUquadricObj *Quadro;    //Quadric Objeto
-	GLfloat x, y, z, angle, angleX, angleY, angleZ;
+protected:
+	GLfloat x, y, z, dMove;
 	GLboolean pendingUpdate;
 public:
+	Obj3D();
 	virtual ~Obj3D(){}
 	virtual GLboolean isPendingUpdate();
 	virtual GLvoid update();
 	virtual GLvoid draw();
 	virtual GLvoid mover(GLfloat x, GLfloat y, GLfloat z);
+	virtual GLboolean isMoving();
+	virtual GLvoid setDeltaMove(GLfloat offset);
 };
 
-GLUquadricObj* Obj3D::Quadro = NULL;
-
-class Camera : Obj3D {
-
+class Camera : public Obj3D {
+	GLfloat velocidade, angle, angleX, angleY, angleZ, dAngle, mOrigem;
+public:
+	Camera();
+	virtual GLvoid draw();
+	virtual GLvoid update();
+	virtual GLvoid setDeltaAngle(GLfloat angle);
+	virtual GLvoid calcDeltaAngle(GLfloat offset);
+	virtual GLvoid setMovimentOrigem(GLfloat x);
+	virtual GLboolean isMoving();
 };
 
 class Luz : Obj3D {

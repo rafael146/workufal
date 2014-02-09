@@ -6,32 +6,17 @@
 // Description : C++, Ansi-style
 //============================================================================
 
-#include <GL/glut.h>
 #include <math.h>
-#include "Obj.h"
+#include "obj.h"
 #include <iostream>
 
+Camera * cam = new Camera();
+
 // variáveis de movimentação da Câmera
-
 GLint xOrigin = -1;
-
-GLfloat red = 1, green = 0, blue = 0;
-
-// ângulo de rotação da câmera
-float angle = 0.0;
-// direção da câmera
-float lx = 0.0f, lz = -1.0f;
-// XZ posição da câmera
-float x = 0.0f, z = 5.0f;
-
-// the key states. These variables will be zero
-//when no key is being presses
-GLfloat deltaAngle = 0.0f;
-GLfloat deltaMove = 0;
 
 //Tratamento de dimenções de janela
 GLvoid reshapeHandler(GLint w, GLint h) {
-
 	//previne divisão por zero
 	if (h == 0)
 		h = 1;
@@ -83,20 +68,19 @@ GLvoid Inicializa() {
  GLUT_KEY_END		End function key
  GLUT_KEY_INSERT		Insert function key
  */
+
 //Entradas do Teclado
 GLvoid specialHandler(GLint key, GLint x, GLint y) {
 	switch (key) {
 	case GLUT_KEY_LEFT:
-		deltaAngle = -0.01f;
 		break;
 	case GLUT_KEY_RIGHT:
-		deltaAngle = 0.01f;
 		break;
 	case GLUT_KEY_UP:
-		deltaMove = 0.5f;
+		cam->setDeltaMove(0.5f);
 		break;
 	case GLUT_KEY_DOWN:
-		deltaMove = -0.5f;
+		cam->setDeltaMove(-0.5f);
 		break;
 	}
 }
@@ -106,11 +90,10 @@ void specialUpHanler(int key, int x, int y) {
 	switch (key) {
 	case GLUT_KEY_LEFT:
 	case GLUT_KEY_RIGHT:
-		deltaAngle = 0.0f;
 		break;
 	case GLUT_KEY_UP:
 	case GLUT_KEY_DOWN:
-		deltaMove = 0;
+		cam->setDeltaMove(0);
 		break;
 	}
 }
@@ -155,34 +138,18 @@ GLvoid drawSnowMan() {
 	glutSolidCone(0.08f, 0.5f, 10, 2);
 }
 
-GLvoid computePos(GLfloat deltaMove) {
-
-	x += deltaMove * lx * 0.1f;
-	z += deltaMove * lz * 0.1f;
-}
-
-GLvoid computeDir(GLfloat deltaAngle) {
-
-	angle += deltaAngle;
-	lx = sin(angle);
-	lz = -cos(angle);
-}
-
 GLvoid displayHandler() {
 
-	if (deltaMove)
-		computePos(deltaMove);
-	if (deltaAngle)
-		computeDir(deltaAngle);
-
 	// Clear Color and Depth Buffers
-
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// Reset transformations
 	glLoadIdentity();
+
+	cam->update();
+
 	// Set the camera
-	gluLookAt(x, 1.0f, z, x + lx, 1.0f, z + lz, 0.0f, 1.0f, 0.0f);
+	cam->draw();
 
 	// Draw ground
 	glColor3f(0.9f, 0.9f, 0.9f);
@@ -221,25 +188,19 @@ GLvoid mouseHandler(GLint button, GLint state, GLint x, GLint y) {
 
 		// Quando o botão for solto
 		if (state == GLUT_UP) {
-			angle += deltaAngle;
-			xOrigin = -1;
+			cam->setMovimentOrigem(-1);
+			cam->setDeltaAngle(0);
 		} else {
-			xOrigin = x;
+			cam->setMovimentOrigem(x);
 		}
 	}
-
 }
 
 GLvoid motionHandler(GLint x, GLint y) {
 	// Quando o botão direito estiver clicado
-	if (xOrigin >= 0) {
-
+	if (cam->isMoving()) {
 		// atualiza deltaAngle
-		deltaAngle = (x - xOrigin) * 0.001f;
-
-		// atualiza a direção da câmera
-		lx = sin(angle + deltaAngle);
-		lz = -cos(angle + deltaAngle);
+		cam->calcDeltaAngle(x);
 	}
 
 }

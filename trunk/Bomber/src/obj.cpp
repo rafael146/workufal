@@ -82,3 +82,37 @@ GLvoid Camera::draw() {
 	gluLookAt(x, y, z, x + angleX, angleY, z + angleZ, 0.0f, 1.0f, 0.0f);
 }
 
+Luz::Luz(){
+	posicaoLuz = new GLfloat[4];
+	posicaoLuz[3] = 0;
+
+}
+GLvoid Luz::propriedadesDaLuz(){
+
+	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, luzAmbiente);
+	glLightfv(luzId, GL_AMBIENT, luzAmbiente);
+	glLightfv(luzId, GL_DIFFUSE, luzDifusa );
+	glLightfv(luzId, GL_SPECULAR, luzEspecular);
+
+}
+GLvoid Luz::propriedadesDeMaterias(){
+	glMaterialfv(GL_FRONT,GL_SPECULAR, especularidade);
+	glMateriali(GL_FRONT,GL_SHININESS,especMaterial);
+	glEnable(GL_COLOR_MATERIAL);
+}
+
+GLvoid Luz::paramentrosDeIluminacao(){
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+}
+
+GLfloat * Luz::getPosition(){
+	posicaoLuz[0] = x;
+	posicaoLuz[1] = y;
+	posicaoLuz[2] = z;
+	return posicaoLuz;
+}
+
+GLint Luz::getLuzId(){
+	return luzId;
+}

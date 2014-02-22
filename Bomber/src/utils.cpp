@@ -45,7 +45,7 @@ OpenGL(TM) is a trademark of Silicon Graphics, Inc.
 
 #include<GL/freeglut.h>
 
-/*void drawBox(GLfloat size, GLenum type)
+void drawBox(GLfloat size, GLenum type)
 {
   static GLfloat n[6][3] =
   {
@@ -89,4 +89,4 @@ OpenGL(TM) is a trademark of Silicon Graphics, Inc.
 void glutSolidCube(GLdouble size)
 {
   drawBox(size, GL_QUADS);
-}*/
+}

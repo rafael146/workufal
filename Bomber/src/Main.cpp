@@ -6,42 +6,85 @@
 // Description : C++, Ansi-style
 //============================================================================
 
-#include <math.h>
 #include "obj.h"
 #include <iostream>
 #include <vector>
 
 std::vector<Obj3D*> *objs = new std::vector<Obj3D*>();
 
-
 Camera * cam = new Camera();
 Luz *luz = new Luz();
 
-// variáveis de movimentação da Câmera
-GLint xOrigin = -1;
+GLvoid drawScene() {
 
-//Tratamento de dimenções de janela
-GLvoid reshapeHandler(GLint w, GLint h) {
-	//previne divisão por zero
-	if (h == 0)
-		h = 1;
+	// Draw ground
+	glColor3f(0.9f, 1.0f, 0.9f);
+	glBegin(GL_QUADS);
+		glVertex3f(-100.0f, 0.0f, -100.0f);
+		glVertex3f(-100.0f, 0.0f, 100.0f);
+		glVertex3f(100.0f, 0.0f, 100.0f);
+		glVertex3f(100.0f, 0.0f, -100.0f);
+	glEnd();
 
-	float ratio = 1.0 * w / h;
+	// Draw Walls
+	glColor3f(1.0f, 0.5f, 0.5f);
+	glBegin(GL_QUADS);
+		glVertex3f(-100.0f, 0.0f, -100.0f);
+		glVertex3f(-100.0f, 100.0f, -100.0f);
+		glVertex3f(-100.0f, 100.0f, 100.0f);
+		glVertex3f(-100.0f, 0.0f, 100.0f);
+	glEnd();
 
-	// Use Matriz de projeção
-	glMatrixMode(GL_PROJECTION);
+	glColor3f(1.0f, 1.0f, 0.5f);
+	glBegin(GL_QUADS);
+		glVertex3f(100.0f, 0.0f, -100.0f);
+		glVertex3f(100.0f, 100.0f, -100.0f);
+		glVertex3f(100.0f, 100.0f, 100.0f);
+		glVertex3f(100.0f, 0.0f, 100.0f);
+	glEnd();
 
-	// Reseta Matriz
+	glColor3f(0.4f, 0.5f, 1.0f);
+	glBegin(GL_QUADS);
+		glVertex3f(-100.0f, 0.0f, -100.0f);
+		glVertex3f(-100.0f, 100.0f, -100.0f);
+		glVertex3f(100.0f, 100.0f, -100.0f);
+		glVertex3f(100.0f, 0.0f, -100.0f);
+	glEnd();
+
+	glColor3f(0.4f, 1.0f, 1.0f);
+	glBegin(GL_QUADS);
+		glVertex3f(-100.0f, 0.0f, 100.0f);
+		glVertex3f(-100.0f, 100.0f, 100.0f);
+		glVertex3f(100.0f, 100.0f, 100.0f);
+		glVertex3f(100.0f, 0.0f, 100.0f);
+	glEnd();
+
+
+}
+
+GLvoid displayHandler() {
+
+	// Clear Color and Depth Buffers
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	// Reset transformations
 	glLoadIdentity();
 
-	// viewport do tamanho da janela
-	glViewport(0, 0, w, h);
+	cam->update();
 
-	// coloca a perspectiva correta
-	gluPerspective(45, ratio, 1, 1000);
+	// Set the camera
+	cam->draw();
 
-	// volta pra ModelView (usa matriz de model)
-	glMatrixMode(GL_MODELVIEW);
+	glLightfv(luz->getLuzId(), GL_POSITION, luz->getPosition());
+
+	drawScene();
+
+	// Draw 36 SnowMen
+	for(unsigned int i = 0; i < objs->size(); i++) {
+		(*objs)[i]->draw();
+	}
+
+	glutSwapBuffers();
 }
 
 
@@ -56,13 +99,20 @@ GLvoid initCharacters() {
 
 GLvoid Inicializa() {
 	glShadeModel(GL_SMOOTH);
-	luz->propriedadesDaLuz();
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glEnable(GL_LIGHTING);
+	glEnable(GL_COLOR_MATERIAL);
+	glEnable(GL_DEPTH_TEST);
+	luz->enable(true);
+
+	luz->setPosition(20, 75, 10);
+	luz->configure();
+
+	//todo isso deve ser dos materiais não da luz
 	luz->propriedadesDeMaterias();
-	luz->paramentrosDeIluminacao();
+
 	// Especifica que a cor de fundo da janela será preta
 	initCharacters();
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glEnable(GL_DEPTH_TEST);
 }
 
 /*
@@ -98,15 +148,13 @@ GLvoid specialHandler(GLint key, GLint x, GLint y) {
 	case GLUT_KEY_RIGHT:
 		break;
 	case GLUT_KEY_UP:
-		cam->setDeltaMove(0.5f);
+		cam->setDeltaMove(1.1f);
 		break;
 	case GLUT_KEY_DOWN:
 		cam->setDeltaMove(-0.5f);
 		break;
 	}
 }
-
-
 
 void specialUpHanler(int key, int x, int y) {
 
@@ -136,8 +184,8 @@ GLvoid keyboardHandler(GLubyte key, GLint x, GLint y) {
 	case 'W':
 		cam->setDeltaMove(0.5f);
 		break;
-	case 'x':
-	case 'X':
+	case 's':
+	case 'S':
 		cam->setDeltaMove(-0.5f);
 		break;
 
@@ -155,45 +203,13 @@ void keyboardUpHandler(unsigned char key, int x, int y) {
 	switch(key){
 	case 'w':
 	case 'W':
-	case 'x':
-	case 'X':
+	case 's':
+	case 'S':
 		cam->setDeltaMove(0);
 		break;
 
 	}
 	glutPostRedisplay();
-}
-
-GLvoid displayHandler() {
-
-	// Clear Color and Depth Buffers
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	// Reset transformations
-	glLoadIdentity();
-
-	cam->update();
-
-	// Set the camera
-	cam->draw();
-
-	glLightfv(luz->getLuzId(), GL_POSITION, luz->getPosition());
-
-	// Draw ground
-	glColor3f(0.9f, 0.9f, 0.9f);
-	glBegin(GL_QUADS);
-	glVertex3f(-100.0f, 0.0f, -100.0f);
-	glVertex3f(-100.0f, 0.0f, 100.0f);
-	glVertex3f(100.0f, 0.0f, 100.0f);
-	glVertex3f(100.0f, 0.0f, -100.0f);
-	glEnd();
-
-	// Draw 36 SnowMen
-	for(unsigned int i = 0; i < objs->size(); i++) {
-		(*objs)[i]->draw();
-	}
-
-	glutSwapBuffers();
 }
 
 /*
@@ -246,6 +262,31 @@ GLvoid entryHandler(GLint state) {
 GLvoid idleHandler() {
 
 }
+
+//Tratamento de dimenções de janela
+GLvoid reshapeHandler(GLint w, GLint h) {
+	//previne divisão por zero
+	if (h == 0)
+		h = 1;
+
+	float ratio = 1.0 * w / h;
+
+	// Use Matriz de projeção
+	glMatrixMode(GL_PROJECTION);
+
+	// Reseta Matriz
+	glLoadIdentity();
+
+	// viewport do tamanho da janela
+	glViewport(0, 0, w, h);
+
+	// coloca a perspectiva correta
+	gluPerspective(45, ratio, 1, 1000);
+
+	// volta pra ModelView (usa matriz de model)
+	glMatrixMode(GL_MODELVIEW);
+}
+
 
 int main(int argc, char *argv[]) {
 	glutInit(&argc, argv);

@@ -8,8 +8,9 @@
 #ifndef OBJ_H_
 #define OBJ_H_
 
-#include<GL/gl.h>
-#include<GL/glu.h>
+#include <math.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
 #include <GL/glut.h>
 
 
@@ -43,7 +44,7 @@ public:
 	virtual GLboolean isMoving();
 };
 
-class Luz : Obj3D {
+class Luz : public Obj3D {
 
 	GLfloat luzAmbiente[4] = {0.2,0.2,0.2,1.0};
 	GLfloat luzDifusa[4] = {0.7,0.7,0.7,1.0};
@@ -51,16 +52,15 @@ class Luz : Obj3D {
 	GLfloat especularidade[4] = {1.0,1.0,1.0,1.0};
 	GLint luzId = GL_LIGHT0;
 	GLfloat * posicaoLuz;
-
 	GLint especMaterial = 60;
 
 public:
 	Luz();
-	virtual GLvoid propriedadesDaLuz();
+	virtual GLvoid configure();
 	virtual GLvoid propriedadesDeMaterias();
-	virtual GLvoid paramentrosDeIluminacao();
 	virtual GLfloat * getPosition();
 	virtual GLint getLuzId();
+	virtual GLvoid enable(GLboolean val);
 
 };
 

@@ -43,6 +43,12 @@ GLvoid Obj3D::mover(GLfloat x, GLfloat y, GLfloat z) {
 
 }
 
+GLvoid Obj3D::setPosition(GLfloat x, GLfloat y, GLfloat z) {
+	this->x = x;
+	this->y = y;
+	this->z = z;
+}
+
 // Camera
 Camera::Camera() {
 	velocidade = 0.00005f;
@@ -80,6 +86,45 @@ GLvoid Camera::calcDeltaAngle(GLfloat offset) {
 
 GLvoid Camera::draw() {
 	gluLookAt(x, y, z, x + angleX, angleY, z + angleZ, 0.0f, 1.0f, 0.0f);
+}
+
+Character::Character() {
+
+}
+Character::Character(GLfloat x, GLfloat y, GLfloat z) {
+	this->x = x;
+	this->y = y;
+	this->z = z;
+}
+
+GLvoid Character::draw() {
+	glPushMatrix();
+	glTranslatef(x, y, z);
+
+		glColor3f(1.0f, 1.0f, 1.0f);
+
+	// Draw Body
+		glTranslatef(0.0f, 0.75f, 0.0f);
+		glutSolidSphere(0.45f, 20, 20);
+
+	// Draw Head
+		glTranslatef(0.0f, 0.55f, 0.0f);
+		glutSolidSphere(0.25f, 20, 20);
+
+	// Draw Eyes
+		glPushMatrix();
+			glColor3f(0.0f, 0.0f, 0.0f);
+			glTranslatef(0.05f, 0.10f, 0.18f);
+			glutSolidSphere(0.05f, 10, 10);
+			glTranslatef(-0.1f, 0.0f, 0.0f);
+			glutSolidSphere(0.05f, 10, 10);
+		glPopMatrix();
+
+	// Draw Nose
+		glColor3f(1.0f, 0.5f, 0.5f);
+		glRotatef(0.0f, 1.0f, 0.0f, 0.0f);
+		glutSolidCone(0.08f, 0.5f, 10, 2);
+	glPopMatrix();
 }
 
 Luz::Luz(){

@@ -10,7 +10,9 @@
 #include "obj.h"
 #include <iostream>
 
+
 Camera * cam = new Camera();
+Luz * luz = new Luz();
 
 // variáveis de movimentação da Câmera
 GLint xOrigin = -1;
@@ -40,6 +42,12 @@ GLvoid reshapeHandler(GLint w, GLint h) {
 }
 
 GLvoid Inicializa() {
+	glShadeModel(GL_SMOOTH);
+	luz->propriedadesDaLuz();
+	luz->propriedadesDeMaterias();
+	luz->paramentrosDeIluminacao();
+
+
 	// Especifica que a cor de fundo da janela será preta
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 }
@@ -85,6 +93,8 @@ GLvoid specialHandler(GLint key, GLint x, GLint y) {
 	}
 }
 
+
+
 void specialUpHanler(int key, int x, int y) {
 
 	switch (key) {
@@ -108,6 +118,36 @@ void specialUpHanler(int key, int x, int y) {
  *
  */
 GLvoid keyboardHandler(GLubyte key, GLint x, GLint y) {
+	switch(key){
+	case 'w':
+	case 'W':
+		cam->setDeltaMove(0.5f);
+		break;
+	case 'x':
+	case 'X':
+		cam->setDeltaMove(-0.5f);
+		break;
+
+	case 'a':
+	case 'A':
+		cam->setMovimentOrigem(-2);
+		break;
+
+	}
+	glutPostRedisplay();
+	std::cout << " pressed key " << key  << " code " << (int) key << std::endl ;
+}
+
+void keyboardUpHandler(unsigned char key, int x, int y) {
+	switch(key){
+	case 'w':
+	case 'W':
+	case 'x':
+	case 'X':
+		cam->setDeltaMove(0);
+		break;
+
+	}
 	glutPostRedisplay();
 }
 
@@ -115,15 +155,15 @@ GLvoid drawSnowMan() {
 
 	glColor3f(1.0f, 1.0f, 1.0f);
 
-// Draw Body
+	// Draw Body
 	glTranslatef(0.0f, 0.75f, 0.0f);
 	glutSolidSphere(0.75f, 20, 20);
 
-// Draw Head
+	// Draw Head
 	glTranslatef(0.0f, 1.0f, 0.0f);
 	glutSolidSphere(0.25f, 20, 20);
 
-// Draw Eyes
+	// Draw Eyes
 	glPushMatrix();
 	glColor3f(0.0f, 0.0f, 0.0f);
 	glTranslatef(0.05f, 0.10f, 0.18f);
@@ -132,7 +172,7 @@ GLvoid drawSnowMan() {
 	glutSolidSphere(0.05f, 10, 10);
 	glPopMatrix();
 
-// Draw Nose
+	// Draw Nose
 	glColor3f(1.0f, 0.5f, 0.5f);
 	glRotatef(0.0f, 1.0f, 0.0f, 0.0f);
 	glutSolidCone(0.08f, 0.5f, 10, 2);
@@ -151,6 +191,11 @@ GLvoid displayHandler() {
 	// Set the camera
 	cam->draw();
 
+	glLightfv(luz->getLuzId(), GL_POSITION, luz->getPosition());
+
+
+
+
 	// Draw ground
 	glColor3f(0.9f, 0.9f, 0.9f);
 	glBegin(GL_QUADS);
@@ -161,14 +206,14 @@ GLvoid displayHandler() {
 	glEnd();
 
 	// Draw 36 SnowMen
-	for (int i = -3; i < 3; i++)
+	for (int i = -3; i < 3; i++){
 		for (int j = -3; j < 3; j++) {
 			glPushMatrix();
-			glTranslatef(i * 10.0, 0, j * 10.0);
+			glTranslatef(i * 10.0, 0.0, j * 10.0);
 			drawSnowMan();
 			glPopMatrix();
 		}
-
+	}
 	glutSwapBuffers();
 }
 
@@ -177,7 +222,7 @@ GLvoid displayHandler() {
  GLUT_LEFT_BUTTON
  GLUT_MIDDLE_BUTTON
  GLUT_RIGHT_BUTTON
-
+glutKeyboardUpFunc
  state:
  GLUT_DOWN
  GLUT_UP
@@ -243,8 +288,9 @@ int main(int argc, char *argv[]) {
 	// here are the new entries
 	// 0 to enable repeat
 	glutIgnoreKeyRepeat(1);
-
 	glutSpecialUpFunc(specialUpHanler);
+	glutKeyboardUpFunc(keyboardUpHandler);
+
 
 	glEnable(GL_DEPTH_TEST);
 

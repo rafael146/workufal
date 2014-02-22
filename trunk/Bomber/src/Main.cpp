@@ -9,10 +9,13 @@
 #include <math.h>
 #include "obj.h"
 #include <iostream>
+#include <vector>
+
+std::vector<Obj3D*> *objs = new std::vector<Obj3D*>();
 
 
 Camera * cam = new Camera();
-Luz * luz = new Luz();
+Luz *luz = new Luz();
 
 // variáveis de movimentação da Câmera
 GLint xOrigin = -1;
@@ -41,15 +44,25 @@ GLvoid reshapeHandler(GLint w, GLint h) {
 	glMatrixMode(GL_MODELVIEW);
 }
 
+
+GLvoid initCharacters() {
+	for (int i = -3; i < 3; i++) {
+		for (int j = -3; j < 3; j++) {
+			objs->push_back(new Character(i * 10.0, 0, j * 10.0));
+		}
+	}
+}
+
+
 GLvoid Inicializa() {
 	glShadeModel(GL_SMOOTH);
 	luz->propriedadesDaLuz();
 	luz->propriedadesDeMaterias();
 	luz->paramentrosDeIluminacao();
-
-
 	// Especifica que a cor de fundo da janela será preta
+	initCharacters();
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glEnable(GL_DEPTH_TEST);
 }
 
 /*
@@ -151,33 +164,6 @@ void keyboardUpHandler(unsigned char key, int x, int y) {
 	glutPostRedisplay();
 }
 
-GLvoid drawSnowMan() {
-
-	glColor3f(1.0f, 1.0f, 1.0f);
-
-	// Draw Body
-	glTranslatef(0.0f, 0.75f, 0.0f);
-	glutSolidSphere(0.75f, 20, 20);
-
-	// Draw Head
-	glTranslatef(0.0f, 1.0f, 0.0f);
-	glutSolidSphere(0.25f, 20, 20);
-
-	// Draw Eyes
-	glPushMatrix();
-	glColor3f(0.0f, 0.0f, 0.0f);
-	glTranslatef(0.05f, 0.10f, 0.18f);
-	glutSolidSphere(0.05f, 10, 10);
-	glTranslatef(-0.1f, 0.0f, 0.0f);
-	glutSolidSphere(0.05f, 10, 10);
-	glPopMatrix();
-
-	// Draw Nose
-	glColor3f(1.0f, 0.5f, 0.5f);
-	glRotatef(0.0f, 1.0f, 0.0f, 0.0f);
-	glutSolidCone(0.08f, 0.5f, 10, 2);
-}
-
 GLvoid displayHandler() {
 
 	// Clear Color and Depth Buffers
@@ -193,9 +179,6 @@ GLvoid displayHandler() {
 
 	glLightfv(luz->getLuzId(), GL_POSITION, luz->getPosition());
 
-
-
-
 	// Draw ground
 	glColor3f(0.9f, 0.9f, 0.9f);
 	glBegin(GL_QUADS);
@@ -206,14 +189,10 @@ GLvoid displayHandler() {
 	glEnd();
 
 	// Draw 36 SnowMen
-	for (int i = -3; i < 3; i++){
-		for (int j = -3; j < 3; j++) {
-			glPushMatrix();
-			glTranslatef(i * 10.0, 0.0, j * 10.0);
-			drawSnowMan();
-			glPopMatrix();
-		}
+	for(unsigned int i = 0; i < objs->size(); i++) {
+		(*objs)[i]->draw();
 	}
+
 	glutSwapBuffers();
 }
 
@@ -284,15 +263,12 @@ int main(int argc, char *argv[]) {
 	glutPassiveMotionFunc(passiveMotionHandler); //função de movimento passivo, mouse não clicado
 	glutEntryFunc(entryHandler);     //função entrada e saida do mouse da janela
 	glutIdleFunc(displayHandler);                      // função executa em idle
-
+	glutSpecialUpFunc(specialUpHanler);       // função de teclado teclas especiais solta
 	// here are the new entries
 	// 0 to enable repeat
 	glutIgnoreKeyRepeat(1);
 	glutSpecialUpFunc(specialUpHanler);
 	glutKeyboardUpFunc(keyboardUpHandler);
-
-
-	glEnable(GL_DEPTH_TEST);
 
 	glutMainLoop();
 

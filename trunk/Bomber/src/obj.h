@@ -26,6 +26,7 @@ public:
 	virtual GLvoid update();
 	virtual GLvoid draw();
 	virtual GLvoid mover(GLfloat x, GLfloat y, GLfloat z);
+	virtual GLvoid setPosition(GLfloat x, GLfloat y, GLfloat z);
 	virtual GLboolean isMoving();
 	virtual GLvoid setDeltaMove(GLfloat offset);
 };
@@ -67,8 +68,11 @@ class Bomba : Obj3D {
 
 };
 
-class Character : Obj3D {
-
+class Character : public Obj3D {
+public:
+	Character();
+	Character(GLfloat x, GLfloat y, GLfloat z);
+	GLvoid draw();
 };
 
 class BomberMan : Character {

@@ -6,10 +6,8 @@
  */
 
 #include "obj.h"
-#include <math.h>
 
 GLUquadricObj* Obj3D::Quadro = NULL;
-
 
 Obj3D::Obj3D() {
 	pendingUpdate = false;
@@ -40,6 +38,9 @@ GLboolean Obj3D::isMoving() {
 }
 
 GLvoid Obj3D::mover(GLfloat x, GLfloat y, GLfloat z) {
+	this->x += x;
+	this->y += y;
+	this->z += z;
 
 }
 
@@ -76,6 +77,7 @@ GLvoid Camera::update() {
 	angle += dAngle;
 	angleX = sin(angle);
 	angleZ = -cos(angle);
+
 	x += dMove * angleX * 0.1f;
 	z += dMove * angleZ * 0.1f;
 }
@@ -100,7 +102,6 @@ Character::Character(GLfloat x, GLfloat y, GLfloat z) {
 GLvoid Character::draw() {
 	glPushMatrix();
 	glTranslatef(x, y, z);
-
 		glColor3f(1.0f, 1.0f, 1.0f);
 
 	// Draw Body
@@ -132,7 +133,7 @@ Luz::Luz(){
 	posicaoLuz[3] = 0;
 
 }
-GLvoid Luz::propriedadesDaLuz(){
+GLvoid Luz::configure(){
 
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, luzAmbiente);
 	glLightfv(luzId, GL_AMBIENT, luzAmbiente);
@@ -141,14 +142,14 @@ GLvoid Luz::propriedadesDaLuz(){
 
 }
 GLvoid Luz::propriedadesDeMaterias(){
+
 	glMaterialfv(GL_FRONT,GL_SPECULAR, especularidade);
 	glMateriali(GL_FRONT,GL_SHININESS,especMaterial);
-	glEnable(GL_COLOR_MATERIAL);
+
 }
 
-GLvoid Luz::paramentrosDeIluminacao(){
-	glEnable(GL_LIGHTING);
-	glEnable(GL_LIGHT0);
+GLvoid Luz::enable(GLboolean val) {
+	val ? glEnable(luzId) : glDisable(luzId);
 }
 
 GLfloat * Luz::getPosition(){

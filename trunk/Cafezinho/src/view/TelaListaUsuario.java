@@ -11,7 +11,7 @@ import model.Usuario;
 import application.Button;
 import application.Scene;
 import application.Text;
-import dados.Banco;
+import dados.ddb.DistribuidoDBHelper;
 
 public class TelaListaUsuario extends VBox{
 	
@@ -27,7 +27,7 @@ public class TelaListaUsuario extends VBox{
 		
 		HBox hbox = new HBox(20);
 		hbox.setPadding(new Insets(0,10,0,10));
-		listaUsuario.setItems(Banco.getINSTANCE().capiturarTodosUsuarios());
+		listaUsuario.setItems(DistribuidoDBHelper.getInstance().capiturarTodosUsuarios());
 		listaUsuario.setOpacity(0.75);
 		hbox.getChildren().addAll(botaoAlterar,botaoExcluir,sair);
 		getChildren().addAll(titulo,listaUsuario,hbox);
@@ -46,7 +46,7 @@ public class TelaListaUsuario extends VBox{
 			
 			@Override
 			public void handle(ActionEvent event) {
-				Banco.getINSTANCE().excluirUsuario(listaUsuario.getSelectionModel().getSelectedItem());
+				DistribuidoDBHelper.getInstance().excluirUsuario(listaUsuario.getSelectionModel().getSelectedItem());
 				atualizarLista();
 			}
 		});
@@ -77,7 +77,7 @@ public class TelaListaUsuario extends VBox{
 	}
 	
 	public void atualizarLista() {
-		listaUsuario.setItems(Banco.getINSTANCE().capiturarTodosUsuarios());
+		listaUsuario.setItems(DistribuidoDBHelper.getInstance().capiturarTodosUsuarios());
 		
 	}
 }

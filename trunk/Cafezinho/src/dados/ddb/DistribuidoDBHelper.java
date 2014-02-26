@@ -28,6 +28,12 @@ public class DistribuidoDBHelper implements ConsultasBanco {
 		// TODO mover dados de banco local e distribuidos para um arquivo de
 		// configuração
 		local = new Database("root", "root", "doacaoLamp");
+		try {
+			local.criarBanco();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		distribuidos = new LinkedList<>();
 		distribuidos.add(local);
 		distribuidos.add(new Database("root", "root", "doacaoLamp",
@@ -198,7 +204,7 @@ public class DistribuidoDBHelper implements ConsultasBanco {
 	@Override
 	public void alterarSenhaUsuario(String login, String novaSenha) {
 		for (Database database : distribuidos) {
-			database.executar("update doacaoLamp.usuario set senha = '" + novaSenha +"'  where login ='" +login +"' ;");
+			database.executar("update usuario set senha = '" + novaSenha +"'  where login ='" +login +"' ;");
 		}
 	}
 
@@ -217,7 +223,7 @@ public class DistribuidoDBHelper implements ConsultasBanco {
 		return obs;
 	}
 	
-	//observação: rotinas com primarykey duplicadas no banco distribuido warning!
+	//observação: rotinas com primarykey duplicadas nos banco distribuido warning!
 	@Override
 	public double getIndiceRotinaAtual() {
 		try (ResultSet rs = local.query("select Max(id_rotina) from rotina;")) {

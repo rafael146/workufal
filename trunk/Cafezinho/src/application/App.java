@@ -2,6 +2,9 @@ package application;
 	
 import java.sql.SQLException;
 
+import dados.ddb.Database;
+import dados.ddb.DistribuidoDBHelper;
+
 import model.Usuario;
 import javafx.application.Application;
 import javafx.scene.image.ImageView;
@@ -9,8 +12,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import dados.Banco;
-import dados.Database;
 
 public class App extends Application {
 	
@@ -44,8 +45,10 @@ public class App extends Application {
 	}
 	
 	public static void main(String[] args) throws SQLException {
-		new Database().criarBanco();
-		new Banco().addUsuarioBanco(new Usuario("admin", "admin"));
+
+		DistribuidoDBHelper.getInstance();
+		
+		//new Banco().addUsuarioBanco(new Usuario("admin", "admin"));
 		launch(args);
 	}
 	

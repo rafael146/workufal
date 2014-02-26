@@ -1,5 +1,6 @@
 package view;
 
+import dados.ddb.DistribuidoDBHelper;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
@@ -12,7 +13,6 @@ import application.Label;
 import application.Scene;
 import application.Text;
 import application.TextField;
-import dados.Banco;
 
 public class TelaCadUsuario extends VBox{
 	
@@ -56,10 +56,10 @@ public class TelaCadUsuario extends VBox{
 			public void handle(ActionEvent arg0) {
 				if(textSenha.getText().equals(textSenha2.getText())){
 					Usuario fulano = new Usuario(textNome.getText(),textSenha.getText());
-					if(Banco.getINSTANCE().verificarUsuarioBanco(fulano)){
+					if(DistribuidoDBHelper.getInstance().verificarUsuarioBanco(fulano)){
 						informacao.setText("Esse usuário já existe");
 					}else{
-						Banco.getINSTANCE().addUsuarioBanco(fulano);
+						DistribuidoDBHelper.getInstance().addUsuarioBanco(fulano);
 						//mensagem informativa
 						new Dialog("Usuário Cadastrado");
 						limparCampos();

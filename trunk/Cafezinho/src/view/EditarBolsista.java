@@ -1,6 +1,6 @@
 package view;
 
-import dados.Banco;
+import dados.ddb.DistribuidoDBHelper;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
@@ -59,7 +59,7 @@ public class EditarBolsista extends Stage{
 			
 			@Override
 			public void handle(ActionEvent arg0) {
-				Banco.getINSTANCE().alterarEmailUsuario(textNome.getText(), textDescricao.getText());
+				DistribuidoDBHelper.getInstance().alterarEmailUsuario(textNome.getText(), textDescricao.getText());
 				new Dialog("Bolsista alterado com sucesso!");
 				bolsista.setEmail(textDescricao.getText());
 				close();

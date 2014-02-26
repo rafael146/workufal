@@ -19,7 +19,7 @@ import model.Doacao;
 import model.Rotina;
 import application.Button;
 import application.Label;
-import dados.Banco;
+import dados.ddb.DistribuidoDBHelper;
 
 public class TelaEditarRotacao extends Stage{
 	
@@ -97,7 +97,7 @@ public class TelaEditarRotacao extends Stage{
 			@Override
 			public void handle(ActionEvent arg0) {
 					listaBolsista.getItems().clear();
-					listaDoacoes.setItems(Banco.getINSTANCE().capiturarTodosBolsistas());
+					listaDoacoes.setItems(DistribuidoDBHelper.getInstance().capiturarTodosBolsistas());
 				
 			}
 		});
@@ -107,7 +107,7 @@ public class TelaEditarRotacao extends Stage{
 			@Override
 			public void handle(ActionEvent arg0) {
 				listaDoacoes.getItems().clear();
-				listaBolsista.setItems(Banco.getINSTANCE().capiturarTodosBolsistas());
+				listaBolsista.setItems(DistribuidoDBHelper.getInstance().capiturarTodosBolsistas());
 			
 				
 			}
@@ -118,12 +118,12 @@ public class TelaEditarRotacao extends Stage{
 			@Override
 			public void handle(ActionEvent arg0) {
 				for (Bolsista temp : listaDoacoes.getItems()) {
-					if(!Banco.getINSTANCE().verificarDoacaoBanco(temp.getNome()))
-						Banco.getINSTANCE().addDoacaoBanco(new Doacao(temp, "", new Rotina(Banco.getINSTANCE().getIndiceRotinaAtual())));
+					if(!DistribuidoDBHelper.getInstance().verificarDoacaoBanco(temp.getNome()))
+						DistribuidoDBHelper.getInstance().addDoacaoBanco(new Doacao(temp, "", new Rotina(DistribuidoDBHelper.getInstance().getIndiceRotinaAtual())));
 				}
 				for (Bolsista temp : listaBolsista.getItems()) {
-					if(Banco.getINSTANCE().verificarDoacaoBanco(temp.getNome()))
-						Banco.getINSTANCE().excluirDoacao(temp.getNome());
+					if(DistribuidoDBHelper.getInstance().verificarDoacaoBanco(temp.getNome()))
+						DistribuidoDBHelper.getInstance().excluirDoacao(temp.getNome());
 				}
 				tabela.atualizarTabela();
 				close();
@@ -147,8 +147,8 @@ public class TelaEditarRotacao extends Stage{
 	}
 	
 	private void atualizarListas(){
-		listaBolsista.setItems(Banco.getINSTANCE().capiturarTodosBolsistas());
-		for (Doacao doacao : Banco.getINSTANCE().capiturarTodasDoacoesRotina(Banco.getINSTANCE().getIndiceRotinaAtual())) {
+		listaBolsista.setItems(DistribuidoDBHelper.getInstance().capiturarTodosBolsistas());
+		for (Doacao doacao : DistribuidoDBHelper.getInstance().capiturarTodasDoacoesRotina(DistribuidoDBHelper.getInstance().getIndiceRotinaAtual())) {
 			for (Bolsista bolsista : listaBolsista.getItems()) {
 				if(doacao.getBolsista().getNome().equals(bolsista.getNome())){
 					bolsistasNaRotina.add(bolsista);

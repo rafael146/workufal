@@ -1,6 +1,6 @@
 package view;
 
-import dados.Banco;
+import dados.ddb.DistribuidoDBHelper;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
@@ -68,9 +68,9 @@ public class EditarUsuario extends Stage{
 			
 			@Override
 			public void handle(ActionEvent arg0) {
-				if(Banco.getINSTANCE().validarUsuarioBanco(new Usuario(textNome.getText(), textSenhaAntiga.getText()))){
+				if(DistribuidoDBHelper.getInstance().validarUsuarioBanco(new Usuario(textNome.getText(), textSenhaAntiga.getText()))){
 					if(textNovaSenha.getText().equals(textRepetirNovaSenha.getText())){
-						Banco.getINSTANCE().alterarSenhaUsuario(textNome.getText(),textNovaSenha.getText());
+						DistribuidoDBHelper.getInstance().alterarSenhaUsuario(textNome.getText(),textNovaSenha.getText());
 						new Dialog("Senha alterado com sucesso!");
 						close();
 					}else{

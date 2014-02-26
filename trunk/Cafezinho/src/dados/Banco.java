@@ -218,7 +218,7 @@ public class Banco implements ConsultasBanco{
 			banco.conectar();
 
 			banco.stm = banco.conector.createStatement();
-			rs = banco.stm.executeQuery("select Max(id_rotina) from doacaoLamp.rotina;");
+			rs = banco.stm.executeQuery("select Max(id_rotina) from rotina;");
 
 			while (rs.next()){ 
 				return rs.getDouble(1);

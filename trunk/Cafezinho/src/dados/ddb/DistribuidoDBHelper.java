@@ -61,13 +61,15 @@ public class DistribuidoDBHelper implements ConsultasBanco {
 
 	@Override
 	public boolean validarUsuarioBanco(Usuario t) {
-		try (ResultSet rs = local
-				.query("select login,senha from usuario where login ='"
-						+ t.getLogin() + "' and  senha = '" + t.getSenha()
-						+ "' ;")) {
-			return rs.next();
-		} catch (SQLException e) {
-			e.printStackTrace();
+		for (Database database : distribuidos) {
+			try (ResultSet rs = database
+					.query("select login,senha from usuario where login ='"
+							+ t.getLogin() + "' and  senha = '" + t.getSenha()
+							+ "' ;")) {
+				if(rs.next()) return true;
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		}
 		return false;
 	}
@@ -198,7 +200,7 @@ public class DistribuidoDBHelper implements ConsultasBanco {
 
 	@Override
 	public double getIndiceRotinaAtual() {
-		try (ResultSet rs = local.query("select Max(id_rotina) from doacaoLamp.rotina;")) {
+		try (ResultSet rs = local.query("select Max(id_rotina) from rotina;")) {
 			if (rs.next()) {
 				return rs.getDouble(1);
 			}

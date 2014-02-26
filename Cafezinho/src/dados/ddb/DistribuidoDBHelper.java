@@ -76,32 +76,38 @@ public class DistribuidoDBHelper implements ConsultasBanco {
 
 	@Override
 	public boolean verificarUsuarioBanco(Usuario t) {
-		try (ResultSet rs = local
-				.query("select login,senha from usuario where login ='"
-						+ t.getLogin() + "' and  senha = '" + t.getSenha() + "' ;")) {
-			return rs.next();
-		} catch (SQLException e) {
-			e.printStackTrace();
+		for (Database database : distribuidos) {
+			try (ResultSet rs = database
+					.query("select login,senha from usuario where login ='"
+							+ t.getLogin() + "' and  senha = '" + t.getSenha() + "' ;")) {
+				if(rs.next()) return true;
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		}
 		return false;
 	}
 
 	@Override
 	public boolean verificarBolsistaBanco(Bolsista t) {
-		try (ResultSet rs = local.query("select * from bolsista where nome = '" +t.getNome()+ "';")) {
-			return rs.next();
-		} catch (SQLException e) {
-			e.printStackTrace();
+		for (Database database : distribuidos) {
+			try (ResultSet rs = database.query("select * from bolsista where nome = '" +t.getNome()+ "';")) {
+				if(rs.next()) return true;
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		}
 		return false;
 	}
 
 	@Override
 	public boolean verificarDoacaoBanco(String doa) {
-		try (ResultSet rs = local.query("select * from doacao where nome_bolsista = '"+ doa + "';")) {
-			return rs.next();
-		} catch (SQLException e) {
-			e.printStackTrace();
+		for (Database database : distribuidos) {
+			try (ResultSet rs = database.query("select * from doacao where nome_bolsista = '"+ doa + "';")) {
+				if(rs.next()) return true;
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		}
 		return false;
 	}
@@ -115,13 +121,15 @@ public class DistribuidoDBHelper implements ConsultasBanco {
 
 	@Override
 	public Bolsista recuperarBolsista(String c) {
-		try (ResultSet rs = local.query("select * from bolsista where nome = '" +c+ "';")) {			
-			if (rs.next()){ 
-				Bolsista b = new Bolsista(rs.getString(1), rs.getNString(2));
-				return b;
+		for (Database database : distribuidos) {
+			try (ResultSet rs = database.query("select * from bolsista where nome = '" +c+ "';")) {			
+				if (rs.next()){ 
+					Bolsista b = new Bolsista(rs.getString(1), rs.getNString(2));
+					return b;
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
 			}
-		} catch (SQLException e) {
-			e.printStackTrace();
 		}
 		return new Bolsista("", "");
 	}
@@ -129,12 +137,14 @@ public class DistribuidoDBHelper implements ConsultasBanco {
 	@Override
 	public ObservableList<Doacao> capiturarTodasDoacoesRotina(double x) {
 		ObservableList<Doacao> obs = FXCollections.observableArrayList();
-		try (ResultSet rs = local.query("select * from doacao where id_rotina =" + x  +" ;")) {			
-			while(rs.next()){ 
-				obs.add( new Doacao(new Bolsista(rs.getString(1), "null"),  rs.getString(2)  , new Rotina(rs.getDouble(3))));
+		for (Database database : distribuidos) {
+			try (ResultSet rs = database.query("select * from doacao where id_rotina =" + x  +" ;")) {			
+				while(rs.next()){ 
+					obs.add( new Doacao(new Bolsista(rs.getString(1), "null"),  rs.getString(2)  , new Rotina(rs.getDouble(3))));
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
 			}
-		} catch (SQLException e) {
-			e.printStackTrace();
 		}
 		return obs;
 	}
@@ -142,13 +152,15 @@ public class DistribuidoDBHelper implements ConsultasBanco {
 	@Override
 	public ObservableList<Bolsista> capiturarTodosBolsistas() {
 		ObservableList<Bolsista> lista = FXCollections.observableArrayList();
-		try (ResultSet rs = local
-				.query("select * from bolsista ;")) {
-			while (rs.next()) {
-				lista.add(new Bolsista(rs.getString(2), rs.getNString(3)));
+		for (Database database : distribuidos) {
+			try (ResultSet rs = database
+					.query("select * from bolsista ;")) {
+				while (rs.next()) {
+					lista.add(new Bolsista(rs.getString(2), rs.getNString(3)));
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
 			}
-		} catch (SQLException e) {
-			e.printStackTrace();
 		}
 		return lista;
 	}
@@ -156,12 +168,14 @@ public class DistribuidoDBHelper implements ConsultasBanco {
 	@Override
 	public ObservableList<Usuario> capiturarTodosUsuarios() {
 		ObservableList<Usuario> lista = FXCollections.observableArrayList();
-		try (ResultSet rs = local.query("select * from bolsista ;")) {
-			while (rs.next()) {
-				lista.add(new Usuario(rs.getString(1), rs.getNString(2)));
+		for (Database database : distribuidos) {
+			try (ResultSet rs = database.query("select * from bolsista ;")) {
+				while (rs.next()) {
+					lista.add(new Usuario(rs.getString(1), rs.getNString(2)));
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
 			}
-		} catch (SQLException e) {
-			e.printStackTrace();
 		}
 		return lista;
 	}
@@ -169,35 +183,41 @@ public class DistribuidoDBHelper implements ConsultasBanco {
 	@Override
 	public void alterarDescricaoDoacao(String nomeBolsista, String descricao,
 			double rotina) {
-		local.executar("update doacao set descricao = '" + descricao +"'  where bolsista ='" +nomeBolsista +"' and rotina='"+rotina+ "' ;");
-
+		for (Database database : distribuidos) {
+			database.executar("update doacao set descricao = '" + descricao +"'  where bolsista ='" +nomeBolsista +"' and rotina='"+rotina+ "' ;");
+		}
 	}
 
 	@Override
 	public void alterarEmailUsuario(String nomeBolsista, String novoEmail) {
-		local.executar("update bolsista set email = '" + novoEmail +"'  where nome ='" +nomeBolsista +"' ;");
-
+		for (Database database : distribuidos) {
+			database.executar("update bolsista set email = '" + novoEmail +"'  where nome ='" +nomeBolsista +"' ;");
+		}
 	}
 
 	@Override
 	public void alterarSenhaUsuario(String login, String novaSenha) {
-		local.executar("update doacaoLamp.usuario set senha = '" + novaSenha +"'  where login ='" +login +"' ;");
-
+		for (Database database : distribuidos) {
+			database.executar("update doacaoLamp.usuario set senha = '" + novaSenha +"'  where login ='" +login +"' ;");
+		}
 	}
 
 	@Override
 	public ObservableList<String> capiturarIdRotinas() {
 		ObservableList<String> obs = FXCollections.observableArrayList();
-		try (ResultSet rs = local.query("select * from rotina;")) {
-			while (rs.next()) {
-				obs.add(""+rs.getDouble(1));
+		for (Database database : distribuidos) {
+			try (ResultSet rs = database.query("select * from rotina;")) {
+				while (rs.next()) {
+					obs.add(""+rs.getDouble(1));
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
 			}
-		} catch (SQLException e) {
-			e.printStackTrace();
 		}
 		return obs;
 	}
-
+	
+	//observação: rotinas com primarykey duplicadas no banco distribuido warning!
 	@Override
 	public double getIndiceRotinaAtual() {
 		try (ResultSet rs = local.query("select Max(id_rotina) from rotina;")) {

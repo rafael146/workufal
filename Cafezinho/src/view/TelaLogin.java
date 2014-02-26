@@ -11,7 +11,7 @@ import application.Button;
 import application.Label;
 import application.Scene;
 import application.TextField;
-import dados.Banco;
+import dados.ddb.DistribuidoDBHelper;
 
 public class TelaLogin extends VBox{
 	
@@ -41,7 +41,7 @@ public class TelaLogin extends VBox{
 			@Override
 			public void handle(ActionEvent arg0) {
 				Usuario paraLogar = new Usuario(textLogin.getText(),textSenha.getText());
-				if(Banco.getINSTANCE().validarUsuarioBanco(paraLogar)){
+				if(DistribuidoDBHelper.getInstance().validarUsuarioBanco(paraLogar)){
 					Scene tela = (Scene) getScene();
 					tela.getMenuApp().setVisible(true);
 					tela.setUsuario(paraLogar);

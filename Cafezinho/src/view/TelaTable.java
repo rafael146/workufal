@@ -23,7 +23,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import model.Bolsista;
 import model.Doacao;
-import dados.Banco;
+import dados.ddb.DistribuidoDBHelper;
 
 public class TelaTable extends VBox{
 	
@@ -72,7 +72,7 @@ public class TelaTable extends VBox{
 		boxButton.getChildren().addAll(botaoAlterar, botaoSair);
 		boximage.setPadding(new Insets(10,30,30,10));
 		
-		ObservableList<String> id_rotinas = Banco.getINSTANCE().capiturarIdRotinas();
+		ObservableList<String> id_rotinas = DistribuidoDBHelper.getInstance().capiturarIdRotinas();
 		comboBox.setItems(id_rotinas);
 		comboBox.setOnAction(new EventHandler<ActionEvent>() {
 
@@ -188,13 +188,13 @@ public class TelaTable extends VBox{
 	}
 	
 	private void atualizarTabela(double x){
-		data=Banco.getINSTANCE().capiturarTodasDoacoesRotina(x);
+		data=DistribuidoDBHelper.getInstance().capiturarTodasDoacoesRotina(x);
 		tableView.setItems(data);
-		comboBox.setItems(Banco.getINSTANCE().capiturarIdRotinas());
+		comboBox.setItems(DistribuidoDBHelper.getInstance().capiturarIdRotinas());
 	}
 	
 	public void atualizarTabela(){
-		idRotinaAtual = Banco.getINSTANCE().getIndiceRotinaAtual();
+		idRotinaAtual = DistribuidoDBHelper.getInstance().getIndiceRotinaAtual();
 		if(idRotinaAtual==0) botaoEditarRotacao.setVisible(false);
 		else botaoEditarRotacao.setVisible(true);
 		atualizarTabela(idRotinaAtual);
@@ -210,7 +210,7 @@ public class TelaTable extends VBox{
 		comboBox = new ComboBox<>();
 		botaoAlterar = new Button("Alterar");
 		botaoSair = new Button("Sair");
-		idRotinaAtual = Banco.getINSTANCE().getIndiceRotinaAtual();
+		idRotinaAtual = DistribuidoDBHelper.getInstance().getIndiceRotinaAtual();
 	}
 	
 	private void layoutizacao(){

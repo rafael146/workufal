@@ -1,5 +1,6 @@
 package view;
 
+import dados.ddb.DistribuidoDBHelper;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
@@ -11,7 +12,6 @@ import application.Label;
 import application.Scene;
 import application.Text;
 import application.TextField;
-import dados.Banco;
 
 public class TelaCadBolsista extends VBox{
 	
@@ -49,12 +49,12 @@ public class TelaCadBolsista extends VBox{
 			@Override
 			public void handle(ActionEvent arg0) {
 				Bolsista fulano = new Bolsista(textNome.getText().toUpperCase(), textEmail.getText());
-				if(Banco.getINSTANCE().verificarBolsistaBanco(fulano)){
+				if(DistribuidoDBHelper.getInstance().verificarBolsistaBanco(fulano)){
 					informacao.setText("Esse bolsista já existe no banco de dados!");
 				}else if(fulano.getNome()==""){
 					informacao.setText("Nome em branco");
 				}else{
-					Banco.getINSTANCE().addBolsistaBanco(fulano);
+					DistribuidoDBHelper.getInstance().addBolsistaBanco(fulano);
 					new Dialog("Bolsista "+textNome.getText()+" cadastrado(a)!");
 					limparCampos();
 				

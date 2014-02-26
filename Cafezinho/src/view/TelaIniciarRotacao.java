@@ -1,5 +1,6 @@
 package view;
 
+import dados.ddb.DistribuidoDBHelper;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -18,7 +19,6 @@ import model.Doacao;
 import model.Rotina;
 import application.Button;
 import application.Label;
-import dados.Banco;
 
 public class TelaIniciarRotacao extends Stage{
 	
@@ -55,7 +55,7 @@ public class TelaIniciarRotacao extends Stage{
 		vbox1.getChildren().add(listaDoacoes);
 		vbox2.getChildren().addAll(passar,voltar,passarTudo,voltarTudo);
 		
-		listaBolsista.setItems(Banco.getINSTANCE().capiturarTodosBolsistas());
+		listaBolsista.setItems(DistribuidoDBHelper.getInstance().capiturarTodosBolsistas());
 		vbox3.getChildren().add(listaBolsista);
 		
 		setScene(scene);
@@ -94,7 +94,7 @@ public class TelaIniciarRotacao extends Stage{
 			@Override
 			public void handle(ActionEvent arg0) {
 					listaBolsista.getItems().clear();
-					listaDoacoes.setItems(Banco.getINSTANCE().capiturarTodosBolsistas());
+					listaDoacoes.setItems(DistribuidoDBHelper.getInstance().capiturarTodosBolsistas());
 				
 			}
 		});
@@ -104,7 +104,7 @@ public class TelaIniciarRotacao extends Stage{
 			@Override
 			public void handle(ActionEvent arg0) {
 				listaDoacoes.getItems().clear();
-				listaBolsista.setItems(Banco.getINSTANCE().capiturarTodosBolsistas());
+				listaBolsista.setItems(DistribuidoDBHelper.getInstance().capiturarTodosBolsistas());
 			
 				
 			}
@@ -114,10 +114,10 @@ public class TelaIniciarRotacao extends Stage{
 
 			@Override
 			public void handle(ActionEvent arg0) {
-				Banco.getINSTANCE().addRotinaBanco(new Rotina());
+				DistribuidoDBHelper.getInstance().addRotinaBanco(new Rotina());
 				ObservableList<Bolsista> bolsistas = listaDoacoes.getItems();
 				for (Bolsista bolsista : bolsistas) {
-					Banco.getINSTANCE().addDoacaoBanco(new Doacao(bolsista,"",new Rotina(Banco.getINSTANCE().getIndiceRotinaAtual())));
+					DistribuidoDBHelper.getInstance().addDoacaoBanco(new Doacao(bolsista,"",new Rotina(DistribuidoDBHelper.getInstance().getIndiceRotinaAtual())));
 				}
 				tabela.atualizarTabela();
 				close();

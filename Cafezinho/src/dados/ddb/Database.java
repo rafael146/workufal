@@ -28,7 +28,7 @@ public class Database {
 		this.senha = senha;
 		this.dbName = dbName;
 		this.driver = driver;
-		this.url = url+dbName;
+		this.url = url;
 	}
 	
 	private Connection getConnection() {
@@ -38,6 +38,7 @@ public class Database {
 			return connection;
 		} catch (Exception e) {
 		}
+		System.out.println("nulll");
 		return null;
 	}
 	
@@ -63,7 +64,10 @@ public class Database {
 	}
 	
 	public ResultSet query(String sql) {
-		try(Connection con = getConnection(); PreparedStatement stm = con.prepareStatement(sql)) {
+		try(Connection con = getConnection(); 
+				PreparedStatement st = con.prepareStatement("use " + dbName);
+				PreparedStatement stm = con.prepareStatement(sql)) {
+			st.execute();
 			stm.execute();
 			return stm.getResultSet();
 		} catch (SQLException e) {
@@ -75,7 +79,9 @@ public class Database {
 	
 	public boolean executar(String sql) {
 		try(Connection con = getConnection();
+				PreparedStatement st = con.prepareStatement("use " + dbName);
 				PreparedStatement stm = con.prepareStatement(sql)) {
+			st.execute();
 			return stm.execute();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -83,5 +89,60 @@ public class Database {
 		return false;
 	}
 	
+	public void criarBanco() throws SQLException{
+		String sql;
+		sql = "create database IF NOT EXISTS doacaoLamp  DEFAULT CHARACTER SET utf8 ";
+		executar(sql);
+		tableBolsista();
+		tableUsuario();
+		tableRotina();
+		tableDoacao();
+
+	}
+	public void tableBolsista() throws SQLException{
+		String sql;
+		sql = "create table if not exists bolsista("
+				+ " id_bolsista double auto_increment,"
+				+ " nome  varchar(30) not null,"
+				+ " email varchar(35) not null, "
+				+ "PRIMARY KEY (id_bolsista)) "
+				+ "ENGINE = InnoDB "
+				+ "DEFAULT CHARACTER SET = utf8;"; 
+		executar(sql);
+	}
+
+	public void tableDoacao() throws SQLException{
+		String sql;
+		sql = "create table if not exists doacao("
+				+ " nome_bolsista  varchar(30) not null,"
+				+ " descricao varchar(35) not null, "
+				+ " id_rotina double not null,"
+				//+ "FOREIGN KEY (nome_bolsista) REFERENCES doacaoLamp.bolsista (nome) ,"
+				//+ "FOREIGN KEY (rotina) REFERENCES doacaoLamp.rotina (rotina) ,"
+				+ "primary key (nome_bolsista,id_rotina)) "
+				+ "ENGINE = InnoDB "
+				+ "DEFAULT CHARACTER SET = utf8;" ;
+		executar(sql);
+	}
+	public void tableUsuario() throws SQLException{
+		String sql;
+		sql = "create table if not exists usuario("
+				+ " login varchar(30) not null,"
+				+ " senha varchar(35) not null , "
+				+ " primary key (login)) "
+				+ "ENGINE = InnoDB "
+				+ "DEFAULT CHARACTER SET = utf8;"; 
+		executar(sql);
+	}
+	private void tableRotina() throws SQLException {
+		String sql;
+		sql = "create table if not exists rotina("
+				+ " id_rotina double auto_increment,"
+				+ "primary key (id_rotina)) "
+				+ "ENGINE = InnoDB "
+				+ "DEFAULT CHARACTER SET = utf8;" ;
+		executar(sql);
+		
+	}
 
 }

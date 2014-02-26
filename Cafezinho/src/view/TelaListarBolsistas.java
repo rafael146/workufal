@@ -1,5 +1,6 @@
 package view;
 
+import dados.ddb.DistribuidoDBHelper;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -11,7 +12,6 @@ import model.Bolsista;
 import application.Button;
 import application.Scene;
 import application.Text;
-import dados.Banco;
 
 public class TelaListarBolsistas extends VBox{
 	
@@ -45,7 +45,7 @@ public class TelaListarBolsistas extends VBox{
 			
 			@Override
 			public void handle(ActionEvent arg0) {
-				Banco.getINSTANCE().excluirBolsista(listaBolsista.getSelectionModel().getSelectedItem().getNome());
+				DistribuidoDBHelper.getInstance().excluirBolsista(listaBolsista.getSelectionModel().getSelectedItem().getNome());
 				atualizarLista();
 				Scene tela = (Scene) getScene();
 				tela.getTelaTable().atualizarTabela();
@@ -79,7 +79,7 @@ public class TelaListarBolsistas extends VBox{
 	}
 	
 	public void atualizarLista() {
-		listaBolsista.setItems(Banco.getINSTANCE().capiturarTodosBolsistas());
+		listaBolsista.setItems(DistribuidoDBHelper.getInstance().capiturarTodosBolsistas());
 		
 	}
 }

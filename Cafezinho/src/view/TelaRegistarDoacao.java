@@ -1,5 +1,6 @@
 package view;
 
+import dados.ddb.DistribuidoDBHelper;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
@@ -14,7 +15,6 @@ import model.Bolsista;
 import application.Button;
 import application.Label;
 import application.TextField;
-import dados.Banco;
 
 public class TelaRegistarDoacao extends Stage{
 	
@@ -56,14 +56,14 @@ public class TelaRegistarDoacao extends Stage{
 			
 			@Override
 			public void handle(ActionEvent arg0) {
-				doador = Banco.getINSTANCE().recuperarBolsista(textNome.getText());
+				doador = DistribuidoDBHelper.getInstance().recuperarBolsista(textNome.getText());
 				//System.out.println(doador.getNome());
 				if(doador.getNome().equals("")){
 					informacao.setText("Esse usuario nao existe no banco de dados!");
 				}else{
 					String nomeBolsista = doador.getNome().toUpperCase();
 					String descricao = textDescricao.getText().toUpperCase();
-					Banco.getINSTANCE().alterarDescricaoDoacao(nomeBolsista,descricao,Banco.getINSTANCE().getIndiceRotinaAtual());
+					DistribuidoDBHelper.getInstance().alterarDescricaoDoacao(nomeBolsista,descricao,DistribuidoDBHelper.getInstance().getIndiceRotinaAtual());
 					tabela.atualizarTabela();
 					close();
 					

@@ -3,7 +3,6 @@ package dados.ddb;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class Database {
@@ -12,7 +11,7 @@ public class Database {
 	private String user;
 	private String senha;
 	private String driver;
-	private String dbName;
+	protected String dbName;
 	private String url;
 	
 	public Database(String user, String senha, String dbName) {
@@ -31,14 +30,13 @@ public class Database {
 		this.url = url;
 	}
 	
-	private Connection getConnection() {
+	protected Connection getConnection() {
 		try {
 			Class.forName(driver);
-			connection = DriverManager.getConnection(url, user, senha);
+			connection = DriverManager.getConnection(url+dbName, user, senha);
 			return connection;
 		} catch (Exception e) {
 		}
-		System.out.println("nulll");
 		return null;
 	}
 	
@@ -62,26 +60,11 @@ public class Database {
 		}
 		return false;
 	}
-	
-	public ResultSet query(String sql) {
-		try(Connection con = getConnection(); 
-				PreparedStatement st = con.prepareStatement("use " + dbName);
-				PreparedStatement stm = con.prepareStatement(sql)) {
-			st.execute();
-			stm.execute();
-			return stm.getResultSet();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
-	}
+
 	
 	public boolean executar(String sql) {
 		try(Connection con = getConnection();
-				PreparedStatement st = con.prepareStatement("use " + dbName);
 				PreparedStatement stm = con.prepareStatement(sql)) {
-			st.execute();
 			return stm.execute();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -90,9 +73,9 @@ public class Database {
 	}
 	
 	public void criarBanco() throws SQLException{
-		String sql;
-		sql = "create database IF NOT EXISTS doacaoLamp  DEFAULT CHARACTER SET utf8 ";
-		executar(sql);
+		try(Connection connection = DriverManager.getConnection(url, user, senha)) {
+			connection.createStatement().execute("create database IF NOT EXISTS doacaoLamp  DEFAULT CHARACTER SET utf8 ");
+		}
 		tableBolsista();
 		tableUsuario();
 		tableRotina();
@@ -100,20 +83,17 @@ public class Database {
 
 	}
 	public void tableBolsista() throws SQLException{
-		String sql;
-		sql = "create table if not exists bolsista("
+		executar("create table if not exists doacaoLamp.bolsista("
 				+ " id_bolsista double auto_increment,"
 				+ " nome  varchar(30) not null,"
 				+ " email varchar(35) not null, "
 				+ "PRIMARY KEY (id_bolsista)) "
 				+ "ENGINE = InnoDB "
-				+ "DEFAULT CHARACTER SET = utf8;"; 
-		executar(sql);
+				+ "DEFAULT CHARACTER SET = utf8;");
 	}
 
 	public void tableDoacao() throws SQLException{
-		String sql;
-		sql = "create table if not exists doacao("
+		executar("create table if not exists doacaoLamp.doacao("
 				+ " nome_bolsista  varchar(30) not null,"
 				+ " descricao varchar(35) not null, "
 				+ " id_rotina double not null,"
@@ -121,27 +101,23 @@ public class Database {
 				//+ "FOREIGN KEY (rotina) REFERENCES doacaoLamp.rotina (rotina) ,"
 				+ "primary key (nome_bolsista,id_rotina)) "
 				+ "ENGINE = InnoDB "
-				+ "DEFAULT CHARACTER SET = utf8;" ;
-		executar(sql);
+				+ "DEFAULT CHARACTER SET = utf8;");
 	}
 	public void tableUsuario() throws SQLException{
-		String sql;
-		sql = "create table if not exists usuario("
+		executar("create table if not exists doacaoLamp.usuario("
 				+ " login varchar(30) not null,"
 				+ " senha varchar(35) not null , "
 				+ " primary key (login)) "
 				+ "ENGINE = InnoDB "
-				+ "DEFAULT CHARACTER SET = utf8;"; 
-		executar(sql);
+				+ "DEFAULT CHARACTER SET = utf8;");
 	}
+	
 	private void tableRotina() throws SQLException {
-		String sql;
-		sql = "create table if not exists rotina("
+		executar("create table if not exists doacaoLamp.rotina("
 				+ " id_rotina double auto_increment,"
 				+ "primary key (id_rotina)) "
 				+ "ENGINE = InnoDB "
-				+ "DEFAULT CHARACTER SET = utf8;" ;
-		executar(sql);
+				+ "DEFAULT CHARACTER SET = utf8;");
 		
 	}
 

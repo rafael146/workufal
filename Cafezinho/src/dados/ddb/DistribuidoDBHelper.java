@@ -1,5 +1,7 @@
 package dados.ddb;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedList;
@@ -36,14 +38,14 @@ public class DistribuidoDBHelper implements ConsultasBanco {
 		}
 		distribuidos = new LinkedList<>();
 		distribuidos.add(local);
-		distribuidos.add(new Database("root", "root", "doacaoLamp",
-				"jdbc:mysql://localhost:3306/"));
+		//distribuidos.add(new Database("root", "root", "doacaoLamp",
+			//	"jdbc:mysql://localhost:3306/"));
 	}
 
 	public void addDatabase(Database d) {
 		distribuidos.add(d);
 	}
-
+		
 	@Override
 	public void addUsuarioBanco(Usuario usuario) {
 		local.executar("insert into usuario( login , senha) values('"
@@ -68,10 +70,11 @@ public class DistribuidoDBHelper implements ConsultasBanco {
 	@Override
 	public boolean validarUsuarioBanco(Usuario t) {
 		for (Database database : distribuidos) {
-			try (ResultSet rs = database
-					.query("select login,senha from usuario where login ='"
+			try(Connection con = database.getConnection(); 
+					PreparedStatement st = con.prepareStatement("select login,senha from usuario where login ='"
 							+ t.getLogin() + "' and  senha = '" + t.getSenha()
-							+ "' ;")) {
+							+ "' ;");
+					ResultSet rs = st.executeQuery()) {
 				if(rs.next()) return true;
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -83,9 +86,10 @@ public class DistribuidoDBHelper implements ConsultasBanco {
 	@Override
 	public boolean verificarUsuarioBanco(Usuario t) {
 		for (Database database : distribuidos) {
-			try (ResultSet rs = database
-					.query("select login,senha from usuario where login ='"
-							+ t.getLogin() + "' and  senha = '" + t.getSenha() + "' ;")) {
+			try(Connection con = database.getConnection(); 
+					PreparedStatement st = con.prepareStatement("select login,senha from usuario where login ='"
+							+ t.getLogin() + "' and  senha = '" + t.getSenha() + "' ;");
+					ResultSet rs = st.executeQuery()) {
 				if(rs.next()) return true;
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -97,7 +101,9 @@ public class DistribuidoDBHelper implements ConsultasBanco {
 	@Override
 	public boolean verificarBolsistaBanco(Bolsista t) {
 		for (Database database : distribuidos) {
-			try (ResultSet rs = database.query("select * from bolsista where nome = '" +t.getNome()+ "';")) {
+			try(Connection con = database.getConnection(); 
+					PreparedStatement st = con.prepareStatement("select * from bolsista where nome = '" +t.getNome()+ "';");
+					ResultSet rs = st.executeQuery()) {
 				if(rs.next()) return true;
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -109,7 +115,9 @@ public class DistribuidoDBHelper implements ConsultasBanco {
 	@Override
 	public boolean verificarDoacaoBanco(String doa) {
 		for (Database database : distribuidos) {
-			try (ResultSet rs = database.query("select * from doacao where nome_bolsista = '"+ doa + "';")) {
+			try(Connection con = database.getConnection(); 
+					PreparedStatement st = con.prepareStatement("select * from doacao where nome_bolsista = '"+ doa + "';");
+					ResultSet rs = st.executeQuery()) {
 				if(rs.next()) return true;
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -128,7 +136,9 @@ public class DistribuidoDBHelper implements ConsultasBanco {
 	@Override
 	public Bolsista recuperarBolsista(String c) {
 		for (Database database : distribuidos) {
-			try (ResultSet rs = database.query("select * from bolsista where nome = '" +c+ "';")) {			
+			try(Connection con = database.getConnection(); 
+					PreparedStatement st = con.prepareStatement("select * from bolsista where nome = '" +c+ "';");
+					ResultSet rs = st.executeQuery()) {	
 				if (rs.next()){ 
 					Bolsista b = new Bolsista(rs.getString(1), rs.getNString(2));
 					return b;
@@ -144,7 +154,10 @@ public class DistribuidoDBHelper implements ConsultasBanco {
 	public ObservableList<Doacao> capiturarTodasDoacoesRotina(double x) {
 		ObservableList<Doacao> obs = FXCollections.observableArrayList();
 		for (Database database : distribuidos) {
-			try (ResultSet rs = database.query("select * from doacao where id_rotina =" + x  +" ;")) {			
+			
+			try(Connection con = database.getConnection(); 
+					PreparedStatement st = con.prepareStatement("select * from doacao where id_rotina =" + x  +" ;");
+					ResultSet rs = st.executeQuery()) {			
 				while(rs.next()){ 
 					obs.add( new Doacao(new Bolsista(rs.getString(1), "null"),  rs.getString(2)  , new Rotina(rs.getDouble(3))));
 				}
@@ -159,8 +172,10 @@ public class DistribuidoDBHelper implements ConsultasBanco {
 	public ObservableList<Bolsista> capiturarTodosBolsistas() {
 		ObservableList<Bolsista> lista = FXCollections.observableArrayList();
 		for (Database database : distribuidos) {
-			try (ResultSet rs = database
-					.query("select * from bolsista ;")) {
+			
+			try(Connection con = database.getConnection(); 
+					PreparedStatement st = con.prepareStatement("select * from bolsista ;");
+					ResultSet rs = st.executeQuery()) {
 				while (rs.next()) {
 					lista.add(new Bolsista(rs.getString(2), rs.getNString(3)));
 				}
@@ -175,7 +190,9 @@ public class DistribuidoDBHelper implements ConsultasBanco {
 	public ObservableList<Usuario> capiturarTodosUsuarios() {
 		ObservableList<Usuario> lista = FXCollections.observableArrayList();
 		for (Database database : distribuidos) {
-			try (ResultSet rs = database.query("select * from bolsista ;")) {
+			try(Connection con = database.getConnection(); 
+					PreparedStatement st = con.prepareStatement("select * from bolsista ;");
+					ResultSet rs = st.executeQuery()) {
 				while (rs.next()) {
 					lista.add(new Usuario(rs.getString(1), rs.getNString(2)));
 				}
@@ -190,7 +207,7 @@ public class DistribuidoDBHelper implements ConsultasBanco {
 	public void alterarDescricaoDoacao(String nomeBolsista, String descricao,
 			double rotina) {
 		for (Database database : distribuidos) {
-			database.executar("update doacao set descricao = '" + descricao +"'  where bolsista ='" +nomeBolsista +"' and rotina='"+rotina+ "' ;");
+			database.executar("update doacao set descricao = '" + descricao +"'  where nome_bolsista ='" +nomeBolsista +"' and id_rotina='"+rotina+ "' ;");
 		}
 	}
 
@@ -212,7 +229,10 @@ public class DistribuidoDBHelper implements ConsultasBanco {
 	public ObservableList<String> capiturarIdRotinas() {
 		ObservableList<String> obs = FXCollections.observableArrayList();
 		for (Database database : distribuidos) {
-			try (ResultSet rs = database.query("select * from rotina;")) {
+			
+			try(Connection con = database.getConnection(); 
+					PreparedStatement st = con.prepareStatement("select * from rotina;");
+					ResultSet rs = st.executeQuery()) {
 				while (rs.next()) {
 					obs.add(""+rs.getDouble(1));
 				}
@@ -226,7 +246,9 @@ public class DistribuidoDBHelper implements ConsultasBanco {
 	//observação: rotinas com primarykey duplicadas nos banco distribuido warning!
 	@Override
 	public double getIndiceRotinaAtual() {
-		try (ResultSet rs = local.query("select Max(id_rotina) from rotina;")) {
+		try(Connection con = local.getConnection(); 
+				PreparedStatement st = con.prepareStatement("select Max(id_rotina) from rotina;");
+				ResultSet rs = st.executeQuery()) {
 			if (rs.next()) {
 				return rs.getDouble(1);
 			}

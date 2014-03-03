@@ -57,13 +57,13 @@ public class TelaRegistarDoacao extends Stage{
 			@Override
 			public void handle(ActionEvent arg0) {
 				doador = DistribuidoDBHelper.getInstance().recuperarBolsista(textNome.getText());
-				//System.out.println(doador.getNome());
 				if(doador.getNome().equals("")){
 					informacao.setText("Esse usuario nao existe no banco de dados!");
 				}else{
 					String nomeBolsista = doador.getNome().toUpperCase();
 					String descricao = textDescricao.getText().toUpperCase();
-					DistribuidoDBHelper.getInstance().alterarDescricaoDoacao(nomeBolsista,descricao,DistribuidoDBHelper.getInstance().getIndiceRotinaAtual());
+					double id_rotina = DistribuidoDBHelper.getInstance().getIndiceRotinaAtual();
+					DistribuidoDBHelper.getInstance().alterarDescricaoDoacao(nomeBolsista,descricao,id_rotina);
 					tabela.atualizarTabela();
 					close();
 					

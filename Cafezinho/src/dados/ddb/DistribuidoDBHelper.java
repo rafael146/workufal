@@ -143,7 +143,7 @@ public class DistribuidoDBHelper implements ConsultasBanco {
 					PreparedStatement st = con.prepareStatement("select * from bolsista where nome = '" +c+ "';");
 					ResultSet rs = st.executeQuery()) {	
 				if (rs.next()){ 
-					Bolsista b = new Bolsista(rs.getString(1), rs.getNString(2));
+					Bolsista b = new Bolsista(rs.getString(2), rs.getNString(3));
 					return b;
 				}
 			} catch (SQLException e) {
@@ -210,7 +210,7 @@ public class DistribuidoDBHelper implements ConsultasBanco {
 	public void alterarDescricaoDoacao(String nomeBolsista, String descricao,
 			double rotina) {
 		for (Database database : distribuidos) {
-			database.executar("update doacao set descricao = '" + descricao +"'  where nome_bolsista ='" +nomeBolsista +"' and id_rotina='"+rotina+ "' ;");
+			database.executar("update doacao set descricao = '" + descricao +"'  where nome_bolsista ='" +nomeBolsista +"' and id_rotina ="+rotina+ " ;");
 		}
 	}
 

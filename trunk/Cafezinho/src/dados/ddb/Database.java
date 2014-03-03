@@ -74,7 +74,7 @@ public class Database {
 	
 	public void criarBanco() throws SQLException{
 		try(Connection connection = DriverManager.getConnection(url, user, senha)) {
-			connection.createStatement().execute("create database IF NOT EXISTS doacaoLamp  DEFAULT CHARACTER SET utf8 ");
+			connection.createStatement().execute("create database IF NOT EXISTS "+dbName+" DEFAULT CHARACTER SET utf8 ");
 		}
 		tableBolsista();
 		tableUsuario();
@@ -83,7 +83,7 @@ public class Database {
 
 	}
 	public void tableBolsista() throws SQLException{
-		executar("create table if not exists doacaoLamp.bolsista("
+		executar("create table if not exists bolsista("
 				+ " id_bolsista double auto_increment,"
 				+ " nome  varchar(30) not null,"
 				+ " email varchar(35) not null, "
@@ -93,7 +93,7 @@ public class Database {
 	}
 
 	public void tableDoacao() throws SQLException{
-		executar("create table if not exists doacaoLamp.doacao("
+		executar("create table if not exists doacao("
 				+ " nome_bolsista  varchar(30) not null,"
 				+ " descricao varchar(35) not null, "
 				+ " id_rotina double not null,"
@@ -104,7 +104,7 @@ public class Database {
 				+ "DEFAULT CHARACTER SET = utf8;");
 	}
 	public void tableUsuario() throws SQLException{
-		executar("create table if not exists doacaoLamp.usuario("
+		executar("create table if not exists usuario("
 				+ " login varchar(30) not null,"
 				+ " senha varchar(35) not null , "
 				+ " primary key (login)) "
@@ -113,12 +113,11 @@ public class Database {
 	}
 	
 	private void tableRotina() throws SQLException {
-		executar("create table if not exists doacaoLamp.rotina("
+		executar("create table if not exists rotina("
 				+ " id_rotina double auto_increment,"
 				+ "primary key (id_rotina)) "
 				+ "ENGINE = InnoDB "
 				+ "DEFAULT CHARACTER SET = utf8;");
-		
 	}
 
 }

@@ -30,16 +30,19 @@ public class DistribuidoDBHelper implements ConsultasBanco {
 		// TODO mover dados de banco local e distribuidos para um arquivo de
 		// configuração
 		local = new Database("root", "root", "doacaoLamp");
-		try {
-			local.criarBanco();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		distribuidos = new LinkedList<>();
 		distribuidos.add(local);
-		//distribuidos.add(new Database("root", "root", "doacaoLamp",
-			//	"jdbc:mysql://localhost:3306/"));
+		distribuidos.add(new Database("root", "root", "doacaoLamp2",
+				"jdbc:mysql://localhost:3306/"));
+		for (Database database : distribuidos) {
+			try {
+				database.criarBanco();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		//addUsuarioBanco(new Usuario("admin", "admin"));
 	}
 
 	public void addDatabase(Database d) {
@@ -191,7 +194,7 @@ public class DistribuidoDBHelper implements ConsultasBanco {
 		ObservableList<Usuario> lista = FXCollections.observableArrayList();
 		for (Database database : distribuidos) {
 			try(Connection con = database.getConnection(); 
-					PreparedStatement st = con.prepareStatement("select * from bolsista ;");
+					PreparedStatement st = con.prepareStatement("select * from usuario ;");
 					ResultSet rs = st.executeQuery()) {
 				while (rs.next()) {
 					lista.add(new Usuario(rs.getString(1), rs.getNString(2)));

@@ -7,11 +7,12 @@
 
 #ifndef OBJ_H_
 #define OBJ_H_
-
+#include <string>
 #include <math.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/glut.h>
+using namespace std;
 
 
 // Classe Base para todos os objetos.
@@ -65,6 +66,18 @@ public:
 };
 
 class Bomba : Obj3D {
+
+};
+
+class Textura{
+	GLuint * texture_id;
+
+public:
+	Textura();
+	virtual GLvoid carregar_textura(char *, int, int, int,GLenum, GLenum);
+	virtual GLvoid habilitarTextura();
+	virtual GLvoid add_textura(string);
+	virtual GLuint getTexture(int);
 
 };
 

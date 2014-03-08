@@ -14,49 +14,58 @@ std::vector<Obj3D*> *objs = new std::vector<Obj3D*>();
 
 Camera * cam = new Camera();
 Luz *luz = new Luz();
+Textura * textura = new Textura();
 
 GLvoid drawScene() {
 
 	// Draw ground
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture ( GL_TEXTURE_2D, textura->getTexture(0));
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+
 	glColor3f(0.9f, 1.0f, 0.9f);
 	glBegin(GL_QUADS);
-		glVertex3f(-100.0f, 0.0f, -100.0f);
-		glVertex3f(-100.0f, 0.0f, 100.0f);
-		glVertex3f(100.0f, 0.0f, 100.0f);
-		glVertex3f(100.0f, 0.0f, -100.0f);
+		glTexCoord2f(1.0f, 0.0f);glVertex3f(-50.0f, 0.0f, -50.0f);
+		glTexCoord2f(1.0f, 1.0f);glVertex3f(-50.0f, 0.0f, 50.0f);
+		glTexCoord2f(0.0f, 1.0f);glVertex3f(50.0f, 0.0f, 50.0f);
+		glTexCoord2f(0.0f, 0.0f);glVertex3f(50.0f, 0.0f, -50.0f);
 	glEnd();
+	glDisable(GL_TEXTURE_2D);
 
 	// Draw Walls
 	glColor3f(1.0f, 0.5f, 0.5f);
 	glBegin(GL_QUADS);
-		glVertex3f(-100.0f, 0.0f, -100.0f);
-		glVertex3f(-100.0f, 100.0f, -100.0f);
-		glVertex3f(-100.0f, 100.0f, 100.0f);
-		glVertex3f(-100.0f, 0.0f, 100.0f);
+		glVertex3f(-50.0f, 0.0f, -50.0f);
+		glVertex3f(-50.0f, 50.0f, -50.0f);
+		glVertex3f(-50.0f, 50.0f, 50.0f);
+		glVertex3f(-50.0f, 0.0f, 50.0f);
 	glEnd();
 
 	glColor3f(1.0f, 1.0f, 0.5f);
 	glBegin(GL_QUADS);
-		glVertex3f(100.0f, 0.0f, -100.0f);
-		glVertex3f(100.0f, 100.0f, -100.0f);
-		glVertex3f(100.0f, 100.0f, 100.0f);
-		glVertex3f(100.0f, 0.0f, 100.0f);
+		glVertex3f(50.0f, 0.0f, -50.0f);
+		glVertex3f(50.0f, 50.0f, -50.0f);
+		glVertex3f(50.0f, 50.0f, 50.0f);
+		glVertex3f(50.0f, 0.0f, 50.0f);
 	glEnd();
 
 	glColor3f(0.4f, 0.5f, 1.0f);
 	glBegin(GL_QUADS);
-		glVertex3f(-100.0f, 0.0f, -100.0f);
-		glVertex3f(-100.0f, 100.0f, -100.0f);
-		glVertex3f(100.0f, 100.0f, -100.0f);
-		glVertex3f(100.0f, 0.0f, -100.0f);
+		glVertex3f(-50.0f, 0.0f, -50.0f);
+		glVertex3f(-50.0f, 50.0f, -50.0f);
+		glVertex3f(50.0f, 50.0f, -50.0f);
+		glVertex3f(50.0f, 0.0f, -50.0f);
 	glEnd();
 
 	glColor3f(0.4f, 1.0f, 1.0f);
 	glBegin(GL_QUADS);
-		glVertex3f(-100.0f, 0.0f, 100.0f);
-		glVertex3f(-100.0f, 100.0f, 100.0f);
-		glVertex3f(100.0f, 100.0f, 100.0f);
-		glVertex3f(100.0f, 0.0f, 100.0f);
+		glVertex3f(-50.0f, 0.0f, 50.0f);
+		glVertex3f(-50.0f, 50.0f, 50.0f);
+		glVertex3f(50.0f, 50.0f, 50.0f);
+		glVertex3f(50.0f, 0.0f, 50.0f);
 	glEnd();
 
 
@@ -98,11 +107,19 @@ GLvoid initCharacters() {
 
 
 GLvoid Inicializa() {
+
 	glShadeModel(GL_SMOOTH);
+
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
 	glEnable(GL_LIGHTING);
 	glEnable(GL_COLOR_MATERIAL);
 	glEnable(GL_DEPTH_TEST);
+
+	glEnable(GL_TEXTURE_2D);
+
+
+
 	luz->enable(true);
 
 	luz->setPosition(20, 75, 10);
@@ -110,6 +127,11 @@ GLvoid Inicializa() {
 
 	//todo isso deve ser dos materiais não da luz
 	luz->propriedadesDeMaterias();
+
+	textura->habilitarTextura();
+
+
+	textura->add_textura("gramado2.rgb");
 
 	// Especifica que a cor de fundo da janela será preta
 	initCharacters();

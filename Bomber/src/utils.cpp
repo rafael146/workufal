@@ -43,7 +43,7 @@ Graphics, Inc., 2011 N.  Shoreline Blvd., Mountain View, CA
 OpenGL(TM) is a trademark of Silicon Graphics, Inc.
 */
 
-#include<GL/freeglut.h>
+#include "utils.h"
 
 void drawBox(GLfloat size, GLenum type)
 {
@@ -78,13 +78,14 @@ void drawBox(GLfloat size, GLenum type)
   for (i = 5; i >= 0; i--) {
     glBegin(type);
     glNormal3fv(&n[i][0]);
-    glVertex3fv(&v[faces[i][0]][0]);
-    glVertex3fv(&v[faces[i][1]][0]);
-    glVertex3fv(&v[faces[i][2]][0]);
-    glVertex3fv(&v[faces[i][3]][0]);
+    glTexCoord2f(0.0f, 0.0f);glVertex3fv(&v[faces[i][0]][0]);
+    glTexCoord2f(0.0f, 1.0f);glVertex3fv(&v[faces[i][1]][0]);
+    glTexCoord2f(1.0f, 1.0f);glVertex3fv(&v[faces[i][2]][0]);
+    glTexCoord2f(1.0f, 0.0f);glVertex3fv(&v[faces[i][3]][0]);
     glEnd();
   }
 }
+
 
 void glutSolidCube(GLdouble size)
 {

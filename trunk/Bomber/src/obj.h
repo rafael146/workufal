@@ -8,11 +8,15 @@
 #ifndef OBJ_H_
 #define OBJ_H_
 #include <string>
+#include <iostream>
 #include <math.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/glut.h>
+#include <SOIL/SOIL.h>
+
 using namespace std;
+
 
 
 // Classe Base para todos os objetos.
@@ -70,15 +74,10 @@ class Bomba : Obj3D {
 };
 
 class Textura{
-	GLuint * texture_id;
-
 public:
-	Textura();
-	virtual GLvoid carregar_textura(char *, int, int, int,GLenum, GLenum);
-	virtual GLvoid habilitarTextura();
-	virtual GLvoid add_textura(string);
-	virtual GLuint getTexture(int);
-
+	GLuint texture_id;
+	Textura(string);
+	~Textura();
 };
 
 class Character : public Obj3D {
@@ -88,7 +87,7 @@ public:
 	GLvoid draw();
 };
 
-class BomberMan : Character {
+class BomberMan : public Character {
 
 };
 

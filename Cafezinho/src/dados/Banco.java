@@ -265,7 +265,7 @@ public class Banco implements ConsultasBanco{
 	}
 
 	@Override
-	public boolean excluirDoacao(String nome) {
+	public boolean excluirDoacao(String nome, double rotina) {
 		try {
 			banco.executar("delete from doacaoLamp.doacao where nome_bolsista = '" +nome +"' ;");
 			return true;

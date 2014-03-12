@@ -123,7 +123,7 @@ public class TelaEditarRotacao extends Stage{
 				}
 				for (Bolsista temp : listaBolsista.getItems()) {
 					if(DistribuidoDBHelper.getInstance().verificarDoacaoBanco(temp.getNome()))
-						DistribuidoDBHelper.getInstance().excluirDoacao(temp.getNome());
+						DistribuidoDBHelper.getInstance().excluirDoacao(temp.getNome(),DistribuidoDBHelper.getInstance().getIndiceRotinaAtual());
 				}
 				tabela.atualizarTabela();
 				close();

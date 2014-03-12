@@ -27,6 +27,6 @@ public interface ConsultasBanco {
 	public double getIndiceRotinaAtual();
 	public boolean excluirBolsista(String nome);
 	public boolean excluirUsuario(Usuario usuario);
-	public boolean excluirDoacao(String nome);
+	public boolean excluirDoacao(String nome,double rotina);
 
 }

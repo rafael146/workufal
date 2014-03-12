@@ -114,7 +114,7 @@ public class Database {
 	
 	private void tableRotina() throws SQLException {
 		executar("create table if not exists rotina("
-				+ " id_rotina double auto_increment,"
+				+ " id_rotina double,"
 				+ "primary key (id_rotina)) "
 				+ "ENGINE = InnoDB "
 				+ "DEFAULT CHARACTER SET = utf8;");

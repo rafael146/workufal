@@ -114,10 +114,11 @@ public class TelaIniciarRotacao extends Stage{
 
 			@Override
 			public void handle(ActionEvent arg0) {
-				DistribuidoDBHelper.getInstance().addRotinaBanco(new Rotina());
+				double id_rotina_atual = DistribuidoDBHelper.getInstance().getIndiceRotinaAtual();
+				DistribuidoDBHelper.getInstance().addRotinaBanco(new Rotina(id_rotina_atual+1));
 				ObservableList<Bolsista> bolsistas = listaDoacoes.getItems();
 				for (Bolsista bolsista : bolsistas) {
-					DistribuidoDBHelper.getInstance().addDoacaoBanco(new Doacao(bolsista,"",new Rotina(DistribuidoDBHelper.getInstance().getIndiceRotinaAtual())));
+					DistribuidoDBHelper.getInstance().addDoacaoBanco(new Doacao(bolsista,"",new Rotina(id_rotina_atual+1)));
 				}
 				tabela.atualizarTabela();
 				close();

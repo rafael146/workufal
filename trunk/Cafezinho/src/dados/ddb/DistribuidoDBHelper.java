@@ -249,16 +249,21 @@ public class DistribuidoDBHelper implements ConsultasBanco {
 	//observação: rotinas com primarykey duplicadas nos banco distribuido warning!
 	@Override
 	public double getIndiceRotinaAtual() {
-		try(Connection con = local.getConnection(); 
-				PreparedStatement st = con.prepareStatement("select Max(id_rotina) from rotina;");
-				ResultSet rs = st.executeQuery()) {
-			if (rs.next()) {
-				return rs.getDouble(1);
+		double max=0;
+		for (Database database : distribuidos) {
+			try(Connection con = database.getConnection(); 
+					PreparedStatement st = con.prepareStatement("select Max(id_rotina) from rotina;");
+					ResultSet rs = st.executeQuery()) {
+				if (rs.next()) {
+					if(max < rs.getDouble(1)){
+						max = rs.getDouble(1);
+					}
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
 			}
-		} catch (SQLException e) {
-			e.printStackTrace();
 		}
-		return 0;
+		return max;
 	}
 
 	@Override
@@ -274,9 +279,11 @@ public class DistribuidoDBHelper implements ConsultasBanco {
 	}
 
 	@Override
-	public boolean excluirDoacao(String nome) {
-		// TODO Auto-generated method stub
-		return false;
+	public boolean excluirDoacao(String nome, double rotina) {
+		for (Database database : distribuidos) {
+			database.executar("delete from doacao where nome_bolsista = '" +nome +"' and id_rotina =" +rotina+ " ;");
+		}
+		return true;
 	}
 
 	public static DistribuidoDBHelper getInstance() {

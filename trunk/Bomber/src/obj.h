@@ -101,7 +101,7 @@ class BomberMan : public Character {
 
 class World {
 	vector<Obj3D*> *characters;
-	Textura * grama;
+	Textura * chao;
 	Textura * fundo;
 	Textura * parede;
 	static GLUquadricObj *Quadro;    //Quadric Objeto

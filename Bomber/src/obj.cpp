@@ -20,15 +20,15 @@ World::World() {
 	 characters->push_back(new Character(17,0,17));
 	 characters->push_back(new Character(17,0,2));
 	 characters->push_back(new Character(17,0,2));
-	 grama = new Textura("chao.png");
-	 fundo = new Textura("monti.png");
-	 parede = new Textura("2.png");
+	 chao = new Textura("imgs/chao.png");
+	 fundo = new Textura("imgs/fundo.png");
+	 parede = new Textura("imgs/parede.png");
 }
 
 GLvoid World::draw() {
 
 	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, grama->texture_id);
+	glBindTexture(GL_TEXTURE_2D, chao->texture_id);
 	glColor3f(1.0f, 1.0f, 1.0f);
 	glBegin(GL_QUADS);
 	glTexCoord2f(0.0f, 0.0f);

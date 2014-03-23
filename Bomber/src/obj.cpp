@@ -11,6 +11,17 @@ GLint Obj3D::nextId = 2;
 GLUquadricObj* World::Quadro = gluNewQuadric();
 
 World::World() {
+	for(int i=0; i < 20; i++) {
+		for(int j = 0; j < 20; j++) {
+			if(i == 0 || j == 0 || i == 19 || j == 19)
+				matriz[i][j] = 1;
+			else if ((i % 3 == 0 && j%4==0) || (j%3==0 && i%4==0))
+				matriz[i][j] = 1;
+			else if((j % 5 == 0 && i % 2 ==0) || (j % 2 == 0 && i % 5 == 0))
+				matriz[i][j] = 1;
+			else matriz[i][j]= 0;
+		}
+	}
 	 gluQuadricNormals(Quadro, GLU_SMOOTH);
 	 gluQuadricDrawStyle(Quadro, GLU_FILL);
 	 gluQuadricTexture(Quadro, GL_TRUE);
@@ -168,8 +179,6 @@ GLboolean Camera::isMoving() {
 }
 
 GLvoid Camera::update() {
-	GLfloat oldX = x;
-	GLfloat oldZ = z;
 	angle += dAngle;
 	angleX = sin(angle);
 	angleZ = -cos(angle);
@@ -231,6 +240,18 @@ GLvoid Character::draws(GLint x, GLint z) {
 Luz::Luz() {
 	posicaoLuz = new GLfloat[4];
 	posicaoLuz[3] = 0;
+	luzId = GL_LIGHT0;
+	especMaterial = 60;
+	for(int i = 0; i < 3; i++) {
+		luzAmbiente[i] = 0.2;
+		luzDifusa[i] = 0.7;
+	}
+	luzAmbiente[3] = 1.0;
+	luzDifusa[3] = 1.0;
+	for(int i = 0; i < 4; i++) {
+		luzEspecular[i] = 1.0;
+		especularidade[i] = 1.0;
+	}
 
 }
 GLvoid Luz::configure() {

@@ -9,6 +9,7 @@
 #define OBJ_H_
 #include <string>
 #include <iostream>
+#include <vector>
 #include <math.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
@@ -17,11 +18,15 @@
 
 using namespace std;
 
+#define PAREDE 1
+
+class World;
 
 
 // Classe Base para todos os objetos.
 class Obj3D {
-	static GLUquadricObj *Quadro;    //Quadric Objeto
+	static GLint nextId;
+	int id;
 protected:
 	GLfloat x, y, z, dMove;
 	GLboolean pendingUpdate;
@@ -35,6 +40,8 @@ public:
 	virtual GLvoid setPosition(GLfloat x, GLfloat y, GLfloat z);
 	virtual GLboolean isMoving();
 	virtual GLvoid setDeltaMove(GLfloat offset);
+	virtual GLfloat getX();
+	virtual GLfloat getZ();
 };
 
 class Camera : public Obj3D {
@@ -84,11 +91,47 @@ class Character : public Obj3D {
 public:
 	Character();
 	Character(GLfloat x, GLfloat y, GLfloat z);
-	GLvoid draw();
+	static GLvoid draws(GLint x, GLint z);
 };
 
 class BomberMan : public Character {
 
+};
+
+
+class World {
+	vector<Obj3D*> *characters;
+	Textura * grama;
+	Textura * fundo;
+	Textura * parede;
+	static GLUquadricObj *Quadro;    //Quadric Objeto
+public:
+	World();
+	GLint matriz[20][20] ={
+	{ 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , },
+	{ 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , },
+	{ 1 , 0 , 2 , 0 , 0 , 1 , 0 , 2 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 1 , 0 , 2 , 0 , 1 , },
+	{ 1 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 1 , 0 , 0 , 1 , },
+	{ 1 , 0 , 0 , 1 , 0 , 1 , 1 , 0 , 0 , 1 , 1 , 0 , 1 , 0 , 0 , 1 , 0 , 0 , 1 , 1 , },
+	{ 1 , 0 , 1 , 0 , 1 , 0 , 1 , 0 , 1 , 0 , 1 , 0 , 1 , 0 , 1 , 0 , 1 , 0 , 1 , 1 , },
+	{ 1 , 0 , 0 , 0 , 1 , 1 , 0 , 0 , 1 , 0 , 1 , 0 , 1 , 0 , 0 , 1 , 1 , 0 , 0 , 1 , },
+	{ 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 2 , 0 , 0 , 0 , 2 , 0 , 1 , },
+	{ 1 , 0 , 2 , 1 , 0 , 1 , 1 , 0 , 0 , 1 , 1 , 0 , 1 , 0 , 0 , 1 , 0 , 0 , 1 , 1 , },
+	{ 1 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 1 , 0 , 0 , 1 , },
+	{ 1 , 0 , 1 , 0 , 1 , 1 , 1 , 0 , 1 , 0 , 1 , 0 , 1 , 0 , 1 , 1 , 1 , 0 , 1 , 1 , },
+	{ 1 , 0 , 0 , 0 , 0 , 0 , 0 , 2 , 0 , 0 , 0 , 2 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , },
+	{ 1 , 0 , 0 , 1 , 1 , 1 , 1 , 0 , 1 , 1 , 1 , 0 , 1 , 0 , 0 , 1 , 1 , 0 , 1 , 1 , },
+	{ 1 , 0 , 2 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , },
+	{ 1 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 1 , },
+	{ 1 , 0 , 1 , 0 , 1 , 0 , 1 , 0 , 1 , 0 , 1 , 0 , 1 , 0 , 1 , 0 , 1 , 0 , 1 , 1 , },
+	{ 1 , 0 , 0 , 1 , 0 , 1 , 1 , 0 , 0 , 1 , 1 , 0 , 1 , 0 , 0 , 1 , 0 , 0 , 1 , 1 , },
+	{ 1 , 0 , 2 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 2 , 0 , 0 , 2 , 0 , 1 , },
+	{ 1 , 0 , 0 , 0 , 1 , 1 , 0 , 0 , 1 , 0 , 1 , 0 , 1 , 0 , 0 , 1 , 1 , 0 , 0 , 1 , },
+	{ 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , },
+	};
+
+
+	GLvoid draw();
 };
 
 #endif /* OBJ_H_ */

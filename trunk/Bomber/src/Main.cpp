@@ -12,170 +12,9 @@
 #include <vector>
 #include <SOIL/SOIL.h>
 
-std::vector<Obj3D*> *objs = new std::vector<Obj3D*>();
-
+World *world;
 Camera * cam = new Camera();
 Luz *luz = new Luz();
-Textura * grama;
-Textura * parede;
-
-#define PAREDE 1
-#define CHAO 2
-#define SAIDA 9
-
-//  ###########################################
-
-int labirinto[45][45] = {
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-		0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
-		0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-		0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-		0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0,
-		0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-		0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-		0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0,
-		0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-		0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-		0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0,
-		0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-		0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-		0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0,
-		0, 1, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-		0, 1, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-		0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0,
-		0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-		0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-		0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0,
-		0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-		0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-		0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0,
-		0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-		0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-		0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0,
-		0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-		0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-		0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0,
-		0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-		0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-		0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0,
-		0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-		0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-		0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0,
-		0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-		0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-		0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0,
-		0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-		0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-		0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0,
-		0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-		0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-		0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-};
-
-GLvoid drawScene() {
-
-	// Draw ground
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, grama->texture_id);
-	glColor3f(1.0f, 1.0f, 1.0f);
-	glBegin(GL_QUADS);
-		glTexCoord2f(1.0f, 0.0f);glVertex3f(-50.0f, 0.0f, -50.0f);
-		glTexCoord2f(1.0f, 1.0f);glVertex3f(-50.0f, 0.0f, 50.0f);
-		glTexCoord2f(0.0f, 1.0f);glVertex3f(50.0f, 0.0f, 50.0f);
-		glTexCoord2f(0.0f, 0.0f);glVertex3f(50.0f, 0.0f, -50.0f);
-	glEnd();
-	glDisable(GL_TEXTURE_2D);
-
-	// Draw Walls
-	glColor3f(1.0f, 0.5f, 0.5f);
-	glutSolidCube(90);
-	/**glBegin(GL_QUADS);
-
-		glVertex3f(-50.0f, 0.0f, -50.0f);
-		glVertex3f(-50.0f, 50.0f, -50.0f);
-		glVertex3f(-50.0f, 50.0f, 50.0f);
-		glVertex3f(-50.0f, 0.0f, 50.0f);
-	glEnd();
-
-	glColor3f(1.0f, 1.0f, 0.5f);
-	glBegin(GL_QUADS);
-		glVertex3f(50.0f, 0.0f, -50.0f);
-		glVertex3f(50.0f, 50.0f, -50.0f);
-		glVertex3f(50.0f, 50.0f, 50.0f);
-		glVertex3f(50.0f, 0.0f, 50.0f);
-	glEnd();
-
-	glColor3f(0.4f, 0.5f, 1.0f);
-	glBegin(GL_QUADS);
-		glVertex3f(-50.0f, 0.0f, -50.0f);
-		glVertex3f(-50.0f, 50.0f, -50.0f);
-		glVertex3f(50.0f, 50.0f, -50.0f);
-		glVertex3f(50.0f, 0.0f, -50.0f);
-	glEnd();
-
-	glColor3f(0.4f, 1.0f, 1.0f);
-	glBegin(GL_QUADS);
-
-		glVertex3f(-50.0f, 0.0f, 50.0f);
-		glVertex3f(-50.0f, 50.0f, 50.0f);
-		glVertex3f(50.0f, 50.0f, 50.0f);
-		glVertex3f(50.0f, 0.0f, 50.0f);
-	glEnd();
-	*/
-
-	// ###################################################
-
-	GLUquadricObj *Quadro;    // Novo Quadric Objeto
-
-	    Quadro = gluNewQuadric();  //Cria novo Quadric
-	    gluQuadricNormals(Quadro, GLU_SMOOTH);
-
-	glPushMatrix();
-	float movex = -45.0;
-	float movey = -45.0;
-			for (int linha=0;linha<45;linha++) {
-			    movey = movey + 2.0f;
-			    for (int coluna=0;coluna<45;coluna++) {
-				movex = movex + 2.0f;
-
-				if (labirinto[linha][coluna] == PAREDE) {
-					glEnable(GL_TEXTURE_2D);
-					glBindTexture(GL_TEXTURE_2D, parede->texture_id);
-					glPushMatrix();
-					glColor3f(1.0f, 1.0f, 1.0f);
-					glScalef(1.0f, 3.0f, 1.0f);
-					glTranslatef(movex, 0.0f, movey);
-					glutSolidCube(2.0);
-					glPopMatrix();
-					glDisable(GL_TEXTURE_2D);
-
-				}
-
-				if (labirinto[linha][coluna] == CHAO) {
-					glPushMatrix();
-					glColor3f(1.0f, 1.0f, 1.0f);
-					glTranslatef(movex, 0.0f, movey);
-					glutSolidCube(2.0);
-					glPopMatrix();
-
-				}
-
-	         		if (labirinto[linha][coluna] == SAIDA) {
-					glPushMatrix();
-					glColor3f(1.0f, 1.0f, 0.2f);
-					glScalef(1.0f, 3.0f, 1.0f);
-					glTranslatef(movex, 0.0f, movey);
-					glutSolidCube(1.0);
-					glPopMatrix();
-
-				}
-		    }
-		    movex = -45.0;
-		}
-		movey = -45.0;
-		glPopMatrix();
-}
 
 GLvoid displayHandler() {
 
@@ -184,36 +23,17 @@ GLvoid displayHandler() {
 
 	// Reset transformations
 	glLoadIdentity();
-
 	cam->update();
 
 	// Set the camera
 	cam->draw();
-
 	glLightfv(luz->getLuzId(), GL_POSITION, luz->getPosition());
-
-	drawScene();
-
-	// Draw 36 SnowMen
-	for(unsigned int i = 0; i < objs->size(); i++) {
-		(*objs)[i]->draw();
-	}
-
+	world->draw();
 	glutSwapBuffers();
 }
 
 
-
-GLvoid initCharacters() {
-	for (int i = -4; i < 4; i+=2) {
-			objs->push_back(new Character(i *9.5, 0, i * 9.0));
-	}
-}
-
-
-
 GLvoid Inicializa() {
-
 	glShadeModel(GL_SMOOTH);
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -232,27 +52,10 @@ GLvoid Inicializa() {
 	//todo isso deve ser dos materiais não da luz
 	luz->propriedadesDeMaterias();
 
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-	glPixelStorei (GL_UNPACK_ALIGNMENT, 1 );
-    grama = new Textura("5.png");
-    parede = new Textura("2.png");
-
-		  /*  img = SOIL_load_image("2.png", &img_width, &img_height, NULL, 0);
-
-		    glGenTextures(1, &texture_id2);
-		    glBindTexture(GL_TEXTURE_2D, texture_id2);
-		    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, img_width, img_height, 0, GL_RGB, GL_UNSIGNED_BYTE, img);
-
-		    */
-
-//
-//
-//	textura->add_textura("gramado2.rgb");
-	//textura->load("2.jpg");
-
-	// Especifica que a cor de fundo da janela será preta
-	initCharacters();
+	world = new World();
+	//initCharacters();
 }
 
 /*
@@ -319,7 +122,7 @@ void specialUpHanler(int key, int x, int y) {
  *
  */
 GLvoid keyboardHandler(GLubyte key, GLint x, GLint y) {
-	switch(key){
+	switch (key) {
 	case 'w':
 	case 'W':
 		cam->setDeltaMove(0.5f);
@@ -336,11 +139,11 @@ GLvoid keyboardHandler(GLubyte key, GLint x, GLint y) {
 
 	}
 	glutPostRedisplay();
-	std::cout << " pressed key " << key  << " code " << (int) key << std::endl ;
+	std::cout << " pressed key " << key << " code " << (int) key << std::endl;
 }
 
 void keyboardUpHandler(unsigned char key, int x, int y) {
-	switch(key){
+	switch (key) {
 	case 'w':
 	case 'W':
 	case 's':
@@ -357,7 +160,7 @@ void keyboardUpHandler(unsigned char key, int x, int y) {
  GLUT_LEFT_BUTTON
  GLUT_MIDDLE_BUTTON
  GLUT_RIGHT_BUTTON
-glutKeyboardUpFunc
+ glutKeyboardUpFunc
  state:
  GLUT_DOWN
  GLUT_UP
@@ -427,7 +230,6 @@ GLvoid reshapeHandler(GLint w, GLint h) {
 	glMatrixMode(GL_MODELVIEW);
 }
 
-
 int main(int argc, char *argv[]) {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
@@ -444,7 +246,7 @@ int main(int argc, char *argv[]) {
 	glutPassiveMotionFunc(passiveMotionHandler); //função de movimento passivo, mouse não clicado
 	glutEntryFunc(entryHandler);     //função entrada e saida do mouse da janela
 	glutIdleFunc(displayHandler);                      // função executa em idle
-	glutSpecialUpFunc(specialUpHanler);       // função de teclado teclas especiais solta
+	glutSpecialUpFunc(specialUpHanler); // função de teclado teclas especiais solta
 	// here are the new entries
 	// 0 to enable repeat
 	glutIgnoreKeyRepeat(1);

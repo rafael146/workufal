@@ -47,10 +47,12 @@ GLvoid World::draw() {
 		glDisable(GL_COLOR_MATERIAL);
 		glBindTexture(GL_TEXTURE_2D, fundo->texture_id);
 		glPushMatrix();
-			glTranslatef(20,5,20);
-			glRotatef(-152, 1.0f,  0.0f, 1.0f);
+
+		glTranslatef(20,5,20);
+		glColor3f(1.0, 0.5, 0.2);
+		glRotatef(20, 1.0f,  1.0f, 1.0f);
 			gluSphere(Quadro,30,30,30);
-			glRotatef(85, 0.0f, 1.0f, 0.0f);
+
 
 		glPopMatrix();
 		glDisable(GL_TEXTURE_2D);

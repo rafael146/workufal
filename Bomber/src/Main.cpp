@@ -131,15 +131,8 @@ GLvoid keyboardHandler(GLubyte key, GLint x, GLint y) {
 	case 'S':
 		cam->setDeltaMove(-0.5f);
 		break;
-
-	case 'a':
-	case 'A':
-		cam->setMovimentOrigem(-2);
-		break;
-
 	}
 	glutPostRedisplay();
-	std::cout << " pressed key " << key << " code " << (int) key << std::endl;
 }
 
 void keyboardUpHandler(unsigned char key, int x, int y) {
@@ -234,7 +227,7 @@ int main(int argc, char *argv[]) {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
 	glutInitWindowSize(800, 600);
-	glutCreateWindow("BomberMan");
+	glutCreateWindow("Snow B.Man");
 
 	Inicializa();                                   //Função de Inicialização
 	glutReshapeFunc(reshapeHandler);   //Função de Ajuste de Dimensões da Janela

@@ -22,15 +22,15 @@ World::World() {
 			else matriz[i][j]= 0;
 		}
 	}
+
 	 gluQuadricNormals(Quadro, GLU_SMOOTH);
 	 gluQuadricDrawStyle(Quadro, GLU_FILL);
 	 gluQuadricTexture(Quadro, GL_TRUE);
 	 characters = new vector<Obj3D*>();
-	 characters->push_back(new Character(4,0,4));
-	 characters->push_back(new Character(2.5,0,17.5));
-	 characters->push_back(new Character(17,0,17));
-	 characters->push_back(new Character(17,0,2));
-	 characters->push_back(new Character(17,0,2));
+	 characters->push_back(new Character(6,0,6));
+	 characters->push_back(new Character(6,0,34));
+	 characters->push_back(new Character(34,0,34));
+	 characters->push_back(new Character(34,0,6));
 	 chao = new Textura("imgs/chao.png");
 	 fundo = new Textura("imgs/fundo.png");
 	 parede = new Textura("imgs/parede.png");
@@ -97,7 +97,8 @@ GLvoid World::draw() {
 	glPopMatrix();
 
 	for(unsigned int i = 0; i < characters->size(); i++) {
-		characters->at(i)->draw();
+		Character::draws(characters->at(i)->getX(), characters->at(i)->getZ());
+
 	}
 
 
@@ -162,8 +163,8 @@ Camera::Camera() {
 	angleZ = -1.0f;
 	dAngle = 0.0f;
 	mOrigem = -1;
-	x = 2;
-	z = 2;
+	x = 20;
+	z = 22;
 }
 
 GLvoid Camera::setDeltaAngle(GLfloat angle) {

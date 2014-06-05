@@ -1,7 +1,6 @@
 /* JFlex example: part of Java language lexer specification */
 package analisador.lexico;
 
-import java_cup.runtime.*;
 
 /**
 * This class is a simple example lexer.
@@ -10,19 +9,20 @@ import java_cup.runtime.*;
 %%
 %class Lexer
 %unicode
-%cup
+%type Token
 %line
 %column
+%function nextToken
 
 %{
     StringBuffer string = new StringBuffer();
 
-    private Symbol symbol(int type) {
-        return new Symbol(type, yyline, yycolumn);
+    private Token token(int type) {
+        return new Token(type, yyline, yycolumn);
     }
     
-    private Symbol symbol(int type, Object value) {
-        return new Symbol(type, yyline, yycolumn, value);
+    private Token token(int type, Object value) {
+        return new Token(type, yyline, yycolumn, value);
     }
 %}
 
@@ -44,7 +44,7 @@ DecIntegerLiteral    = 0 | [1-9][0-9]*
 %%
 
 /* keywords */
-<YYINITIAL> "abstract"      { return symbol(sym.ABSTRACT); }
+<YYINITIAL> "abstract"      { return token(sym.ABSTRACT); }
 <YYINITIAL> "boolean"       { return symbol(sym.BOOLEAN); }
 <YYINITIAL> "break"         { return symbol(sym.BREAK); }
 

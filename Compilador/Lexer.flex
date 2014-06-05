@@ -1,7 +1,6 @@
 /* JFlex example: part of Java language lexer specification */
-package analisador.lexico;
+package analisador.lex;
 
-import java_cup.runtime.*;
 
 /**
 * This class is a simple example lexer.
@@ -9,8 +8,8 @@ import java_cup.runtime.*;
 
 %%
 %class Lexer
+%type Token
 %unicode
-%cup
 %line
 %column
 

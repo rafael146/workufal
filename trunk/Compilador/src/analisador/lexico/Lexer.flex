@@ -20,6 +20,19 @@ import analisador.lexico.Token.TokenType;
     private Token token(TokenType type, Object value) {
         return new Token(type, yyline+1, yycolumn+1, value);
     }
+    
+    private long parseLong(int start, int end, int radix) {
+    long result = 0;
+    long digit;
+
+    for (int i = start; i < end; i++) {
+      digit  = Character.digit(yycharat(i),radix);
+      result*= radix;
+      result+= digit;
+    }
+
+    return result;
+  }
 %}
 
 LineTerminator       = \r|\n|\r\n
@@ -123,39 +136,129 @@ SingleCharacter = [^\r\n\'\\]
   /* null */
   "null"                         { return token(TokenType.NULL_LITERAL); }
   
+  /* separadores */
+  "("                            { return token(TokenType.LPAREN); }
+  ")"                            { return token(TokenType.RPAREN); }
+  "{"                            { return token(TokenType.LBRACE); }
+  "}"                            { return token(TokenType.RBRACE); }
+  "["                            { return token(TokenType.LBRACK); }
+  "]"                            { return token(TokenType.RBRACK); }
+  ";"                            { return token(TokenType.SEMICOLON); }
+  ","                            { return token(TokenType.COMMA); }
+  "."                            { return token(TokenType.DOT); }
+  
+  /* operadores */
+  "="                            { return token(TokenType.EQ); }
+  ">"                            { return token(TokenType.GT); }
+  "<"                            { return token(TokenType.LT); }
+  "!"                            { return token(TokenType.NOT); }
+  "~"                            { return token(TokenType.COMP); }
+  "?"                            { return token(TokenType.QUESTION); }
+  ":"                            { return token(TokenType.COLON); }
+  "=="                           { return token(TokenType.EQEQ); }
+  "<="                           { return token(TokenType.LTEQ); }
+  ">="                           { return token(TokenType.GTEQ); }
+  "!="                           { return token(TokenType.NOTEQ); }
+  "&&"                           { return token(TokenType.ANDAND); }
+  "||"                           { return token(TokenType.OROR); }
+  "++"                           { return token(TokenType.PLUSPLUS); }
+  "--"                           { return token(TokenType.MINUSMINUS); }
+  "+"                            { return token(TokenType.PLUS); }
+  "-"                            { return token(TokenType.MINUS); }
+  "*"                            { return token(TokenType.MULT); }
+  "/"                            { return token(TokenType.DIV); }
+  "&"                            { return token(TokenType.AND); }
+  "|"                            { return token(TokenType.OR); }
+  "^"                            { return token(TokenType.XOR); }
+  "%"                            { return token(TokenType.MOD); }
+  "<<"                           { return token(TokenType.LSHIFT); }
+  ">>"                           { return token(TokenType.RSHIFT); }
+  ">>>"                          { return token(TokenType.URSHIFT); }
+  "+="                           { return token(TokenType.PLUSEQ); }
+  "-="                           { return token(TokenType.MINUSEQ); }
+  "*="                           { return token(TokenType.MULTEQ); }
+  "/="                           { return token(TokenType.DIVEQ); }
+  "&="                           { return token(TokenType.ANDEQ); }
+  "|="                           { return token(TokenType.OREQ); }
+  "^="                           { return token(TokenType.XOREQ); }
+  "%="                           { return token(TokenType.MODEQ); }
+  "<<="                          { return token(TokenType.LSHIFTEQ); }
+  ">>="                          { return token(TokenType.RSHIFTEQ); }
+  ">>>="                         { return token(TokenType.URSHIFTEQ); }
+  
+  \"                             { string.setLength(0); yybegin(STRING); }
+  \'                             { yybegin(CHARLITERAL); }
+  
   /* literals */
-  {DecIntegerLiteral}     { return token(TokenType.INTEGER_LITERAL); }
+  
+  "-2147483648"                  { return token(TokenType.INTEGER_LITERAL, new Integer(Integer.MIN_VALUE)); }
+  {DecLongLiteral}               { return token(TokenType.INTEGER_LITERAL, new Long(yytext().substring(0,yylength()-1))); }
+  
+  {HexIntegerLiteral}            { return token(TokenType.INTEGER_LITERAL, new Integer((int) parseLong(2, yylength(), 16))); }
+  {HexLongLiteral}               { return token(TokenType.INTEGER_LITERAL, new Long(parseLong(2, yylength()-1, 16))); }
+ 
+  {OctIntegerLiteral}            { return token(TokenType.INTEGER_LITERAL, new Integer((int) parseLong(0, yylength(), 8))); }  
+  {OctLongLiteral}               { return token(TokenType.INTEGER_LITERAL, new Long(parseLong(0, yylength()-1, 8))); }
+  
+  {FloatLiteral}                 { return token(TokenType.FLOATING_POINT_LITERAL, new Float(yytext().substring(0,yylength()-1))); }
+  {DoubleLiteral}                { return token(TokenType.FLOATING_POINT_LITERAL, new Double(yytext())); }
+  {DoubleLiteral}[dD]            { return token(TokenType.FLOATING_POINT_LITERAL, new Double(yytext().substring(0,yylength()-1))); }
+    
+  /* comentários */
+  {Comment}               { /* ignore */ }
+
+  /* espaço */
+  {WhiteSpace}            { /* ignore */ }
 
   /* identificador */
   {Identifier}            { return token(TokenType.IDENTIFIER); }
-   
-  \"                      { string.setLength(0); yybegin(STRING); }
-
-   /* operadores */
-   "="                     { return token(TokenType.IGUAL); }
-   "=="                    { return token(TokenType.IGUALS); }
-   "+"                     { return token(TokenType.MAIS); }
-    
-    /* comentários */
-    {Comment}               { /* ignore */ }
-
-    /* espaço */
-    {WhiteSpace}            { /* ignore */ }
 }
 
+
 <STRING> {
-    \"                      { yybegin(YYINITIAL);
-                              return token(TokenType.STRING_LITERAL,
-                              string.toString()); }
-    [^\n\r\"\\]+            { string.append( yytext() ); }
-    \\t                     { string.append('\t'); }
-    \\n                     { string.append('\n'); }
-    \\r                     { string.append('\r'); }
-    \\\"                    { string.append('\"'); }
-    \\                      { string.append('\\'); }
+  \"                             { yybegin(YYINITIAL); return token(TokenType.STRING_LITERAL, string.toString()); }
+  
+  {StringCharacter}+             { string.append( yytext() ); }
+  
+  /* escape sequences */
+  "\\b"                          { string.append( '\b' ); }
+  "\\t"                          { string.append( '\t' ); }
+  "\\n"                          { string.append( '\n' ); }
+  "\\f"                          { string.append( '\f' ); }
+  "\\r"                          { string.append( '\r' ); }
+  "\\\""                         { string.append( '\"' ); }
+  "\\'"                          { string.append( '\'' ); }
+  "\\\\"                         { string.append( '\\' ); }
+  \\[0-3]?{OctDigit}?{OctDigit}  { char val = (char) Integer.parseInt(yytext().substring(1),8);
+                                           string.append( val ); }
+  
+  /* error cases */
+  \\.                            { throw new RuntimeException("Illegal escape sequence \""+yytext()+"\""); }
+  {LineTerminator}               { throw new RuntimeException("Unterminated string at end of line"); }
+}
+
+<CHARLITERAL> {
+  {SingleCharacter}\'            { yybegin(YYINITIAL); return token(TokenType.CHARACTER_LITERAL, yytext().charAt(0)); }
+  
+  /* escape sequences */
+  "\\b"\'                        { yybegin(YYINITIAL); return token(TokenType.CHARACTER_LITERAL, '\b');}
+  "\\t"\'                        { yybegin(YYINITIAL); return token(TokenType.CHARACTER_LITERAL, '\t');}
+  "\\n"\'                        { yybegin(YYINITIAL); return token(TokenType.CHARACTER_LITERAL, '\n');}
+  "\\f"\'                        { yybegin(YYINITIAL); return token(TokenType.CHARACTER_LITERAL, '\f');}
+  "\\r"\'                        { yybegin(YYINITIAL); return token(TokenType.CHARACTER_LITERAL, '\r');}
+  "\\\""\'                       { yybegin(YYINITIAL); return token(TokenType.CHARACTER_LITERAL, '\"');}
+  "\\'"\'                        { yybegin(YYINITIAL); return token(TokenType.CHARACTER_LITERAL, '\'');}
+  "\\\\"\'                       { yybegin(YYINITIAL); return token(TokenType.CHARACTER_LITERAL, '\\'); }
+  \\[0-3]?{OctDigit}?{OctDigit}\' { yybegin(YYINITIAL); 
+                                          int val = Integer.parseInt(yytext().substring(1,yylength()-1),8);
+                                        return token(TokenType.CHARACTER_LITERAL, (char)val); }
+  
+  /* error cases */
+  \\.                            { throw new RuntimeException("Illegal escape sequence \""+yytext()+"\""); }
+  {LineTerminator}               { throw new RuntimeException("Unterminated character literal at end of line"); }
 }
 
 /* error fallback */
-[^]                         { throw new Error("Illegal character <"+yytext()+">"); }
-
-<<EOF>>                     { return token(TokenType.EOF); }
+[^]                              { throw new RuntimeException("Illegal character \""+yytext()+
+                                                              "\" at line "+yyline+", column "+yycolumn); }
+<<EOF>>                          { return token(TokenType.EOF); }

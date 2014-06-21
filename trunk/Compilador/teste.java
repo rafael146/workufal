@@ -1,5 +1,3 @@
-public static void main() {
-	int a = 10 + 20;
+
+	float b %= 2;
 	boolean maior = a > 5;
-	
-}

@@ -46,6 +46,7 @@ EndOfLineComment     = "//" {InputCharacter}* {LineTerminator}
 DocumentationComment = "/**" {CommentContent} "*"+ "/"
 CommentContent       = ( [^*] | \*+ [^/*] )*
 Identifier           = [:jletter:] [:jletterdigit:]*
+Annotation           = @ {Identifier}
 
 DecIntegerLiteral    = 0 | [1-9][0-9]*
 DecLongLiteral    = {DecIntegerLiteral} [lL]
@@ -152,6 +153,7 @@ Bitwise    =   "~"|"&"|"|"|"^"|"<<"|">>"|">>>"
   ";"                            { return token(TokenType.PONTO_VIRGULA); }
   ","                            { return token(TokenType.VIRGULA); }
   "."                            { return token(TokenType.PONTO); }
+  "->"							 { return token(TokenType.LAMBDA); }
   
   /* operadores */
   "?"                            { return token(TokenType.INTERROG); }
@@ -192,6 +194,7 @@ Bitwise    =   "~"|"&"|"|"|"^"|"<<"|">>"|">>>"
 
   /* identificador */
   {Identifier}            { return token(TokenType.ID); }
+  {Annotation}			  { return token(TokenType.ANNOTATION); }
 }
 
 

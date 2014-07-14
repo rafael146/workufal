@@ -20,6 +20,7 @@ public class Main {
 					window.frame.setVisible(true);
 					window.frame.setBounds(0,0, 450, 250);
 					window.frame.setResizable(false);
+					float a = 1.0e10f;
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

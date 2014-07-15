@@ -10,7 +10,7 @@ import java.awt.Font;
 import javax.swing.JTextField;
 import javax.swing.JButton;
 
-import analisador.lexico.Parser;
+import analisador.lexico.Scanner;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -57,7 +57,7 @@ public class Content extends JPanel {
 		btnToken.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					Parser p = new Parser(file, toSave);
+					Scanner p = new Scanner(file, toSave);
 					p.parse();
 					msg.setText("Arquivo token gerado!");
 				} catch (IOException e1) {

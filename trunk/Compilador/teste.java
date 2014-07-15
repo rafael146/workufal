@@ -1,4 +1,4 @@
 
 	float b %= 2;
-	@idial
+	@idiale
 	boolean maior = a > 5;

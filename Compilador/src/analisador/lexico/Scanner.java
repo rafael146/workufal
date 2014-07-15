@@ -15,12 +15,12 @@ import analisador.lexico.Token.TokenType;
  * Gerar Código tokenizado
  */
 
-public class Parser {
+public class Scanner {
 	
 	private File file;
 	private File output;
 
-	public Parser(File file, File toSave) {
+	public Scanner(File file, File toSave) {
 		this.file = file;
 		this.output = toSave;
 	}
